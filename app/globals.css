@@ -10,6 +10,65 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-brand: #1457d6;
+  --color-sun: #ffd21f;
+  --color-cream: #fff4de;
+  --color-red: #d42a25;
+  --color-ink: #0b2a6b;
+  --color-paper: #eef2f7;
+  --color-sand: #c9b98f;
+  --color-muted: #7a7f8f;
+
+  --font-display: var(--font-archivo), Impact, sans-serif;
+  --font-mono: var(--font-space-mono), ui-monospace, monospace;
+
+  --shadow-brut: 6px 6px 0 var(--color-ink);
+  --shadow-brut-sm: 4px 4px 0 var(--color-ink);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--color-sun);
+  }
+  body {
+    margin: 0;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+@layer components {
+  .container-lk {
+    @apply mx-auto w-full max-w-[1400px] px-7;
+  }
+  .bg-grid {
+    background-color: var(--color-paper);
+    background-image:
+      linear-gradient(var(--color-brand) 1.5px, transparent 1.5px),
+      linear-gradient(90deg, var(--color-brand) 1.5px, transparent 1.5px);
+    background-size: 140px 140px;
+  }
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 2px var(--color-sun);
+  }
+  .card-brut {
+    @apply rounded-[20px] border-2 border-ink bg-cream p-6 text-ink shadow-brut;
+  }
+  .chip {
+    @apply inline-block rounded-full border-2 border-ink bg-sun px-3 py-1 font-mono text-xs font-bold text-ink;
+  }
+  .btn-brut {
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center rounded-full border-0 px-7 py-[15px] font-display text-sm uppercase transition-opacity hover:opacity-90;
+  }
+}
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
 
 @media (prefers-color-scheme: dark) {
