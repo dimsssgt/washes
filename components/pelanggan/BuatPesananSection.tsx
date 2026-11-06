@@ -8,6 +8,30 @@ import Field from "@/components/ui/Field";
 type LayananTab = "kiloan" | "satuan" | "linen";
 type MetodePengantaran = "antar-jemput" | "drop-mandiri";
 
+interface ItemPriced {
+  id: string;
+  nama: string;
+  hargaReguler: number;
+  hargaExpress: number;
+  unit: string;
+}
+
+const linenItems: ItemPriced[] = [
+  { id: "sprei", nama: "Sprei", hargaReguler: 20000, hargaExpress: 28000, unit: "pcs" },
+  { id: "bed_cover", nama: "Bed cover", hargaReguler: 30000, hargaExpress: 40000, unit: "pcs" },
+  { id: "selimut", nama: "Selimut", hargaReguler: 25000, hargaExpress: 35000, unit: "pcs" },
+  { id: "gorden", nama: "Gorden (per meter)", hargaReguler: 10000, hargaExpress: 15000, unit: "meter" },
+  { id: "bantal", nama: "Bantal / guling", hargaReguler: 15000, hargaExpress: 22000, unit: "pcs" },
+];
+
+const satuanItems: ItemPriced[] = [
+  { id: "kemeja", nama: "Kemeja / blus", hargaReguler: 12000, hargaExpress: 18000, unit: "pcs" },
+  { id: "celana", nama: "Celana / rok", hargaReguler: 12000, hargaExpress: 18000, unit: "pcs" },
+  { id: "jas", nama: "Jas / blazer", hargaReguler: 30000, hargaExpress: 40000, unit: "pcs" },
+  { id: "jaket", nama: "Jaket", hargaReguler: 25000, hargaExpress: 35000, unit: "pcs" },
+  { id: "gaun", nama: "Gaun", hargaReguler: 35000, hargaExpress: 45000, unit: "pcs" },
+];
+
 const tabLabels: Record<LayananTab, string> = {
   kiloan: "Kiloan",
   satuan: "Satuan",
@@ -16,14 +40,18 @@ const tabLabels: Record<LayananTab, string> = {
 
 const tabInfo: Record<LayananTab, string> = {
   kiloan: "Kiloan dihitung per kg, minimal 3 kg. Berat final ditentukan petugas saat penimbangan.",
-  satuan: "Satuan dihitung per item pakaian. Cocok untuk pakaian yang perlu penanganan khusus.",
-  linen: "Untuk selimut, sprei, bantal, dan perlengkapan tidur lainnya.",
+  satuan: "Satuan dihitung per item, tanpa minimal. Isi jumlah tiap jenis pakaian yang ingin dicuci.",
+  linen: "Linen dihitung per item atau per meter, tanpa minimal. Isi jumlah tiap jenis yang ingin dicuci.",
 };
+
+function formatRupiah(n: number) {
+  return "Rp " + n.toLocaleString("id-ID");
+}
 
 export default function BuatPesananSection() {
   const [tab, setTab] = useState<LayananTab>("kiloan");
   const [metode, setMetode] = useState<MetodePengantaran>("antar-jemput");
-  const [kecepatan, setKecepatan] = useState("reguler");
+  const [kecepatan, setKecepatan] = useState<"reguler" | "express">("reguler");
   const [tanggalJemput, setTanggalJemput] = useState("");
   const [jamJemput, setJamJemput] = useState("");
   const [alamat, setAlamat] = useState("");
@@ -33,9 +61,42 @@ export default function BuatPesananSection() {
   const [showTerkirim, setShowTerkirim] = useState(false);
   const [lastOrderCode, setLastOrderCode] = useState("LDY-20261030-018");
 
+  // State kuantitas per item
+  const [itemCounts, setItemCounts] = useState<Record<string, number>>({});
+
+  function updateCount(id: string, delta: number) {
+    setItemCounts((prev) => {
+      const cur = prev[id] || 0;
+      const next = Math.max(0, cur + delta);
+      return { ...prev, [id]: next };
+    });
+  }
+
+  function setCountDirect(id: string, val: string) {
+    const num = parseInt(val, 10);
+    setItemCounts((prev) => ({
+      ...prev,
+      [id]: isNaN(num) || num < 0 ? 0 : num,
+    }));
+  }
+
+  // Hitung total item & total biaya (untuk Linen & Satuan)
+  const currentList = tab === "linen" ? linenItems : tab === "satuan" ? satuanItems : [];
+  const totalItemCount = currentList.reduce((sum, item) => sum + (itemCounts[item.id] || 0), 0);
+  const totalEstimasiHarga = currentList.reduce((sum, item) => {
+    const count = itemCounts[item.id] || 0;
+    const price = kecepatan === "express" ? item.hargaExpress : item.hargaReguler;
+    return sum + count * price;
+  }, 0);
+
   async function handleKirim(e: React.FormEvent) {
     e.preventDefault();
-    // TODO: Validasi dan buka modal konfirmasi
+
+    if ((tab === "linen" || tab === "satuan") && totalItemCount === 0) {
+      alert("Pilih minimal 1 item barang yang ingin dicuci!");
+      return;
+    }
+
     setShowKonfirmasi(true);
   }
 
@@ -71,7 +132,11 @@ export default function BuatPesananSection() {
           {(Object.keys(tabLabels) as LayananTab[]).map((t) => (
             <button
               key={t}
-              onClick={() => setTab(t)}
+              type="button"
+              onClick={() => {
+                setTab(t);
+                setItemCounts({});
+              }}
               style={{
                 display: "inline-block",
                 border: "2px solid #0B2A6B",
@@ -96,6 +161,131 @@ export default function BuatPesananSection() {
           {tabInfo[tab]}
         </p>
 
+        {/* TABEL ITEM (HANYA MUNCUL DI TAB LINEN & SATUAN) */}
+        {(tab === "linen" || tab === "satuan") && (
+          <div
+            style={{
+              marginTop: 16,
+              background: "#fff",
+              border: "2px solid #0B2A6B",
+              borderRadius: 14,
+              padding: 16,
+            }}
+          >
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", minWidth: 460, borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: "left", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 11, textTransform: "uppercase" }}>
+                      Jenis
+                    </th>
+                    <th style={{ textAlign: "left", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 11, textTransform: "uppercase" }}>
+                      Reguler 3 hari
+                    </th>
+                    <th style={{ textAlign: "left", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 11, textTransform: "uppercase" }}>
+                      Express
+                    </th>
+                    <th style={{ textAlign: "center", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 11, textTransform: "uppercase" }}>
+                      Jumlah
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentList.map((item) => {
+                    const count = itemCounts[item.id] || 0;
+                    return (
+                      <tr key={item.id}>
+                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13, fontWeight: 700 }}>
+                          {item.nama}
+                        </td>
+                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13, color: kecepatan === "reguler" ? "#1457D6" : "inherit", fontWeight: kecepatan === "reguler" ? 700 : "normal" }}>
+                          {formatRupiah(item.hargaReguler)}
+                        </td>
+                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13, color: kecepatan === "express" ? "#1457D6" : "inherit", fontWeight: kecepatan === "express" ? 700 : "normal" }}>
+                          {formatRupiah(item.hargaExpress)}
+                        </td>
+                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", textAlign: "center" }}>
+                          <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                            <button
+                              type="button"
+                              onClick={() => updateCount(item.id, -1)}
+                              style={{
+                                width: 30,
+                                height: 30,
+                                borderRadius: 8,
+                                border: "2px solid #0B2A6B",
+                                background: "#FFF4DE",
+                                cursor: "pointer",
+                                fontWeight: 700,
+                                fontFamily: "'Space Mono', monospace",
+                              }}
+                            >
+                              -
+                            </button>
+                            <input
+                              type="number"
+                              min={0}
+                              value={count}
+                              onChange={(e) => setCountDirect(item.id, e.target.value)}
+                              style={{
+                                width: 50,
+                                minHeight: 34,
+                                textAlign: "center",
+                                padding: "4px",
+                                border: "2px solid #0B2A6B",
+                                borderRadius: 8,
+                                fontFamily: "'Space Mono', monospace",
+                                fontSize: 13,
+                                fontWeight: 700,
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => updateCount(item.id, 1)}
+                              style={{
+                                width: 30,
+                                height: 30,
+                                borderRadius: 8,
+                                border: "2px solid #0B2A6B",
+                                background: "#FFD21F",
+                                cursor: "pointer",
+                                fontWeight: 700,
+                                fontFamily: "'Space Mono', monospace",
+                              }}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Total Box */}
+            <div
+              style={{
+                marginTop: 14,
+                padding: "12px 16px",
+                background: "#EEF2F7",
+                borderRadius: 10,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 13,
+                flexWrap: "wrap",
+                gap: 8,
+              }}
+            >
+              <span>Total item: <b>{totalItemCount} barang</b></span>
+              <span>Estimasi biaya: <b style={{ fontSize: 16, color: "#1457D6" }}>{formatRupiah(totalEstimasiHarga)}</b></span>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleKirim} style={{ marginTop: 20 }}>
           <div
             style={{
@@ -109,13 +299,17 @@ export default function BuatPesananSection() {
               <Field label="Kecepatan" id="kecepatan">
                 <select
                   value={kecepatan}
-                  onChange={(e) => setKecepatan(e.target.value)}
+                  onChange={(e) => setKecepatan(e.target.value as "reguler" | "express")}
                 >
                   <option value="reguler">Reguler · 3 hari</option>
-                  <option value="express">Express · 6 jam</option>
+                  <option value="express">Express · {tab === "kiloan" ? "6 jam" : "24 jam"}</option>
                 </select>
               </Field>
-              <Field label="Tanggal jemput" id="tanggalJemput">
+
+              <Field
+                label={metode === "drop-mandiri" ? "Tanggal drop mandiri" : "Tanggal jemput"}
+                id="tanggalJemput"
+              >
                 <input
                   type="date"
                   value={tanggalJemput}
@@ -200,7 +394,7 @@ export default function BuatPesananSection() {
                     borderRadius: 12,
                   }}
                 >
-                  Antar langsung ke outlet kami sesuai tanggal yang dipilih.
+                  Kamu mengantar cucian sendiri ke outlet. Alamat jemput dan jam jemput tidak perlu diisi.
                 </p>
               )}
 
@@ -215,7 +409,12 @@ export default function BuatPesananSection() {
             </div>
           </div>
 
-          <div style={{ marginTop: 20 }}>
+          <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: "#4A5A80" }}>
+              {tab === "kiloan"
+                ? "Berat final ditentukan saat penimbangan petugas."
+                : `Total ${totalItemCount} item: ${formatRupiah(totalEstimasiHarga)}`}
+            </span>
             <Button type="submit" loading={loading}>
               Kirim pesanan
             </Button>
@@ -223,7 +422,7 @@ export default function BuatPesananSection() {
         </form>
       </section>
 
-      {/* TODO: Modal KonfirmasiKirimPesanan */}
+      {/* Modal KonfirmasiKirimPesanan */}
       {showKonfirmasi && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-5"
@@ -240,6 +439,7 @@ export default function BuatPesananSection() {
               maxWidth: 400,
               width: "100%",
               fontFamily: "'Space Mono', monospace",
+              color: "#0B2A6B",
             }}
           >
             <h2
@@ -253,9 +453,16 @@ export default function BuatPesananSection() {
             >
               Konfirmasi kirim pesanan
             </h2>
-            <p style={{ fontSize: 13, marginBottom: 24 }}>
+            <p style={{ fontSize: 13, marginBottom: 16 }}>
               Pastikan detail pesananmu sudah benar. Pesanan yang sudah dikirim akan masuk ke antrian.
             </p>
+
+            <div style={{ background: "#EEF2F7", padding: "12px 14px", borderRadius: 12, marginBottom: 20, fontSize: 13 }}>
+              <div>Layanan: <b>Cuci {tabLabels[tab]} ({kecepatan === "reguler" ? "Reguler" : "Express"})</b></div>
+              {tab !== "kiloan" && <div>Jumlah: <b>{totalItemCount} item ({formatRupiah(totalEstimasiHarga)})</b></div>}
+              <div>Metode: <b>{metode === "antar-jemput" ? "Antar Jemput" : "Drop Mandiri"}</b></div>
+            </div>
+
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
               <Button variant="yellow" size="sm" onClick={() => setShowKonfirmasi(false)}>
                 Cek lagi
@@ -342,7 +549,9 @@ export default function BuatPesananSection() {
             </div>
 
             <p style={{ margin: "0 0 16px", textAlign: "center", fontSize: 13 }}>
-              Pesananmu sudah kami terima. Kurir akan menjemput sesuai jadwal.
+              {metode === "antar-jemput"
+                ? "Pesananmu sudah kami terima. Kurir akan menjemput sesuai jadwal."
+                : "Pesananmu sudah kami catat. Silakan antar cucian ke outlet sesuai tanggal drop."}
             </p>
 
             <div style={{ marginTop: 12 }}>
@@ -355,12 +564,16 @@ export default function BuatPesananSection() {
                 <b style={{ textAlign: "right" }}>{tabLabels[tab]} · {kecepatan === "reguler" ? "Reguler" : "Express"}</b>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
-                <span>Jadwal jemput</span>
-                <b style={{ textAlign: "right" }}>{tanggalJemput || "30 Okt 2026"}, {jamJemput || "10.00"}</b>
+                <span>{metode === "antar-jemput" ? "Jadwal jemput" : "Tanggal drop"}</span>
+                <b style={{ textAlign: "right" }}>
+                  {tanggalJemput || "30 Okt 2026"}{metode === "antar-jemput" ? `, ${jamJemput || "10.00"}` : ""}
+                </b>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
                 <span>Harga</span>
-                <b style={{ textAlign: "right" }}>Dihitung setelah ditimbang</b>
+                <b style={{ textAlign: "right" }}>
+                  {tab === "kiloan" ? "Dihitung setelah ditimbang" : formatRupiah(totalEstimasiHarga)}
+                </b>
               </div>
             </div>
 
