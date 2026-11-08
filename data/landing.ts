@@ -5,7 +5,7 @@ export const SITE = {
   name: "Laundyku",
   whatsapp: "+62 856 4791 6005", // TODO: ganti nomor WhatsApp asli
   address: "Jl. pamularsih Raya,", // TODO: ganti alamat asli
-  orderHref: "#pesan", // TODO: arahkan ke halaman pemesanan
+  orderHref: "#login", // TODO: arahkan ke halaman pemesanan
   statusHref: "#status",
 };
 

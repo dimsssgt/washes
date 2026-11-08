@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { setSessionCookie, displayNameFromIdentifier } from "./session";
 import { loginSchema, type LoginInput } from "./schema";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
@@ -10,6 +12,7 @@ import LupaPasswordModal from "./LupaPasswordModal";
 type FieldErrors = Partial<Record<keyof LoginInput, string>>;
 
 export default function LoginForm() {
+  const router = useRouter();  
   const [values, setValues] = useState<LoginInput>({
     identifier: "",
     password: "",
@@ -53,7 +56,13 @@ export default function LoginForm() {
       // TODO: Hubungkan ke POST /api/auth/login saat backend sudah siap
       await new Promise((r) => setTimeout(r, 1000));
       console.log("Login data:", result.data);
-      // TODO: router.push("/pelanggan") setelah login berhasil
+
+      // Simpan sesi (mock) dan arahkan ke dashboard
+      setSessionCookie(
+        displayNameFromIdentifier(result.data.identifier),
+        !!result.data.rememberMe
+      );
+      router.push("/pelanggan");
     } catch {
       setServerError("Email/WhatsApp atau password salah.");
     } finally {

@@ -14,7 +14,7 @@ export default function Hero() {
               mu
             </span>
           </h1>
-          <p className="my-7 inline-block max-w-[440px] bg-paper p-2 text-sm leading-relaxed">
+          <p className="my-7 inline-block max-w-[440px] bg-paper p-2 text-ink text-sm leading-relaxed">
             Jemput cuciannya, cuci bersih, antar kembali wangi dan rapi. Satu
             mesin untuk satu pelanggan, tanpa dicampur.
           </p>
