@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Modal, { Konfirmasi } from "./Modal";
 import { FormHarga, FormLayanan, FormPengguna } from "./FormAdmin";
-import { TrashIcon } from "./Icons";
 import { formatRupiah } from "@/lib/admin/rekap";
+import { TrashIcon } from "./Icons";
 import type { Harga, Layanan, Pengguna } from "@/lib/admin/types";
 
 type Popup =
@@ -49,11 +49,9 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
     reguler: number,
     oneDay: number | null,
     express: number | null,
-    quick: number | null
+    quick: number | null,
   ) {
-    setHarga((hs) =>
-      hs.map((h) => (h.id === id ? { ...h, reguler, oneDay, express, quick } : h))
-    );
+    setHarga((hs) => hs.map((h) => (h.id === id ? { ...h, reguler, oneDay, express, quick } : h)));
     tutup();
   }
 
@@ -61,11 +59,6 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
     setPengguna((ps) =>
       id ? ps.map((p) => (p.id === id ? { ...p, ...data } : p)) : [...ps, { id: idBaru("U"), ...data }],
     );
-    tutup();
-  }
-
-  function ubahAktifPengguna(id: string, aktif: boolean) {
-    setPengguna((ps) => ps.map((p) => (p.id === id ? { ...p, aktif } : p)));
     tutup();
   }
 
@@ -92,7 +85,6 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
                 <th>Deskripsi</th>
                 <th>Status</th>
                 <th>Aksi</th>
-                <th aria-label="Hapus" style={{ width: 60 }} />
               </tr>
             </thead>
             <tbody>
@@ -104,20 +96,20 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
                     <span className={`ad-chip ${l.aktif ? "g" : "r"}`}>{l.aktif ? "Aktif" : "Nonaktif"}</span>
                   </td>
                   <td>
-                    <button className="ad-btn y s" onClick={() => setPopup({ jenis: "layanan", data: l })}>
-                      Edit
-                    </button>
-                  </td>
-                  <td style={{ width: 60 }}>
-                    <button
-                      type="button"
-                      className="ad-btn r icon"
-                      onClick={() => setPopup({ jenis: "hapusLayanan", data: l })}
-                      title="Hapus layanan"
-                      aria-label="Hapus layanan"
-                    >
-                      <TrashIcon />
-                    </button>
+                    <div className="ad-baris-aksi">
+                      <button className="ad-btn y s" onClick={() => setPopup({ jenis: "layanan", data: l })}>
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="ad-btn r icon ad-aksi-hapus"
+                        onClick={() => setPopup({ jenis: "hapusLayanan", data: l })}
+                        title="Hapus layanan"
+                        aria-label={`Hapus layanan ${l.nama}`}
+                      >
+                        <TrashIcon />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -152,12 +144,12 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
                   <td>{h.layanan}</td>
                   <td>{h.satuan}</td>
                   <td>{formatRupiah(h.reguler)}</td>
-                  <td>{h.oneDay === null || h.oneDay === undefined ? "-" : formatRupiah(h.oneDay)}</td>
+                  <td>{h.oneDay === null ? "-" : formatRupiah(h.oneDay)}</td>
                   <td>{h.express === null ? "-" : formatRupiah(h.express)}</td>
-                  <td>{h.quick === null || h.quick === undefined ? "-" : formatRupiah(h.quick)}</td>
+                  <td>{h.quick === null ? "-" : formatRupiah(h.quick)}</td>
                   <td>
                     <button className="ad-btn y s" onClick={() => setPopup({ jenis: "harga", data: h })}>
-                      Edit
+                      Ubah
                     </button>
                   </td>
                 </tr>
@@ -198,21 +190,12 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
                       <button className="ad-btn y s" onClick={() => setPopup({ jenis: "pengguna", data: p })}>
                         Edit
                       </button>
-                      {p.aktif ? (
-                        <button className="ad-btn s" onClick={() => setPopup({ jenis: "nonaktifkan", data: p })}>
-                          Nonaktifkan
-                        </button>
-                      ) : (
-                        <button className="ad-btn s" onClick={() => ubahAktifPengguna(p.id, true)}>
-                          Aktifkan
-                        </button>
-                      )}
                       <button
                         type="button"
-                        className="ad-btn r icon"
+                        className="ad-btn r icon ad-aksi-hapus"
                         onClick={() => setPopup({ jenis: "hapusPengguna", data: p })}
                         title="Hapus pengguna"
-                        aria-label="Hapus pengguna"
+                        aria-label={`Hapus pengguna ${p.nama}`}
                       >
                         <TrashIcon />
                       </button>
@@ -264,16 +247,6 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
         <Modal judul={popup.data ? "Ubah pengguna" : "Tambah pengguna"} onTutup={tutup}>
           <FormPengguna awal={popup.data} onSimpan={(d) => simpanPengguna(d, popup.data?.id)} onBatal={tutup} />
         </Modal>
-      )}
-
-      {popup?.jenis === "nonaktifkan" && (
-        <Konfirmasi
-          judul="Nonaktifkan pengguna?"
-          pesan={`${popup.data.nama} tidak bisa masuk sampai diaktifkan kembali.`}
-          label="Nonaktifkan"
-          onYa={() => ubahAktifPengguna(popup.data.id, false)}
-          onBatal={tutup}
-        />
       )}
 
       {popup?.jenis === "hapusPengguna" && (

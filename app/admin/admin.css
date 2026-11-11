@@ -298,3 +298,6 @@
   .admin .ad-main { padding: 24px 20px; }
   .admin .ad-pop { padding: 22px; }
 }
+
+.admin .ad-baris-aksi .ad-aksi-hapus { margin-left: auto; }
+.admin th:last-child, .admin td:last-child { text-align: right; }

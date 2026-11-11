@@ -29,7 +29,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    background-color: var(--color-sun);
+    background-color: var(--color-paper);
   }
   body {
     margin: 0;
