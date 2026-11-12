@@ -1,0 +1,23 @@
+/* Gaya tambahan halaman Pengerjaan (chip status dan pesan). */
+.petugas .chip {
+  display: inline-block;
+  border: 2px solid var(--k);
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--c);
+  white-space: nowrap;
+}
+.petugas .chip.y { background: var(--y); }
+.petugas .chip.b { background: var(--b); color: #fff; }
+.petugas .chip.g { background: #12805c; color: #fff; }
+.petugas .chip.r { background: var(--r); color: #fff; }
+.petugas .pt-pesan {
+  background: #12805c;
+  color: #fff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+}
+.petugas .pt-btn-lebar { width: 100%; }

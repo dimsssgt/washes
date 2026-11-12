@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
+import PengerjaanPetugas from "@/components/petugas/PengerjaanPetugas";
+import { pesananKerjaTiruan } from "@/lib/petugas/pengerjaan-tiruan";
+import "./pengerjaan.css";
 
-export const metadata: Metadata = { title: "Pengerjaan Petugas — Laundyku" };
+export const metadata: Metadata = { title: "Pengerjaan — Laundyku" };
 
-// Halaman sementara supaya menu sidebar tidak 404. Akan diganti pada pekerjaan berikutnya.
 export default function HalamanPengerjaan() {
-  return (
-    <>
-      <h1 className="pt-d" style={{ fontSize: 40, color: "var(--b)" }}>Pengerjaan</h1>
-      <p className="pt-hint">Halaman ini dikerjakan setelah dashboard selesai.</p>
-    </>
-  );
+  // TODO: ganti data tiruan dengan data dari Supabase.
+  return <PengerjaanPetugas awal={pesananKerjaTiruan} />;
 }
