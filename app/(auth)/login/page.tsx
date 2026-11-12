@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Masuk — Laundyku" };
 export default function LoginPage() {
   return (
     <main
-      style={{ fontFamily: "'Space Mono', monospace", color: "#0B2A6B", minHeight: "100vh", background: "#EEF2F7" }}
+      style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", color: "#0B2A6B", minHeight: "100vh", background: "#EEF2F7" }}
     >
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", minHeight: "100vh" }}>
 
