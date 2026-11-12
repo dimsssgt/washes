@@ -297,144 +297,139 @@ export default function BuatPesananSection() {
         )}
 
         <form onSubmit={handleKirim} style={{ marginTop: 20 }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "0 28px",
-            }}
-          >
-            {/* Kolom kiri */}
-            <div>
-              <Field label="Kecepatan" id="kecepatan">
-                <select
-                  value={kecepatan}
-                  onChange={(e) => setKecepatan(e.target.value as "reguler" | "one-day" | "express" | "quick")}
-                >
-                  {tab === "kiloan" ? (
-                    <>
-                      <option value="reguler">Reguler · 3 hari</option>
-                      <option value="one-day">One Day · 24 jam</option>
-                      <option value="express">Express · 6 jam</option>
-                      <option value="quick">Quick · 3 jam</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="reguler">Reguler · 3 hari</option>
-                      <option value="express">Express · 24 jam</option>
-                    </>
-                  )}
-                </select>
-              </Field>
-
-              <Field
-                label={metode === "drop-mandiri" ? "Tanggal drop mandiri" : "Tanggal jemput"}
-                id="tanggalJemput"
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {/* Kecepatan */}
+            <Field label="Kecepatan" id="kecepatan">
+              <select
+                value={kecepatan}
+                onChange={(e) => setKecepatan(e.target.value as "reguler" | "one-day" | "express" | "quick")}
               >
+                {tab === "kiloan" ? (
+                  <>
+                    <option value="reguler">Reguler · 3 hari</option>
+                    <option value="one-day">One Day · 24 jam</option>
+                    <option value="express">Express · 6 jam</option>
+                    <option value="quick">Quick · 3 jam</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="reguler">Reguler · 3 hari</option>
+                    <option value="express">Express · 24 jam</option>
+                  </>
+                )}
+              </select>
+            </Field>
+
+            {/* Tanggal Jemput */}
+            <Field
+              label={metode === "drop-mandiri" ? "Tanggal drop mandiri" : "Tanggal jemput"}
+              id="tanggalJemput"
+            >
+              <input
+                type="date"
+                value={tanggalJemput}
+                onChange={(e) => setTanggalJemput(e.target.value)}
+                min={new Date().toISOString().split("T")[0]}
+              />
+            </Field>
+
+            {/* Jam Jemput (hanya jika antar jemput) */}
+            {metode === "antar-jemput" && (
+              <Field label="Jam jemput" id="jamJemput">
                 <input
-                  type="date"
-                  value={tanggalJemput}
-                  onChange={(e) => setTanggalJemput(e.target.value)}
-                  min={new Date().toISOString().split("T")[0]}
+                  type="time"
+                  value={jamJemput}
+                  onChange={(e) => setJamJemput(e.target.value)}
                 />
               </Field>
+            )}
+
+            {/* Metode Pengantaran */}
+            <div style={{ marginTop: 14 }}>
+              <label
+                style={{
+                  display: "block",
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  color: "#0B2A6B",
+                  marginBottom: 6,
+                }}
+              >
+                Metode pengantaran
+              </label>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {(["antar-jemput", "drop-mandiri"] as MetodePengantaran[]).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMetode(m)}
+                    style={{
+                      display: "inline-block",
+                      border: "2px solid #0B2A6B",
+                      borderRadius: 999,
+                      padding: "8px 16px",
+                      fontFamily: "'Space Mono', monospace",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      whiteSpace: "nowrap",
+                      cursor: "pointer",
+                      background: metode === m ? "#1457D6" : "#fff",
+                      color: metode === m ? "#fff" : "#0B2A6B",
+                      transition: "background 0.15s, color 0.15s",
+                    }}
+                  >
+                    {m === "antar-jemput" ? "Antar jemput" : "Drop mandiri"}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Kolom kanan */}
-            <div>
-              {/* Metode pengantaran */}
-              <div style={{ marginTop: 14, marginBottom: 6 }}>
-                <label
-                  style={{
-                    display: "block",
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    color: "#0B2A6B",
-                  }}
-                >
-                  Metode pengantaran
-                </label>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 6 }}>
-                  {(["antar-jemput", "drop-mandiri"] as MetodePengantaran[]).map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setMetode(m)}
-                      style={{
-                        display: "inline-block",
-                        border: "2px solid #0B2A6B",
-                        borderRadius: 999,
-                        padding: "8px 16px",
-                        fontFamily: "'Space Mono', monospace",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        whiteSpace: "nowrap",
-                        cursor: "pointer",
-                        background: metode === m ? "#1457D6" : "#FFF4DE",
-                        color: metode === m ? "#fff" : "#0B2A6B",
-                        transition: "background 0.15s, color 0.15s",
-                      }}
-                    >
-                      {m === "antar-jemput" ? "Antar jemput" : "Drop mandiri"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {metode === "antar-jemput" && (
-                <>
-                  <Field label="Jam jemput" id="jamJemput">
-                    <input
-                      type="time"
-                      value={jamJemput}
-                      onChange={(e) => setJamJemput(e.target.value)}
-                    />
-                  </Field>
-                  <Field label="Alamat jemput" id="alamat">
-                    <textarea
-                      rows={3}
-                      value={alamat}
-                      onChange={(e) => setAlamat(e.target.value)}
-                      placeholder="Jl. ..."
-                    />
-                  </Field>
-                </>
-              )}
-
-              {metode === "drop-mandiri" && (
-                <p
-                  style={{
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: 12,
-                    marginTop: 12,
-                    padding: "12px 16px",
-                    background: "#FFF4DE",
-                    border: "2px dashed #0B2A6B",
-                    borderRadius: 12,
-                  }}
-                >
-                  Kamu mengantar cucian sendiri ke outlet. Alamat jemput dan jam jemput tidak perlu diisi.
-                </p>
-              )}
-
-              <Field label="Catatan (opsional)" id="catatan">
+            {/* Alamat Jemput (hanya jika antar jemput) */}
+            {metode === "antar-jemput" && (
+              <Field label="Alamat jemput" id="alamat">
                 <textarea
                   rows={3}
-                  value={catatan}
-                  onChange={(e) => setCatatan(e.target.value)}
-                  placeholder="Cth: tanpa parfum"
+                  value={alamat}
+                  onChange={(e) => setAlamat(e.target.value)}
+                  placeholder="Jl. ..."
                 />
               </Field>
-            </div>
+            )}
+
+            {metode === "drop-mandiri" && (
+              <p
+                style={{
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize: 12,
+                  marginTop: 14,
+                  padding: "12px 16px",
+                  background: "#FFF4DE",
+                  border: "2px dashed #0B2A6B",
+                  borderRadius: 12,
+                }}
+              >
+                Kamu mengantar cucian sendiri ke outlet. Alamat dan jam jemput tidak perlu diisi.
+              </p>
+            )}
+
+            {/* Catatan */}
+            <Field label="Catatan (opsional)" id="catatan">
+              <textarea
+                rows={3}
+                value={catatan}
+                onChange={(e) => setCatatan(e.target.value)}
+                placeholder="Cth: tanpa parfum"
+              />
+            </Field>
           </div>
 
           <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: "#4A5A80" }}>
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: "#0B2A6B" }}>
               {tab === "kiloan"
-                ? "Berat final ditentukan saat penimbangan petugas."
-                : `Total ${totalItemCount} item: ${formatRupiah(totalEstimasiHarga)}`}
+                ? "Total dihitung otomatis setelah penimbangan berat cucian."
+                : "Total dihitung otomatis dari jumlah item."}
             </span>
             <Button type="submit" loading={loading}>
               Kirim pesanan
