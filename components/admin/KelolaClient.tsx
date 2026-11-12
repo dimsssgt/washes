@@ -4,14 +4,16 @@ import { useState } from "react";
 import Modal, { Konfirmasi } from "./Modal";
 import { FormHarga, FormLayanan, FormPengguna } from "./FormAdmin";
 import { formatRupiah } from "@/lib/admin/rekap";
-import { TrashIcon } from "./Icons";
+import { TrashIcon, EyeIcon, EditIcon } from "./Icons";
 import type { Harga, Layanan, Pengguna } from "@/lib/admin/types";
 
 type Popup =
   | { jenis: "layanan"; data: Layanan | null }
+  | { jenis: "lihatLayanan"; data: Layanan }
   | { jenis: "hapusLayanan"; data: Layanan }
   | { jenis: "harga"; data: Harga }
   | { jenis: "pengguna"; data: Pengguna | null }
+  | { jenis: "lihatPengguna"; data: Pengguna }
   | { jenis: "nonaktifkan"; data: Pengguna }
   | { jenis: "hapusPengguna"; data: Pengguna };
 
@@ -96,18 +98,34 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
                     <span className={`ad-chip ${l.aktif ? "g" : "r"}`}>{l.aktif ? "Aktif" : "Nonaktif"}</span>
                   </td>
                   <td>
-                    <div className="ad-baris-aksi">
-                      <button className="ad-btn y s" onClick={() => setPopup({ jenis: "layanan", data: l })}>
-                        Edit
+                    <div className="ad-baris-aksi" style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      <button
+                        type="button"
+                        className="ad-btn s"
+                        style={{ padding: "6px 12px", fontSize: 12, background: "#1457D6", color: "#fff", display: "inline-flex", gap: 4, alignItems: "center" }}
+                        onClick={() => setPopup({ jenis: "lihatLayanan", data: l })}
+                        title="Lihat detail layanan"
+                      >
+                        <EyeIcon size={14} /> Baca
+                      </button>
+                      <button
+                        type="button"
+                        className="ad-btn y s"
+                        style={{ padding: "6px 12px", fontSize: 12, display: "inline-flex", gap: 4, alignItems: "center" }}
+                        onClick={() => setPopup({ jenis: "layanan", data: l })}
+                        title="Edit layanan"
+                      >
+                        <EditIcon size={14} /> Edit
                       </button>
                       <button
                         type="button"
                         className="ad-btn r icon ad-aksi-hapus"
+                        style={{ width: 34, height: 34, padding: 0 }}
                         onClick={() => setPopup({ jenis: "hapusLayanan", data: l })}
                         title="Hapus layanan"
                         aria-label={`Hapus layanan ${l.nama}`}
                       >
-                        <TrashIcon />
+                        <TrashIcon size={14} />
                       </button>
                     </div>
                   </td>
@@ -186,18 +204,34 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
                     <span className={`ad-chip ${p.aktif ? "g" : "r"}`}>{p.aktif ? "Aktif" : "Nonaktif"}</span>
                   </td>
                   <td>
-                    <div className="ad-baris-aksi">
-                      <button className="ad-btn y s" onClick={() => setPopup({ jenis: "pengguna", data: p })}>
-                        Edit
+                    <div className="ad-baris-aksi" style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      <button
+                        type="button"
+                        className="ad-btn s"
+                        style={{ padding: "6px 12px", fontSize: 12, background: "#1457D6", color: "#fff", display: "inline-flex", gap: 4, alignItems: "center" }}
+                        onClick={() => setPopup({ jenis: "lihatPengguna", data: p })}
+                        title="Lihat detail pengguna"
+                      >
+                        <EyeIcon size={14} /> Baca
+                      </button>
+                      <button
+                        type="button"
+                        className="ad-btn y s"
+                        style={{ padding: "6px 12px", fontSize: 12, display: "inline-flex", gap: 4, alignItems: "center" }}
+                        onClick={() => setPopup({ jenis: "pengguna", data: p })}
+                        title="Edit pengguna"
+                      >
+                        <EditIcon size={14} /> Edit
                       </button>
                       <button
                         type="button"
                         className="ad-btn r icon ad-aksi-hapus"
+                        style={{ width: 34, height: 34, padding: 0 }}
                         onClick={() => setPopup({ jenis: "hapusPengguna", data: p })}
                         title="Hapus pengguna"
                         aria-label={`Hapus pengguna ${p.nama}`}
                       >
-                        <TrashIcon />
+                        <TrashIcon size={14} />
                       </button>
                     </div>
                   </td>
@@ -218,6 +252,30 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
       {popup?.jenis === "layanan" && (
         <Modal judul={popup.data ? "Ubah layanan" : "Tambah layanan"} onTutup={tutup}>
           <FormLayanan awal={popup.data} onSimpan={(d) => simpanLayanan(d, popup.data?.id)} onBatal={tutup} />
+        </Modal>
+      )}
+
+      {popup?.jenis === "lihatLayanan" && (
+        <Modal judul={`Detail Layanan: ${popup.data.nama}`} onTutup={tutup}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div>
+              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>NAMA LAYANAN</div>
+              <div style={{ fontSize: 16, fontWeight: 700, marginTop: 2 }}>{popup.data.nama}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>DESKRIPSI</div>
+              <div style={{ fontSize: 14, marginTop: 2 }}>{popup.data.deskripsi || "Tidak ada deskripsi tambahan."}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>STATUS</div>
+              <span className={`ad-chip ${popup.data.aktif ? "g" : "r"}`} style={{ marginTop: 4 }}>
+                {popup.data.aktif ? "Aktif" : "Nonaktif"}
+              </span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+              <button className="ad-btn y s" onClick={tutup}>Tutup</button>
+            </div>
+          </div>
         </Modal>
       )}
 
@@ -246,6 +304,36 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
       {popup?.jenis === "pengguna" && (
         <Modal judul={popup.data ? "Ubah pengguna" : "Tambah pengguna"} onTutup={tutup}>
           <FormPengguna awal={popup.data} onSimpan={(d) => simpanPengguna(d, popup.data?.id)} onBatal={tutup} />
+        </Modal>
+      )}
+
+      {popup?.jenis === "lihatPengguna" && (
+        <Modal judul={`Detail Pengguna: ${popup.data.nama}`} onTutup={tutup}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div>
+              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>NAMA</div>
+              <div style={{ fontSize: 16, fontWeight: 700, marginTop: 2 }}>{popup.data.nama}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>EMAIL</div>
+              <div style={{ fontSize: 14, marginTop: 2 }}>{popup.data.email}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>PERAN</div>
+              <span className={`ad-chip ${popup.data.peran === "Admin" ? "b" : popup.data.peran === "Petugas" ? "y" : ""}`} style={{ marginTop: 4 }}>
+                {popup.data.peran}
+              </span>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>STATUS AKUN</div>
+              <span className={`ad-chip ${popup.data.aktif ? "g" : "r"}`} style={{ marginTop: 4 }}>
+                {popup.data.aktif ? "Aktif" : "Nonaktif"}
+              </span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+              <button className="ad-btn y s" onClick={tutup}>Tutup</button>
+            </div>
+          </div>
         </Modal>
       )}
 
