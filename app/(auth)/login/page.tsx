@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import LoginForm from "@/feat/auth/LoginForm";
 
 export const metadata: Metadata = { title: "Masuk — Laundyku" };
@@ -40,21 +41,24 @@ export default function LoginPage() {
               Masuk untuk memesan, memantau cucian, atau mengelola layanan laundry.
             </p>
           </div>
-          {/* Placeholder gambar hero */}
+          {/* Gambar hero */}
           <div
             style={{
+              position: "relative",
               height: 280,
               border: "3px solid #0B2A6B",
               borderRadius: 24,
+              overflow: "hidden",
               background: "#0d44b0",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
             }}
           >
-            <span style={{ color: "#FFD21F", fontFamily: "'Archivo Black', sans-serif", textTransform: "uppercase" }}>
-              Ilustrasi Laundry
-            </span>
+            <Image
+              src="/hero-laundry.webp"
+              alt="Ilustrasi Laundry"
+              fill
+              style={{ objectFit: "cover" }}
+              priority
+            />
           </div>
         </div>
 
