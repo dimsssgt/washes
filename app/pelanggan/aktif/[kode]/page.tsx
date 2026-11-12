@@ -5,8 +5,6 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 import {
   dummyPesanan,
-  StatusChip,
-  BayarChip,
   formatRupiah,
   ModalQRIS,
   PesananAktif,
@@ -28,25 +26,33 @@ export default function DetailPesananPage({
     dummyPesanan[0];
 
   return (
-    <>
-      {/* Tombol kembali & judul */}
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      {/* Link Kembali */}
       <div>
         <Link
           href="/pelanggan/aktif"
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
             fontFamily: "'Space Mono', monospace",
-            fontSize: 13,
             fontWeight: 700,
-            color: "#1457D6",
-            textDecoration: "none",
-            marginBottom: 16,
+            fontSize: 13,
+            color: "#0B2A6B",
+            textDecoration: "underline",
           }}
         >
-          ← Kembali ke daftar pesanan aktif
+          ← Kembali ke pesanan aktif
         </Link>
+      </div>
+
+      {/* Header Judul & Status Chip */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 16,
+          flexWrap: "wrap",
+        }}
+      >
         <h1
           style={{
             fontFamily: "'Archivo Black', Impact, sans-serif",
@@ -54,214 +60,437 @@ export default function DetailPesananPage({
             letterSpacing: "-0.01em",
             lineHeight: 1,
             margin: 0,
-            fontSize: 36,
+            fontSize: 40,
             color: "#1457D6",
           }}
         >
-          Detail pesanan
+          Pesanan {pesanan.kode}
         </h1>
-      </div>
-
-      {/* Kontainer utama Detail Pesanan */}
-      <div
-        style={{
-          background: "#fff",
-          border: "2px solid #0B2A6B",
-          borderRadius: 18,
-          boxShadow: "5px 5px 0 #0B2A6B",
-          padding: 32,
-          color: "#0B2A6B",
-          maxWidth: 720,
-        }}
-      >
-        {/* Header pesanan */}
-        <div
+        <span
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 12,
-            borderBottom: "2px solid #0B2A6B",
-            paddingBottom: 16,
+            display: "inline-block",
+            border: "2px solid #0B2A6B",
+            borderRadius: 999,
+            padding: "8px 18px",
+            fontFamily: "'Space Mono', monospace",
+            fontSize: 12,
+            fontWeight: 700,
+            whiteSpace: "nowrap",
+            background: "#1457D6",
+            color: "#fff",
           }}
         >
-          <div>
-            <span
-              style={{
-                fontFamily: "'Archivo Black', Impact, sans-serif",
-                textTransform: "uppercase",
-                fontSize: 22,
-                color: "#0B2A6B",
-              }}
-            >
-              {pesanan.kode}
-            </span>
-            <div style={{ fontSize: 13, color: "#4A5A80", marginTop: 4 }}>
-              {pesanan.layanan} · {pesanan.kecepatan} · {pesanan.estimasi}
-            </div>
-          </div>
-          <StatusChip status={pesanan.status} />
-        </div>
+          Sedang dicuci
+        </span>
+      </div>
 
-        {/* Section: Status Pengerjaan (Timeline 7 Tahap) */}
-        <div style={{ marginTop: 24 }}>
+      {/* Grid 2 Kolom: Status Pengerjaan & Tagihan/Invoice */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+          gap: 28,
+        }}
+      >
+        {/* Card 1: Status pengerjaan */}
+        <section
+          id="status"
+          style={{
+            background: "#fff",
+            border: "2px solid #0B2A6B",
+            borderRadius: 18,
+            boxShadow: "5px 5px 0 #0B2A6B",
+            padding: 28,
+            color: "#0B2A6B",
+          }}
+        >
           <h2
             style={{
               fontFamily: "'Archivo Black', Impact, sans-serif",
               textTransform: "uppercase",
-              fontSize: 18,
+              fontSize: 24,
               color: "#1457D6",
-              margin: "0 0 16px",
+              marginBottom: 16,
             }}
           >
             Status pengerjaan
           </h2>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {pesanan.riwayatStatus.map((item) => (
-              <div
-                key={item.label}
-                style={{
-                  display: "flex",
-                  gap: 14,
-                  alignItems: "center",
-                  background: item.aktif ? "#FFF4DE" : "transparent",
-                  padding: item.aktif ? "8px 12px" : "4px 0",
-                  borderRadius: 10,
-                }}
-              >
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 32,
-                    height: 32,
-                    borderRadius: 999,
-                    border: "2px solid #0B2A6B",
-                    fontWeight: 700,
-                    fontSize: 14,
-                    flexShrink: 0,
-                    background: item.selesai ? "#12805C" : item.aktif ? "#1457D6" : "#fff",
-                    color: item.selesai || item.aktif ? "#fff" : "#0B2A6B",
-                  }}
-                >
-                  {item.selesai ? "✔" : item.aktif ? "●" : "○"}
-                </span>
-                <div>
-                  <b style={{ fontSize: 14 }}>{item.label}</b>
-                  <div style={{ fontSize: 12, color: "#4A5A80" }}>{item.waktu ?? "—"}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            {pesanan.riwayatStatus.map((item) => {
+              const bg = item.selesai ? "#12805C" : item.aktif ? "#1457D6" : "#FFF4DE";
+              const color = item.selesai || item.aktif ? "#fff" : "#0B2A6B";
+              const icon = item.selesai ? "✔" : item.aktif ? "●" : "○";
 
-        {/* Section: Tagihan / Invoice */}
-        <div
+              return (
+                <div key={item.label} style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                  <span
+                    style={{
+                      width: 34,
+                      height: 34,
+                      padding: 0,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "2px solid #0B2A6B",
+                      borderRadius: 999,
+                      fontFamily: "'Space Mono', monospace",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      background: bg,
+                      color: color,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {icon}
+                  </span>
+                  <div>
+                    <b style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: "#0B2A6B" }}>
+                      {item.label}
+                    </b>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: "#4A5A80" }}>
+                      {item.waktu ?? "-"}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, margin: "20px 0 0", color: "#0B2A6B" }}>
+            Estimasi selesai: 30 Okt 2026
+          </p>
+        </section>
+
+        {/* Card 2: Tagihan / Invoice */}
+        <section
+          id="invoice"
           style={{
-            marginTop: 28,
-            paddingTop: 24,
-            borderTop: "2px dashed #C9B98F",
+            background: "#fff",
+            border: "2px solid #0B2A6B",
+            borderRadius: 18,
+            boxShadow: "5px 5px 0 #0B2A6B",
+            padding: 28,
+            color: "#0B2A6B",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
           }}
         >
-          <h2
+          <div>
+            <h2
+              style={{
+                fontFamily: "'Archivo Black', Impact, sans-serif",
+                textTransform: "uppercase",
+                fontSize: 24,
+                color: "#1457D6",
+                marginBottom: 16,
+              }}
+            >
+              Tagihan / Invoice
+            </h2>
+
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, marginBottom: 12, color: "#0B2A6B" }}>
+              No. {pesanan.invoiceNo ?? "INV-20261028-014"} · 28 Okt 2026
+            </div>
+
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ borderCollapse: "collapse", width: "100%", minWidth: "100%" }}>
+                <thead>
+                  <tr>
+                    <th
+                      style={{
+                        padding: "12px 10px",
+                        borderBottom: "2px dashed #C9B98F",
+                        textAlign: "left",
+                        fontFamily: "'Space Mono', monospace",
+                        fontSize: 11,
+                        textTransform: "uppercase",
+                        color: "#0B2A6B",
+                      }}
+                    >
+                      Rincian
+                    </th>
+                    <th
+                      style={{
+                        padding: "12px 10px",
+                        borderBottom: "2px dashed #C9B98F",
+                        textAlign: "left",
+                        fontFamily: "'Space Mono', monospace",
+                        fontSize: 11,
+                        textTransform: "uppercase",
+                        color: "#0B2A6B",
+                      }}
+                    >
+                      Jumlah
+                    </th>
+                    <th
+                      style={{
+                        padding: "12px 10px",
+                        borderBottom: "2px dashed #C9B98F",
+                        textAlign: "left",
+                        fontFamily: "'Space Mono', monospace",
+                        fontSize: 11,
+                        textTransform: "uppercase",
+                        color: "#0B2A6B",
+                      }}
+                    >
+                      Harga
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                      Cuci Kiloan Reguler
+                    </td>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                      4 kg
+                    </td>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                      Rp 24.000
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                      Antar jemput
+                    </td>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                      1 trip
+                    </td>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                      Rp 5.000
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13, fontWeight: 700 }}>
+                      Total
+                    </td>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}></td>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13, fontWeight: 700, color: "#1457D6" }}>
+                      Rp 29.000
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div
             style={{
-              fontFamily: "'Archivo Black', Impact, sans-serif",
-              textTransform: "uppercase",
-              fontSize: 18,
-              color: "#1457D6",
-              margin: "0 0 12px",
+              display: "flex",
+              alignItems: "center",
+              marginTop: 36,
+              flexWrap: "wrap",
+              gap: 12,
+              justifyContent: "space-between",
             }}
           >
-            Tagihan / Invoice
-          </h2>
-
-          {pesanan.total !== null && pesanan.invoiceNo ? (
-            <>
-              <div style={{ fontSize: 13, marginBottom: 14, color: "#4A5A80" }}>
-                {pesanan.invoiceNo} · {pesanan.estimasi}
-              </div>
-
-              <div
-                style={{
-                  background: "#EEF2F7",
-                  border: "2px solid #0B2A6B",
-                  borderRadius: 12,
-                  padding: "16px 20px",
+            <span
+              style={{
+                display: "inline-block",
+                border: "2px solid #0B2A6B",
+                borderRadius: 999,
+                padding: "3px 12px",
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 12,
+                fontWeight: 700,
+                background: "#D42A25",
+                color: "#fff",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Belum dibayar
+            </span>
+            <span style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <Button
+                variant="yellow"
+                size="sm"
+                onClick={() => {
+                  const content = `====================================\nINVOICE RESMI - LAUNDYKU\n====================================\nNo. Invoice: ${pesanan.invoiceNo ?? "INV-20261028-014"}\nTanggal: 28 Okt 2026\nPesanan: ${pesanan.kode}\n\nRINCIAN BIAYA:\n1. Cuci Kiloan Reguler (4 kg) : Rp 24.000\n2. Antar jemput (1 trip)       : Rp 5.000\n------------------------------------\nTOTAL: Rp 29.000\nSTATUS: BELUM DIBAYAR\n====================================\nTerima kasih telah mempercayakan cucianmu kepada Laundyku!`;
+                  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `Invoice-${pesanan.kode}.txt`;
+                  a.click();
+                  URL.revokeObjectURL(url);
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    paddingBottom: 10,
-                    borderBottom: "2px dashed #C9B98F",
-                    fontSize: 13,
-                  }}
-                >
-                  <span>{pesanan.layanan} ({pesanan.detail})</span>
-                  <b>{formatRupiah(pesanan.total)}</b>
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    paddingTop: 10,
-                    fontSize: 14,
-                    fontWeight: 700,
-                  }}
-                >
-                  <span>Total Tagihan</span>
-                  <b style={{ color: "#1457D6", fontSize: 16 }}>{formatRupiah(pesanan.total)}</b>
-                </div>
-              </div>
-
-              <div style={{ marginTop: 14 }}>
-                <BayarChip status={pesanan.statusBayar} />
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  gap: 12,
-                  flexWrap: "wrap",
-                  marginTop: 24,
-                }}
-              >
-                <Button
-                  variant="yellow"
-                  size="sm"
-                  onClick={() => {
-                    const content = `====================================\nINVOICE RESMI - LAUNDYKU\n====================================\nInvoice: ${pesanan.invoiceNo ?? "-"}\nPesanan: ${pesanan.kode}\nLayanan: ${pesanan.layanan} (${pesanan.detail})\nEstimasi: ${pesanan.estimasi}\nStatus Bayar: ${pesanan.statusBayar === "lunas" ? "LUNAS" : "BELUM DIBAYAR"}\nTotal: ${pesanan.total ? formatRupiah(pesanan.total) : "-"}\n====================================\nTerima kasih telah mempercayakan cucianmu kepada Laundyku!`;
-                    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = `Invoice-${pesanan.kode}.txt`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                  }}
-                >
-                  Unduh invoice
-                </Button>
-
-                {pesanan.statusBayar === "belum_bayar" && (
-                  <Button size="sm" onClick={() => setShowQRIS(true)}>
-                    Bayar via QRIS
-                  </Button>
-                )}
-              </div>
-            </>
-          ) : (
-            <p style={{ fontSize: 13, color: "#4A5A80", margin: "12px 0 0" }}>
-              Detail rincian dan tagihan pembayaran baru tersedia setelah cucian selesai ditimbang oleh petugas.
-            </p>
-          )}
-        </div>
+                Unduh invoice
+              </Button>
+              <Button size="sm" onClick={() => setShowQRIS(true)}>
+                Bayar via QRIS
+              </Button>
+            </span>
+          </div>
+        </section>
       </div>
+
+      {/* Card 3: Informasi pesanan */}
+      <section
+        id="info"
+        style={{
+          background: "#fff",
+          border: "2px solid #0B2A6B",
+          borderRadius: 18,
+          boxShadow: "5px 5px 0 #0B2A6B",
+          padding: 28,
+          color: "#0B2A6B",
+        }}
+      >
+        <h2
+          style={{
+            fontFamily: "'Archivo Black', Impact, sans-serif",
+            textTransform: "uppercase",
+            fontSize: 24,
+            color: "#1457D6",
+            marginBottom: 16,
+          }}
+        >
+          Informasi pesanan
+        </h2>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: 28,
+          }}
+        >
+          <div>
+            <label
+              style={{
+                display: "block",
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 12,
+                fontWeight: 700,
+                margin: "14px 0 6px",
+                textTransform: "uppercase",
+                color: "#0B2A6B",
+              }}
+            >
+              Layanan
+            </label>
+            <input
+              type="text"
+              readOnly
+              value="Cuci Kiloan · Reguler 3 hari"
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                border: "2px solid #0B2A6B",
+                borderRadius: 12,
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 13,
+                background: "#fff",
+                boxSizing: "border-box",
+                minHeight: 44,
+                color: "#0B2A6B",
+              }}
+            />
+
+            <label
+              style={{
+                display: "block",
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 12,
+                fontWeight: 700,
+                margin: "14px 0 6px",
+                textTransform: "uppercase",
+                color: "#0B2A6B",
+              }}
+            >
+              Jadwal jemput
+            </label>
+            <input
+              type="text"
+              readOnly
+              value="28 Okt 2026, 09.00"
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                border: "2px solid #0B2A6B",
+                borderRadius: 12,
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 13,
+                background: "#fff",
+                boxSizing: "border-box",
+                minHeight: 44,
+                color: "#0B2A6B",
+              }}
+            />
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 12,
+                fontWeight: 700,
+                margin: "14px 0 6px",
+                textTransform: "uppercase",
+                color: "#0B2A6B",
+              }}
+            >
+              Alamat
+            </label>
+            <input
+              type="text"
+              readOnly
+              value="[Alamat pelanggan]"
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                border: "2px solid #0B2A6B",
+                borderRadius: 12,
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 13,
+                background: "#fff",
+                boxSizing: "border-box",
+                minHeight: 44,
+                color: "#0B2A6B",
+              }}
+            />
+
+            <label
+              style={{
+                display: "block",
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 12,
+                fontWeight: 700,
+                margin: "14px 0 6px",
+                textTransform: "uppercase",
+                color: "#0B2A6B",
+              }}
+            >
+              Catatan
+            </label>
+            <input
+              type="text"
+              readOnly
+              value="Tanpa parfum"
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                border: "2px solid #0B2A6B",
+                borderRadius: 12,
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 13,
+                background: "#fff",
+                boxSizing: "border-box",
+                minHeight: 44,
+                color: "#0B2A6B",
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+      <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, margin: 0, color: "#4A5A80" }}>
+        Data pada tampilan ini hanya contoh.
+      </p>
 
       {/* Modal QRIS (Hanya ada tombol Unduh QRIS dan Tutup, tombol Sudah Bayar dihapus) */}
       {showQRIS && (
@@ -271,6 +500,6 @@ export default function DetailPesananPage({
           onKonfirmasi={() => setShowQRIS(false)}
         />
       )}
-    </>
+    </div>
   );
 }

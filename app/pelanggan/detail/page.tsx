@@ -1,11 +1,20 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import DetailPesananPage from "../aktif/[kode]/page";
 
-export default function DetailWrapperPage() {
+function DetailContent() {
   const searchParams = useSearchParams();
   const kode = searchParams.get("kode") || "LDY-20261028-014";
 
   return <DetailPesananPage params={Promise.resolve({ kode })} />;
+}
+
+export default function DetailWrapperPage() {
+  return (
+    <Suspense fallback={<div style={{ fontFamily: "'Space Mono', monospace" }}>Memuat detail pesanan...</div>}>
+      <DetailContent />
+    </Suspense>
+  );
 }
