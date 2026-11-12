@@ -1,0 +1,32 @@
+/* Gaya tambahan halaman Riwayat (chip, filter, dan penomoran halaman).
+   Chip disalin dari halaman Pengerjaan supaya halaman ini tidak bergantung padanya. */
+.petugas .chip {
+  display: inline-block;
+  border: 2px solid var(--k);
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--c);
+  white-space: nowrap;
+}
+.petugas .chip.y { background: var(--y); }
+
+.petugas .pt-filter {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  align-items: end;
+  margin: 8px 0 16px;
+}
+.petugas .pt-filter label { margin: 0 0 6px; }
+.petugas .pt-info { font-size: 12px; margin: 0 0 10px; color: #4a5a80; }
+.petugas .pt-halaman {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.petugas .btn:disabled { opacity: 0.45; cursor: not-allowed; }
