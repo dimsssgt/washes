@@ -130,7 +130,7 @@ export default function RiwayatPesananClient() {
                       padding: "12px 10px",
                       borderBottom: "2px dashed #C9B98F",
                       textAlign: "left",
-                      fontFamily: "'Space Mono', monospace",
+                      fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                       fontSize: 11,
                       textTransform: "uppercase",
                     }}
@@ -143,16 +143,16 @@ export default function RiwayatPesananClient() {
             <tbody>
               {dummyRiwayat.map((item) => (
                 <tr key={item.kode}>
-                  <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                  <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                     {item.kode}
                   </td>
-                  <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                  <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                     {item.tanggal}
                   </td>
-                  <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                  <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                     {item.layanan}
                   </td>
-                  <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                  <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                     {formatRupiah(item.total)}
                   </td>
                   <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F" }}>
@@ -162,7 +162,7 @@ export default function RiwayatPesananClient() {
                         border: "2px solid #0B2A6B",
                         borderRadius: 999,
                         padding: "3px 12px",
-                        fontFamily: "'Space Mono', monospace",
+                        fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                         fontSize: 12,
                         fontWeight: 700,
                         background: "#12805C",
@@ -184,7 +184,7 @@ export default function RiwayatPesananClient() {
           </table>
         </div>
 
-        <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, margin: "16px 0 0", color: "#4A5A80" }}>
+        <p style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12, margin: "16px 0 0", color: "#4A5A80" }}>
           Klik Lihat detail untuk melihat rincian tagihan & bukti pembayaran resmi.
         </p>
       </section>
@@ -207,7 +207,7 @@ export default function RiwayatPesananClient() {
               padding: 28,
               boxSizing: "border-box",
               color: "#0B2A6B",
-              fontFamily: "'Space Mono', monospace",
+              fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
             }}
           >
             {/* Header Popup */}

@@ -96,7 +96,7 @@ export default function NotifikasiClient() {
                 border: "2px solid #0B2A6B",
                 borderRadius: 999,
                 padding: "6px 14px",
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: "pointer",
@@ -114,7 +114,7 @@ export default function NotifikasiClient() {
                 border: "2px solid #0B2A6B",
                 borderRadius: 999,
                 padding: "6px 14px",
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: "pointer",
@@ -133,7 +133,7 @@ export default function NotifikasiClient() {
         </div>
 
         {displayed.length === 0 ? (
-          <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: "#4A5A80", padding: "20px 0" }}>
+          <p style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: "#4A5A80", padding: "20px 0" }}>
             Tidak ada notifikasi {filter === "unread" ? "yang belum dibaca" : ""}.
           </p>
         ) : (
@@ -166,12 +166,12 @@ export default function NotifikasiClient() {
 
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
-                    <b style={{ fontFamily: "'Space Mono', monospace", fontSize: 14 }}>{n.judul}</b>
-                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: "#4A5A80" }}>
+                    <b style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 14 }}>{n.judul}</b>
+                    <span style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12, color: "#4A5A80" }}>
                       {n.waktu}
                     </span>
                   </div>
-                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, marginTop: 4, color: "#0B2A6B" }}>
+                  <div style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, marginTop: 4, color: "#0B2A6B" }}>
                     {n.pesan}
                   </div>
                 </div>

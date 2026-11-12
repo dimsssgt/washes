@@ -24,7 +24,7 @@ export default function Field({
     "aria-invalid": error ? true : undefined,
     className: [
       "w-full px-[16px] py-[12px] border-2 rounded-xl",
-      "font-['Space_Mono',monospace] text-[13px] bg-white box-border min-h-[44px]",
+      "font-[var(--font-poppins), 'Poppins', Arial, sans-serif] text-[13px] bg-white box-border min-h-[44px]",
       "outline-none transition-colors duration-150",
       error
         ? "border-[#D42A25] focus:border-[#D42A25] focus:ring-2 focus:ring-[#D42A25]/20"
@@ -39,7 +39,7 @@ export default function Field({
     <div className="flex flex-col">
       <label
         htmlFor={id}
-        className="font-['Space_Mono',monospace] text-[12px] font-bold uppercase text-[#0B2A6B] mb-[6px] mt-[14px]"
+        className="font-[var(--font-poppins), 'Poppins', Arial, sans-serif] text-[12px] font-bold uppercase text-[#0B2A6B] mb-[6px] mt-[14px]"
       >
         {label}
         {required && (
@@ -55,7 +55,7 @@ export default function Field({
         <p
           id={`${id}-error`}
           role="alert"
-          className="mt-1 font-['Space_Mono',monospace] text-[11px] text-[#D42A25] font-bold"
+          className="mt-1 font-[var(--font-poppins), 'Poppins', Arial, sans-serif] text-[11px] text-[#D42A25] font-bold"
         >
           {error}
         </p>
@@ -64,7 +64,7 @@ export default function Field({
       {hint && !error && (
         <p
           id={`${id}-hint`}
-          className="mt-1 font-['Space_Mono',monospace] text-[11px] text-[#0B2A6B]/60"
+          className="mt-1 font-[var(--font-poppins), 'Poppins', Arial, sans-serif] text-[11px] text-[#0B2A6B]/60"
         >
           {hint}
         </p>

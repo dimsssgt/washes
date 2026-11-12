@@ -58,12 +58,12 @@ export default function AntrianPesananSection() {
         >
           Antrian pesanan
         </h2>
-        <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, margin: "0 0 16px" }}>
+        <p style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12, margin: "0 0 16px" }}>
           Pesanan yang sudah kamu kirim dan belum diterima petugas.
         </p>
 
         {antrian.length === 0 ? (
-          <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: "#4A5A80", padding: "12px 0" }}>
+          <p style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: "#4A5A80", padding: "12px 0" }}>
             Tidak ada pesanan dalam antrian.
           </p>
         ) : (
@@ -78,7 +78,7 @@ export default function AntrianPesananSection() {
                         padding: "12px 10px",
                         borderBottom: "2px dashed #C9B98F",
                         textAlign: "left",
-                        fontFamily: "'Space Mono', monospace",
+                        fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                         fontSize: 11,
                         textTransform: "uppercase",
                       }}
@@ -91,13 +91,13 @@ export default function AntrianPesananSection() {
               <tbody>
                 {antrian.map((p) => (
                   <tr key={p.kode}>
-                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                       {p.kode}
                     </td>
-                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                       {p.layanan}
                     </td>
-                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                       {p.jadwalJemput}
                     </td>
                     <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F" }}>
@@ -107,7 +107,7 @@ export default function AntrianPesananSection() {
                           border: "2px solid #0B2A6B",
                           borderRadius: 999,
                           padding: "3px 12px",
-                          fontFamily: "'Space Mono', monospace",
+                          fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                           fontSize: 12,
                           fontWeight: 700,
                           background: "#FFD21F",
@@ -165,7 +165,7 @@ export default function AntrianPesananSection() {
               boxShadow: "6px 6px 0 #0B2A6B",
               padding: 26,
               boxSizing: "border-box",
-              fontFamily: "'Space Mono', monospace",
+              fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
               color: "#0B2A6B",
             }}
           >

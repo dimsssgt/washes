@@ -134,7 +134,7 @@ export default function PelangganPage() {
               color: "#0B2A6B",
             }}
           >
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12 }}>{s.label}</div>
+            <div style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12 }}>{s.label}</div>
             <div
               style={{
                 fontFamily: "'Archivo Black', Impact, sans-serif",

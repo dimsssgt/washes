@@ -32,7 +32,7 @@ export default function DetailPesananPage({
         <Link
           href="/pelanggan/aktif"
           style={{
-            fontFamily: "'Space Mono', monospace",
+            fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
             fontWeight: 700,
             fontSize: 13,
             color: "#0B2A6B",
@@ -110,7 +110,7 @@ export default function DetailPesananPage({
                       justifyContent: "center",
                       border: "2px solid #0B2A6B",
                       borderRadius: 999,
-                      fontFamily: "'Space Mono', monospace",
+                      fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                       fontSize: 13,
                       fontWeight: 700,
                       background: bg,
@@ -121,10 +121,10 @@ export default function DetailPesananPage({
                     {icon}
                   </span>
                   <div>
-                    <b style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: "#0B2A6B" }}>
+                    <b style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: "#0B2A6B" }}>
                       {item.label}
                     </b>
-                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: "#4A5A80" }}>
+                    <div style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12, color: "#4A5A80" }}>
                       {item.waktu ?? "-"}
                     </div>
                   </div>
@@ -133,7 +133,7 @@ export default function DetailPesananPage({
             })}
           </div>
 
-          <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, margin: "20px 0 0", color: "#0B2A6B" }}>
+          <p style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, margin: "20px 0 0", color: "#0B2A6B" }}>
             Estimasi selesai: 30 Okt 2026
           </p>
         </section>
@@ -166,7 +166,7 @@ export default function DetailPesananPage({
               Tagihan / Invoice
             </h2>
 
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, marginBottom: 12, color: "#0B2A6B" }}>
+            <div style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, marginBottom: 12, color: "#0B2A6B" }}>
               No. {pesanan.invoiceNo ?? "INV-20261028-014"} · 28 Okt 2026
             </div>
 
@@ -179,7 +179,7 @@ export default function DetailPesananPage({
                         padding: "12px 10px",
                         borderBottom: "2px dashed #C9B98F",
                         textAlign: "left",
-                        fontFamily: "'Space Mono', monospace",
+                        fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                         fontSize: 11,
                         textTransform: "uppercase",
                         color: "#0B2A6B",
@@ -192,7 +192,7 @@ export default function DetailPesananPage({
                         padding: "12px 10px",
                         borderBottom: "2px dashed #C9B98F",
                         textAlign: "left",
-                        fontFamily: "'Space Mono', monospace",
+                        fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                         fontSize: 11,
                         textTransform: "uppercase",
                         color: "#0B2A6B",
@@ -205,7 +205,7 @@ export default function DetailPesananPage({
                         padding: "12px 10px",
                         borderBottom: "2px dashed #C9B98F",
                         textAlign: "left",
-                        fontFamily: "'Space Mono', monospace",
+                        fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                         fontSize: 11,
                         textTransform: "uppercase",
                         color: "#0B2A6B",
@@ -217,33 +217,33 @@ export default function DetailPesananPage({
                 </thead>
                 <tbody>
                   <tr>
-                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                       Cuci Kiloan Reguler
                     </td>
-                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                       4 kg
                     </td>
-                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                       Rp 24.000
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                       Antar jemput
                     </td>
-                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                       1 trip
                     </td>
-                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
                       Rp 5.000
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13, fontWeight: 700 }}>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, fontWeight: 700 }}>
                       Total
                     </td>
-                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13 }}></td>
-                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13, fontWeight: 700, color: "#1457D6" }}>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}></td>
+                    <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, fontWeight: 700, color: "#1457D6" }}>
                       Rp 29.000
                     </td>
                   </tr>
@@ -268,7 +268,7 @@ export default function DetailPesananPage({
                 border: "2px solid #0B2A6B",
                 borderRadius: 999,
                 padding: "3px 12px",
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 12,
                 fontWeight: 700,
                 background: "#D42A25",
@@ -338,7 +338,7 @@ export default function DetailPesananPage({
             <label
               style={{
                 display: "block",
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 12,
                 fontWeight: 700,
                 margin: "14px 0 6px",
@@ -357,7 +357,7 @@ export default function DetailPesananPage({
                 padding: "12px 16px",
                 border: "2px solid #0B2A6B",
                 borderRadius: 12,
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 13,
                 background: "#fff",
                 boxSizing: "border-box",
@@ -369,7 +369,7 @@ export default function DetailPesananPage({
             <label
               style={{
                 display: "block",
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 12,
                 fontWeight: 700,
                 margin: "14px 0 6px",
@@ -388,7 +388,7 @@ export default function DetailPesananPage({
                 padding: "12px 16px",
                 border: "2px solid #0B2A6B",
                 borderRadius: 12,
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 13,
                 background: "#fff",
                 boxSizing: "border-box",
@@ -402,7 +402,7 @@ export default function DetailPesananPage({
             <label
               style={{
                 display: "block",
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 12,
                 fontWeight: 700,
                 margin: "14px 0 6px",
@@ -421,7 +421,7 @@ export default function DetailPesananPage({
                 padding: "12px 16px",
                 border: "2px solid #0B2A6B",
                 borderRadius: 12,
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 13,
                 background: "#fff",
                 boxSizing: "border-box",
@@ -433,7 +433,7 @@ export default function DetailPesananPage({
             <label
               style={{
                 display: "block",
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 12,
                 fontWeight: 700,
                 margin: "14px 0 6px",
@@ -452,7 +452,7 @@ export default function DetailPesananPage({
                 padding: "12px 16px",
                 border: "2px solid #0B2A6B",
                 borderRadius: 12,
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 13,
                 background: "#fff",
                 boxSizing: "border-box",
@@ -464,7 +464,7 @@ export default function DetailPesananPage({
         </div>
       </section>
 
-      <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, margin: 0, color: "#4A5A80" }}>
+      <p style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12, margin: 0, color: "#4A5A80" }}>
         Data pada tampilan ini hanya contoh.
       </p>
 

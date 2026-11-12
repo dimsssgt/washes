@@ -13,7 +13,7 @@ function DetailContent() {
 
 export default function DetailWrapperPage() {
   return (
-    <Suspense fallback={<div style={{ fontFamily: "'Space Mono', monospace" }}>Memuat detail pesanan...</div>}>
+    <Suspense fallback={<div style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif" }}>Memuat detail pesanan...</div>}>
       <DetailContent />
     </Suspense>
   );

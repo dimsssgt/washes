@@ -14,7 +14,7 @@ export default function PelangganLayout({
         display: "grid",
         gridTemplateColumns: "270px 1fr",
         minHeight: "100vh",
-        fontFamily: "'Space Mono', monospace",
+        fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
         color: "#0B2A6B",
         background: "#EEF2F7",
       }}

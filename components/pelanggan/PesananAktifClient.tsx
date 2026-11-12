@@ -57,7 +57,7 @@ export function StatusChip({ status }: { status: StatusPesanan }) {
         border: "2px solid #0B2A6B",
         borderRadius: 999,
         padding: "3px 12px",
-        fontFamily: "'Space Mono', monospace",
+        fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
         fontSize: 12,
         fontWeight: 700,
         whiteSpace: "nowrap",
@@ -78,7 +78,7 @@ export function BayarChip({ status }: { status: StatusBayar }) {
         border: "2px solid #0B2A6B",
         borderRadius: 999,
         padding: "3px 12px",
-        fontFamily: "'Space Mono', monospace",
+        fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
         fontSize: 12,
         fontWeight: 700,
         whiteSpace: "nowrap",
@@ -121,7 +121,7 @@ function ModalDetailPesanan({
           borderRadius: 18,
           boxShadow: "5px 5px 0 #0B2A6B",
           padding: 28,
-          fontFamily: "'Space Mono', monospace",
+          fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
           color: "#0B2A6B",
           margin: "auto",
         }}
@@ -253,7 +253,7 @@ export function ModalQRIS({
           borderRadius: 18,
           boxShadow: "5px 5px 0 #0B2A6B",
           padding: 28,
-          fontFamily: "'Space Mono', monospace",
+          fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
           color: "#0B2A6B",
         }}
       >
@@ -263,7 +263,7 @@ export function ModalQRIS({
         </div>
 
         {/* Placeholder QRIS */}
-        <div style={{ width: 200, height: 200, margin: "16px auto", border: "2px dashed #0B2A6B", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", fontFamily: "'Space Mono', monospace", fontSize: 12 }}>
+        <div style={{ width: 200, height: 200, margin: "16px auto", border: "2px dashed #0B2A6B", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12 }}>
           [KODE QRIS]<br />
           <span style={{ fontSize: 11, color: "#4A5A80" }}>Tersedia saat backend aktif</span>
         </div>
@@ -341,7 +341,7 @@ function ModalKonfirmasiBayar({
           borderRadius: 24,
           boxShadow: "6px 6px 0 #0B2A6B",
           padding: 26,
-          fontFamily: "'Space Mono', monospace",
+          fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
           color: "#0B2A6B",
         }}
       >
@@ -450,7 +450,7 @@ export default function PesananAktifClient() {
         </h2>
 
         {pesananList.length === 0 ? (
-          <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 13 }}>Belum ada pesanan aktif.</p>
+          <p style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>Belum ada pesanan aktif.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             {pesananList.map((p) => (
@@ -471,28 +471,28 @@ export default function PesananAktifClient() {
                 {/* Info pesanan */}
                 <div>
                   <div style={{ fontFamily: "'Archivo Black', Impact, sans-serif", textTransform: "uppercase", fontSize: 16 }}>{p.kode}</div>
-                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12 }}>{p.layanan} · {p.detail}</div>
+                  <div style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12 }}>{p.layanan} · {p.detail}</div>
                 </div>
 
                 {/* Status pengerjaan */}
                 <div><StatusChip status={p.status} /></div>
 
                 {/* Estimasi */}
-                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12 }}>{p.estimasi}</div>
+                <div style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12 }}>{p.estimasi}</div>
 
                 {/* Tagihan */}
                 <div>
                   {p.total !== null ? (
                     <>
-                      <b style={{ fontFamily: "'Space Mono', monospace", fontSize: 13 }}>{formatRupiah(p.total)}</b>
+                      <b style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>{formatRupiah(p.total)}</b>
                       <br />
                       <BayarChip status={p.statusBayar} />
                     </>
                   ) : (
                     <>
-                      <b style={{ fontFamily: "'Space Mono', monospace", fontSize: 13 }}>Harga belum tersedia</b>
+                      <b style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>Harga belum tersedia</b>
                       <br />
-                      <span style={{ display: "inline-block", border: "2px solid #0B2A6B", borderRadius: 999, padding: "3px 12px", fontFamily: "'Space Mono', monospace", fontSize: 12, fontWeight: 700, background: "#FFF4DE", marginTop: 4 }}>Menunggu penimbangan</span>
+                      <span style={{ display: "inline-block", border: "2px solid #0B2A6B", borderRadius: 999, padding: "3px 12px", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12, fontWeight: 700, background: "#FFF4DE", marginTop: 4 }}>Menunggu penimbangan</span>
                     </>
                   )}
                 </div>
@@ -508,7 +508,7 @@ export default function PesananAktifClient() {
                     </Button>
                   </Link>
                 ) : (
-                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: "#4A5A80", justifySelf: "end" }}>
+                  <span style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12, color: "#4A5A80", justifySelf: "end" }}>
                     Detail muncul setelah penimbangan
                   </span>
                 )}
@@ -517,7 +517,7 @@ export default function PesananAktifClient() {
           </div>
         )}
 
-        <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, margin: "16px 0 0", color: "#4A5A80" }}>
+        <p style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12, margin: "16px 0 0", color: "#4A5A80" }}>
           Klik Lihat detail untuk melihat status pengerjaan dan tagihan. Detail baru tersedia setelah cucian ditimbang petugas.
         </p>
       </section>

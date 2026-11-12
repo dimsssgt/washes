@@ -152,7 +152,7 @@ export default function BuatPesananSection() {
                 border: "2px solid #0B2A6B",
                 borderRadius: 999,
                 padding: "8px 16px",
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 12,
                 fontWeight: 700,
                 whiteSpace: "nowrap",
@@ -167,7 +167,7 @@ export default function BuatPesananSection() {
           ))}
         </div>
 
-        <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, margin: "12px 0 0" }}>
+        <p style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12, margin: "12px 0 0" }}>
           {tabInfo[tab]}
         </p>
 
@@ -186,16 +186,16 @@ export default function BuatPesananSection() {
               <table style={{ width: "100%", minWidth: 460, borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "left", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 11, textTransform: "uppercase" }}>
+                    <th style={{ textAlign: "left", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 11, textTransform: "uppercase" }}>
                       Jenis
                     </th>
-                    <th style={{ textAlign: "left", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 11, textTransform: "uppercase" }}>
+                    <th style={{ textAlign: "left", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 11, textTransform: "uppercase" }}>
                       Reguler 3 hari
                     </th>
-                    <th style={{ textAlign: "left", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 11, textTransform: "uppercase" }}>
+                    <th style={{ textAlign: "left", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 11, textTransform: "uppercase" }}>
                       Express
                     </th>
-                    <th style={{ textAlign: "center", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 11, textTransform: "uppercase" }}>
+                    <th style={{ textAlign: "center", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 11, textTransform: "uppercase" }}>
                       Jumlah
                     </th>
                   </tr>
@@ -205,13 +205,13 @@ export default function BuatPesananSection() {
                     const count = itemCounts[item.id] || 0;
                     return (
                       <tr key={item.id}>
-                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13, fontWeight: 700 }}>
+                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, fontWeight: 700 }}>
                           {item.nama}
                         </td>
-                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13, color: kecepatan === "reguler" ? "#1457D6" : "inherit", fontWeight: kecepatan === "reguler" ? 700 : "normal" }}>
+                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: kecepatan === "reguler" ? "#1457D6" : "inherit", fontWeight: kecepatan === "reguler" ? 700 : "normal" }}>
                           {formatRupiah(item.hargaReguler)}
                         </td>
-                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "'Space Mono', monospace", fontSize: 13, color: kecepatan === "express" ? "#1457D6" : "inherit", fontWeight: kecepatan === "express" ? 700 : "normal" }}>
+                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: kecepatan === "express" ? "#1457D6" : "inherit", fontWeight: kecepatan === "express" ? 700 : "normal" }}>
                           {formatRupiah(item.hargaExpress)}
                         </td>
                         <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", textAlign: "center" }}>
@@ -227,7 +227,7 @@ export default function BuatPesananSection() {
                                 background: "#FFF4DE",
                                 cursor: "pointer",
                                 fontWeight: 700,
-                                fontFamily: "'Space Mono', monospace",
+                                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                               }}
                             >
                               -
@@ -244,7 +244,7 @@ export default function BuatPesananSection() {
                                 padding: "4px",
                                 border: "2px solid #0B2A6B",
                                 borderRadius: 8,
-                                fontFamily: "'Space Mono', monospace",
+                                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                                 fontSize: 13,
                                 fontWeight: 700,
                               }}
@@ -260,7 +260,7 @@ export default function BuatPesananSection() {
                                 background: "#FFD21F",
                                 cursor: "pointer",
                                 fontWeight: 700,
-                                fontFamily: "'Space Mono', monospace",
+                                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                               }}
                             >
                               +
@@ -284,7 +284,7 @@ export default function BuatPesananSection() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                 fontSize: 13,
                 flexWrap: "wrap",
                 gap: 8,
@@ -325,7 +325,7 @@ export default function BuatPesananSection() {
               <label
                 style={{
                   display: "block",
-                  fontFamily: "'Space Mono', monospace",
+                  fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                   fontSize: 12,
                   fontWeight: 700,
                   textTransform: "uppercase",
@@ -346,7 +346,7 @@ export default function BuatPesananSection() {
                       border: "2px solid #0B2A6B",
                       borderRadius: 999,
                       padding: "8px 16px",
-                      fontFamily: "'Space Mono', monospace",
+                      fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                       fontSize: 12,
                       fontWeight: 700,
                       whiteSpace: "nowrap",
@@ -405,7 +405,7 @@ export default function BuatPesananSection() {
           </div>
 
           <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: "#0B2A6B" }}>
+            <span style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: "#0B2A6B" }}>
               {tab === "kiloan"
                 ? "Total dihitung otomatis setelah penimbangan berat cucian."
                 : "Total dihitung otomatis dari jumlah item."}
@@ -433,7 +433,7 @@ export default function BuatPesananSection() {
               padding: 28,
               maxWidth: 400,
               width: "100%",
-              fontFamily: "'Space Mono', monospace",
+              fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
               color: "#0B2A6B",
             }}
           >
@@ -497,7 +497,7 @@ export default function BuatPesananSection() {
               padding: 28,
               boxSizing: "border-box",
               color: "#0B2A6B",
-              fontFamily: "'Space Mono', monospace",
+              fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 8 }}>
