@@ -43,16 +43,8 @@ export default function DetailPesananPage({
         </Link>
       </div>
 
-      {/* Header Judul & Status Chip */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 16,
-          flexWrap: "wrap",
-        }}
-      >
+      {/* Header Judul */}
+      <div>
         <h1
           style={{
             fontFamily: "'Archivo Black', Impact, sans-serif",
@@ -66,22 +58,6 @@ export default function DetailPesananPage({
         >
           Pesanan {pesanan.kode}
         </h1>
-        <span
-          style={{
-            display: "inline-block",
-            border: "2px solid #0B2A6B",
-            borderRadius: 999,
-            padding: "8px 18px",
-            fontFamily: "'Space Mono', monospace",
-            fontSize: 12,
-            fontWeight: 700,
-            whiteSpace: "nowrap",
-            background: "#1457D6",
-            color: "#fff",
-          }}
-        >
-          Sedang dicuci
-        </span>
       </div>
 
       {/* Grid 2 Kolom: Status Pengerjaan & Tagihan/Invoice */}
