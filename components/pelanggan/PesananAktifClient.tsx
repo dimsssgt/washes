@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Button from "@/components/ui/Button";
 
 // Tipe data pesanan aktif
@@ -28,7 +29,7 @@ export interface PesananAktif {
   riwayatStatus: { label: string; waktu: string | null; selesai: boolean; aktif: boolean }[];
 }
 
-const statusLabel: Record<StatusPesanan, string> = {
+export const statusLabel: Record<StatusPesanan, string> = {
   menunggu_jemput: "Menunggu jemput",
   diterima: "Pesanan diterima",
   ditimbang: "Sudah ditimbang",
@@ -38,7 +39,7 @@ const statusLabel: Record<StatusPesanan, string> = {
   selesai: "Selesai",
 };
 
-function StatusChip({ status }: { status: StatusPesanan }) {
+export function StatusChip({ status }: { status: StatusPesanan }) {
   const styles: Record<StatusPesanan, { bg: string; color: string }> = {
     menunggu_jemput: { bg: "#FFD21F", color: "#0B2A6B" },
     diterima: { bg: "#FFD21F", color: "#0B2A6B" },
@@ -69,7 +70,7 @@ function StatusChip({ status }: { status: StatusPesanan }) {
   );
 }
 
-function BayarChip({ status }: { status: StatusBayar }) {
+export function BayarChip({ status }: { status: StatusBayar }) {
   return (
     <span
       style={{
@@ -91,7 +92,7 @@ function BayarChip({ status }: { status: StatusBayar }) {
   );
 }
 
-function formatRupiah(n: number) {
+export function formatRupiah(n: number) {
   return "Rp " + n.toLocaleString("id-ID");
 }
 
@@ -228,7 +229,7 @@ function ModalDetailPesanan({
 }
 
 // ─── Modal QRIS ───────────────────────────────────────────────────────────────
-function ModalQRIS({
+export function ModalQRIS({
   pesanan,
   onClose,
   onKonfirmasi,
@@ -281,12 +282,24 @@ function ModalQRIS({
         </div>
 
         <div style={{ background: "#FFD21F", border: "2px solid #0B2A6B", borderRadius: 12, padding: "12px 14px", marginTop: 14, fontSize: 12 }}>
-          Setelah membayar, tekan tombol di bawah untuk konfirmasi.
+          Silakan scan kode QRIS di atas untuk melakukan pembayaran melalui aplikasi m-banking atau e-wallet pilihanmu.
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 24 }}>
-          <Button fullWidth variant="ghost">Unduh QRIS</Button>
-          <Button fullWidth onClick={onKonfirmasi}>Sudah bayar</Button>
+        <div style={{ display: "flex", gap: 10, marginTop: 24 }}>
+          <Button
+            variant="ghost"
+            style={{ flex: 1 }}
+            onClick={() => alert("Mengunduh gambar QRIS...")}
+          >
+            Unduh QRIS
+          </Button>
+          <Button
+            variant="yellow"
+            style={{ flex: 1 }}
+            onClick={onClose}
+          >
+            Tutup
+          </Button>
         </div>
       </div>
     </div>
@@ -359,7 +372,7 @@ function ModalKonfirmasiBayar({
 }
 
 // ─── Komponen utama ────────────────────────────────────────────────────────────
-const dummyPesanan: PesananAktif[] = [
+export const dummyPesanan: PesananAktif[] = [
   {
     kode: "LDY-20261028-014",
     layanan: "Cuci Kiloan",
@@ -484,16 +497,16 @@ export default function PesananAktifClient() {
                   )}
                 </div>
 
-                {/* Tombol detail */}
+                {/* Tombol detail ke halaman tersendiri */}
                 {p.total !== null ? (
-                  <Button
-                    variant="yellow"
-                    size="sm"
-                    style={{ justifySelf: "end" } as React.CSSProperties}
-                    onClick={() => setModal({ type: "detail", pesanan: p })}
-                  >
-                    Lihat detail →
-                  </Button>
+                  <Link href={`/pelanggan/aktif/${p.kode}`} style={{ justifySelf: "end" }}>
+                    <Button
+                      variant="yellow"
+                      size="sm"
+                    >
+                      Lihat detail →
+                    </Button>
+                  </Link>
                 ) : (
                   <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: "#4A5A80", justifySelf: "end" }}>
                     Detail muncul setelah penimbangan

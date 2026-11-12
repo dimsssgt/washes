@@ -320,31 +320,7 @@ export default function BuatPesananSection() {
               </select>
             </Field>
 
-            {/* Tanggal Jemput */}
-            <Field
-              label={metode === "drop-mandiri" ? "Tanggal drop mandiri" : "Tanggal jemput"}
-              id="tanggalJemput"
-            >
-              <input
-                type="date"
-                value={tanggalJemput}
-                onChange={(e) => setTanggalJemput(e.target.value)}
-                min={new Date().toISOString().split("T")[0]}
-              />
-            </Field>
-
-            {/* Jam Jemput (hanya jika antar jemput) */}
-            {metode === "antar-jemput" && (
-              <Field label="Jam jemput" id="jamJemput">
-                <input
-                  type="time"
-                  value={jamJemput}
-                  onChange={(e) => setJamJemput(e.target.value)}
-                />
-              </Field>
-            )}
-
-            {/* Metode Pengantaran */}
+            {/* Metode Pengantaran (tepat di bawah Kecepatan) */}
             <div style={{ marginTop: 14 }}>
               <label
                 style={{
@@ -386,35 +362,38 @@ export default function BuatPesananSection() {
               </div>
             </div>
 
-            {/* Alamat Jemput (hanya jika antar jemput) */}
+            {/* Hanya jika Antar Jemput: Tanggal Jemput (Hari), Jam Jemput, dan Alamat */}
             {metode === "antar-jemput" && (
-              <Field label="Alamat jemput" id="alamat">
-                <textarea
-                  rows={3}
-                  value={alamat}
-                  onChange={(e) => setAlamat(e.target.value)}
-                  placeholder="Jl. ..."
-                />
-              </Field>
+              <>
+                <Field label="Tanggal jemput" id="tanggalJemput">
+                  <input
+                    type="date"
+                    value={tanggalJemput}
+                    onChange={(e) => setTanggalJemput(e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
+                  />
+                </Field>
+
+                <Field label="Jam jemput" id="jamJemput">
+                  <input
+                    type="time"
+                    value={jamJemput}
+                    onChange={(e) => setJamJemput(e.target.value)}
+                  />
+                </Field>
+
+                <Field label="Alamat jemput" id="alamat">
+                  <textarea
+                    rows={3}
+                    value={alamat}
+                    onChange={(e) => setAlamat(e.target.value)}
+                    placeholder="Jl. ..."
+                  />
+                </Field>
+              </>
             )}
 
-            {metode === "drop-mandiri" && (
-              <p
-                style={{
-                  fontFamily: "'Space Mono', monospace",
-                  fontSize: 12,
-                  marginTop: 14,
-                  padding: "12px 16px",
-                  background: "#FFF4DE",
-                  border: "2px dashed #0B2A6B",
-                  borderRadius: 12,
-                }}
-              >
-                Kamu mengantar cucian sendiri ke outlet. Alamat dan jam jemput tidak perlu diisi.
-              </p>
-            )}
-
-            {/* Catatan */}
+            {/* Catatan (opsional) */}
             <Field label="Catatan (opsional)" id="catatan">
               <textarea
                 rows={3}
@@ -567,7 +546,7 @@ export default function BuatPesananSection() {
             <p style={{ margin: "0 0 16px", textAlign: "center", fontSize: 13 }}>
               {metode === "antar-jemput"
                 ? "Pesananmu sudah kami terima. Kurir akan menjemput sesuai jadwal."
-                : "Pesananmu sudah kami catat. Silakan antar cucian ke outlet sesuai tanggal drop."}
+                : "Pesananmu sudah kami catat. Silakan antar cucianmu ke outlet kami."}
             </p>
 
             <div style={{ marginTop: 12 }}>
@@ -580,11 +559,17 @@ export default function BuatPesananSection() {
                 <b style={{ textAlign: "right" }}>{tabLabels[tab]} · {labelKecepatanMap[kecepatan] || "Reguler"}</b>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
-                <span>{metode === "antar-jemput" ? "Jadwal jemput" : "Tanggal drop"}</span>
-                <b style={{ textAlign: "right" }}>
-                  {tanggalJemput || "30 Okt 2026"}{metode === "antar-jemput" ? `, ${jamJemput || "10.00"}` : ""}
-                </b>
+                <span>Metode</span>
+                <b style={{ textAlign: "right" }}>{metode === "antar-jemput" ? "Antar Jemput" : "Drop Mandiri"}</b>
               </div>
+              {metode === "antar-jemput" && (
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
+                  <span>Jadwal jemput</span>
+                  <b style={{ textAlign: "right" }}>
+                    {tanggalJemput || "Hari ini"}{jamJemput ? `, ${jamJemput}` : ""}
+                  </b>
+                </div>
+              )}
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
                 <span>Harga</span>
                 <b style={{ textAlign: "right" }}>
