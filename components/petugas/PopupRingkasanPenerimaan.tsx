@@ -12,7 +12,7 @@ interface Props {
 
 export default function PopupRingkasanPenerimaan({ pesanan, hasil, onTutup }: Props) {
   return (
-    <Popup judul="Ringkasan penerimaan" lebar={420} kecil kelas="pt-ringkasan" onTutup={onTutup}>
+    <Popup judul="Ringkasan penerimaan" lebar={420} kecil tampilTutup={false} kelas="pt-ringkasan" onTutup={onTutup}>
       <div style={{ marginTop: 12 }}>
         <div className="pt-baris"><span>Kode</span><b>{pesanan.kode}</b></div>
         <div className="pt-baris"><span>Pelanggan</span><b>{pesanan.pelanggan}</b></div>

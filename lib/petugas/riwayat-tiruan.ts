@@ -3,7 +3,7 @@ import type { RiwayatPenyerahan } from "./riwayat";
 // Data tiruan. TODO: ganti dengan pesanan berstatus "selesai" dari Supabase
 // (gabungan tabel pesanan, pembayaran, dan data penyerahan).
 export const riwayatTiruan: RiwayatPenyerahan[] = [
-  { kode: "LDY-008", diserahkan: "2026-10-26", pelanggan: "Sari Wulandari", layanan: "Kiloan", total: 29000, metodeSerah: "Diantar", metodeBayar: "QRIS" },
+  { kode: "LDY-0B1", diserahkan: "2026-10-26", pelanggan: "Sari Wulandari", layanan: "Kiloan", total: 29000, metodeSerah: "Diantar", metodeBayar: "QRIS" },
   { kode: "LDY-007", diserahkan: "2026-10-26", pelanggan: "Hendra Saputra", layanan: "Linen", total: 40000, metodeSerah: "Ambil sendiri", metodeBayar: "Tunai" },
   { kode: "LDY-006", diserahkan: "2026-10-25", pelanggan: "Lina Marlina", layanan: "Satuan", total: 60000, metodeSerah: "Diantar", metodeBayar: "QRIS" },
   { kode: "LDY-005", diserahkan: "2026-10-24", pelanggan: "Fajar Nugroho", layanan: "Kiloan", total: 53000, metodeSerah: "Ambil sendiri", metodeBayar: "Tunai" },

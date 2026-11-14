@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { usePetugas } from "./PetugasProvider";
+import { DAFTAR_BAGIAN, LABEL_BAGIAN, type Bagian } from "@/lib/petugas/alur";
 
 const MENU = [
   { href: "/petugas", label: "Dashboard" },
@@ -11,6 +13,7 @@ const MENU = [
 
 export default function SidebarPetugas() {
   const pathname = usePathname();
+  const { pengguna, gantiBagianDemo } = usePetugas();
 
   return (
     <aside className="pt-side">
@@ -24,12 +27,7 @@ export default function SidebarPetugas() {
         {MENU.map((m) => {
           const aktif = m.href === "/petugas" ? pathname === m.href : pathname.startsWith(m.href);
           return (
-            <Link
-              key={m.href}
-              href={m.href}
-              className={`pt-menu${aktif ? " on" : ""}`}
-              aria-current={aktif ? "page" : undefined}
-            >
+            <Link key={m.href} href={m.href} className={`pt-menu${aktif ? " on" : ""}`} aria-current={aktif ? "page" : undefined}>
               {m.label}
             </Link>
           );
@@ -37,12 +35,25 @@ export default function SidebarPetugas() {
       </nav>
 
       <div style={{ flex: 1 }} />
-      {/* TODO: nama petugas dari sesi login, dan tombol Keluar memakai Supabase signOut. */}
+
       <div className="pt-user">
-        [Nama petugas]
+        {pengguna.nama}
         <br />
-        Petugas
+        {LABEL_BAGIAN[pengguna.bagian]}
       </div>
+
+      {/* DEMO: di aplikasi asli bagian ditentukan oleh akun yang login (kolom bagian di profil petugas). */}
+      <div className="pt-demo">
+        <label htmlFor="pt-bagian-demo">Masuk sebagai (demo)</label>
+        <select id="pt-bagian-demo" value={pengguna.bagian} onChange={(e) => gantiBagianDemo(e.target.value as Bagian)}>
+          {DAFTAR_BAGIAN.map((b) => (
+            <option key={b} value={b}>
+              {LABEL_BAGIAN[b]}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <Link href="/login" className="pt-keluar">
         Keluar
       </Link>

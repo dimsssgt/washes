@@ -52,16 +52,14 @@ export function validasiPenimbangan(
     else berat = b;
   }
 
-  // Kiloan: jumlah item hanya catatan (boleh kosong). Satuan dan Linen: wajib minimal 1.
-  const minimalJumlah = kiloan ? 0 : 1;
+  // Jumlah item wajib untuk SEMUA layanan, termasuk Kiloan. Angka ini menjadi acuan
+  // yang dihitung ulang setiap kali cucian berpindah bagian (pengecekan anti-kehilangan).
   let jumlah = 0;
   if (d.jumlah.trim() === "") {
-    if (!kiloan) galat.jumlah = "Jumlah item wajib diisi.";
+    galat.jumlah = "Jumlah item wajib diisi (hitung semua pakaian).";
   } else {
     jumlah = parseDesimal(d.jumlah);
-    if (!Number.isInteger(jumlah) || jumlah < minimalJumlah) {
-      galat.jumlah = `Isi bilangan bulat minimal ${minimalJumlah}.`;
-    }
+    if (!Number.isInteger(jumlah) || jumlah < 1) galat.jumlah = "Isi bilangan bulat minimal 1.";
   }
 
   const harga = parseRupiah(d.harga);
@@ -84,7 +82,7 @@ export function validasiPenimbangan(
 
 export function ringkasBeratJumlah(layanan: JenisLayanan, h: HasilPenimbangan): string {
   if (layanan === "Kiloan") {
-    return h.jumlahItem > 0 ? `${h.beratKg} kg · ${h.jumlahItem} pcs` : `${h.beratKg} kg`;
+    return `${h.beratKg} kg · ${h.jumlahItem} pcs`;
   }
   return `${h.jumlahItem} pcs`;
 }

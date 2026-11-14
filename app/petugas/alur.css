@@ -1,0 +1,22 @@
+/* Gaya tambahan untuk revisi: header, tombol kembali, bagian petugas, dan alur serah-terima. */
+.petugas .pt-judul { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.petugas .pt-kembali { flex-shrink: 0; }
+
+.petugas .pt-demo label { color: #fff; margin: 4px 0 6px; font-size: 11px; }
+.petugas .pt-demo select { min-height: 40px; font-size: 12px; }
+
+.petugas .pt-banding { border-radius: 12px; padding: 12px 14px; margin-top: 14px; font-size: 13px; font-weight: 700; border: 2px solid var(--k); }
+.petugas .pt-banding.ok { background: #12805c; color: #fff; }
+.petugas .pt-banding.selisih { background: var(--r); color: #fff; }
+.petugas .pt-banding.netral { background: var(--c); }
+
+.petugas .pt-jejak { list-style: none; margin: 16px 0 0; padding: 0; }
+.petugas .pt-jejak li { border-left: 4px solid var(--k); padding: 0 0 18px 16px; position: relative; }
+.petugas .pt-jejak li.selisih { border-left-color: var(--r); }
+.petugas .pt-jejak li:last-child { padding-bottom: 0; }
+.petugas .pt-jejak small { display: block; color: #4a5a80; font-size: 12px; }
+.petugas .pt-jejak .pt-cat { display: block; margin-top: 4px; font-size: 12px; }
+.petugas .pt-jejak .pt-ver { display: block; margin-top: 6px; font-size: 12px; background: var(--c); border-radius: 8px; padding: 6px 10px; }
+
+.petugas .pt-ringkas { display: grid; gap: 8px; }
+.petugas .pt-btn-baris { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }

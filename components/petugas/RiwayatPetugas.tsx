@@ -1,7 +1,8 @@
 "use client";
 
-import LoncengPetugas from "./LoncengPetugas";
 import { useMemo, useState } from "react";
+import HeaderHalaman from "./HeaderHalaman";
+import { usePetugas } from "./PetugasProvider";
 import { formatRupiah } from "@/lib/petugas/hitung";
 import {
   FILTER_KOSONG,
@@ -16,20 +17,20 @@ import {
 } from "@/lib/petugas/riwayat";
 
 export default function RiwayatPetugas({ awal }: { awal: RiwayatPenyerahan[] }) {
+  const { riwayatBaru } = usePetugas();
   const [filter, setFilter] = useState<FilterRiwayat>(FILTER_KOSONG);
   const [halaman, setHalaman] = useState(1);
 
-  const hasil = useMemo(() => filterRiwayat(urutkanTerbaru(awal), filter), [awal, filter]);
+  // Pesanan yang baru diserahkan lewat halaman Pengerjaan langsung muncul di sini.
+  const semua = useMemo(() => [...riwayatBaru, ...awal], [riwayatBaru, awal]);
+  const hasil = useMemo(() => filterRiwayat(urutkanTerbaru(semua), filter), [semua, filter]);
   const totalHalaman = jumlahHalaman(hasil.length);
   const halamanAktif = Math.min(halaman, totalHalaman);
   const tampil = potongHalaman(hasil, halamanAktif);
   const awalNomor = hasil.length === 0 ? 0 : (halamanAktif - 1) * UKURAN_HALAMAN + 1;
   const akhirNomor = (halamanAktif - 1) * UKURAN_HALAMAN + tampil.length;
   const adaFilter =
-    filter.kata.trim() !== "" ||
-    filter.layanan !== "semua" ||
-    filter.metodeBayar !== "semua" ||
-    filter.metodeSerah !== "semua";
+    filter.kata.trim() !== "" || filter.layanan !== "semua" || filter.metodeBayar !== "semua" || filter.metodeSerah !== "semua";
 
   function ubah(perubahan: Partial<FilterRiwayat>) {
     setFilter((f) => ({ ...f, ...perubahan }));
@@ -38,10 +39,7 @@ export default function RiwayatPetugas({ awal }: { awal: RiwayatPenyerahan[] }) 
 
   return (
     <>
-      <div className="pt-kepala">
-        <LoncengPetugas />
-        <h1 className="pt-d" style={{ fontSize: 40, color: "var(--b)" }}>Riwayat</h1>
-      </div>
+      <HeaderHalaman judul="Riwayat" hrefKembali="/petugas" />
 
       <section id="riwayat-serah" className="pt-kartu">
         <h2 className="pt-d">Penyerahan cucian selesai</h2>
@@ -50,13 +48,7 @@ export default function RiwayatPetugas({ awal }: { awal: RiwayatPenyerahan[] }) 
         <div className="pt-filter" role="search">
           <div>
             <label htmlFor="rw-cari">Cari kode atau pelanggan</label>
-            <input
-              id="rw-cari"
-              type="search"
-              placeholder="Cth: LDY-005 atau Sari"
-              value={filter.kata}
-              onChange={(e) => ubah({ kata: e.target.value })}
-            />
+            <input id="rw-cari" type="search" placeholder="Cth: LDY-005 atau Sari" value={filter.kata} onChange={(e) => ubah({ kata: e.target.value })} />
           </div>
           <div>
             <label htmlFor="rw-layanan">Layanan</label>
@@ -84,30 +76,18 @@ export default function RiwayatPetugas({ awal }: { awal: RiwayatPenyerahan[] }) 
             </select>
           </div>
           <div>
-            <button
-              type="button"
-              className="btn y s"
-              disabled={!adaFilter}
-              onClick={() => {
-                setFilter(FILTER_KOSONG);
-                setHalaman(1);
-              }}
-            >
+            <button type="button" className="btn y s" disabled={!adaFilter} onClick={() => { setFilter(FILTER_KOSONG); setHalaman(1); }}>
               Reset filter
             </button>
           </div>
         </div>
 
         <p className="pt-info" aria-live="polite">
-          {hasil.length === 0
-            ? "Tidak ada riwayat yang cocok."
-            : `Menampilkan ${awalNomor}–${akhirNomor} dari ${hasil.length} riwayat.`}
+          {hasil.length === 0 ? "Tidak ada riwayat yang cocok." : `Menampilkan ${awalNomor}–${akhirNomor} dari ${hasil.length} riwayat.`}
         </p>
 
         {hasil.length === 0 ? (
-          <p className="pt-kosong">
-            {adaFilter ? "Coba ubah kata kunci atau reset filter." : "Belum ada cucian yang diserahkan."}
-          </p>
+          <p className="pt-kosong">{adaFilter ? "Coba ubah kata kunci atau reset filter." : "Belum ada cucian yang diserahkan."}</p>
         ) : (
           <div className="pt-gulung">
             <table>
@@ -141,13 +121,9 @@ export default function RiwayatPetugas({ awal }: { awal: RiwayatPenyerahan[] }) 
 
         {hasil.length > UKURAN_HALAMAN && (
           <nav className="pt-halaman" aria-label="Navigasi halaman">
-            <button type="button" className="btn y s" disabled={halamanAktif <= 1} onClick={() => setHalaman(halamanAktif - 1)}>
-              ‹ Sebelumnya
-            </button>
+            <button type="button" className="btn y s" disabled={halamanAktif <= 1} onClick={() => setHalaman(halamanAktif - 1)}>‹ Sebelumnya</button>
             <span>Halaman {halamanAktif} dari {totalHalaman}</span>
-            <button type="button" className="btn y s" disabled={halamanAktif >= totalHalaman} onClick={() => setHalaman(halamanAktif + 1)}>
-              Berikutnya ›
-            </button>
+            <button type="button" className="btn y s" disabled={halamanAktif >= totalHalaman} onClick={() => setHalaman(halamanAktif + 1)}>Berikutnya ›</button>
           </nav>
         )}
       </section>

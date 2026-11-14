@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import HeaderHalaman from "./HeaderHalaman";
 import ItemNotifikasi from "./ItemNotifikasi";
 import { useNotifikasi } from "./NotifikasiProvider";
 import { saring, type ModeNotifikasi } from "@/lib/petugas/notifikasi";
@@ -13,12 +13,7 @@ export default function HalamanNotifikasi() {
 
   return (
     <>
-      <div className="pt-kepala">
-        <h1 className="pt-d" style={{ fontSize: 40, color: "var(--b)" }}>Notifikasi</h1>
-        <Link href="/petugas" style={{ fontWeight: 700, textDecoration: "underline" }}>
-          ← Kembali ke dashboard
-        </Link>
-      </div>
+      <HeaderHalaman judul="Notifikasi" hrefKembali="/petugas" />
 
       <section className="pt-kartu" style={{ maxWidth: 820 }}>
         <div className="pt-kepala-kartu">

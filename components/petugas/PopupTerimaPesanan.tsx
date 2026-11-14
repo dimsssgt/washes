@@ -74,7 +74,7 @@ export default function PopupTerimaPesanan({ pesanan, draf, setDraf, onBatal, on
             </>
           )}
 
-          <label htmlFor="pt-jumlah">Jumlah item (pcs){kiloan ? " — opsional" : ""}</label>
+          <label htmlFor="pt-jumlah">Jumlah item (pcs), hitung semua pakaian</label>
           <input
             id="pt-jumlah"
             type="text"

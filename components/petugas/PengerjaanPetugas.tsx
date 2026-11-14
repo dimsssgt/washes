@@ -1,117 +1,132 @@
 "use client";
 
-import LoncengPetugas from "./LoncengPetugas";
 import { useState } from "react";
-import PopupKonfirmasiPenyerahan, { type DataPenyerahan } from "./PopupKonfirmasiPenyerahan";
-import PopupKonfirmasiSimpanTahap from "./PopupKonfirmasiSimpanTahap";
-import PopupUpdateTahap from "./PopupUpdateTahap";
+import HeaderHalaman from "./HeaderHalaman";
+import { usePetugas } from "./PetugasProvider";
+import PopupJejak from "./PopupJejak";
+import PopupKonfirmasiPenyerahan from "./PopupKonfirmasiPenyerahan";
+import PopupSerahTerima from "./PopupSerahTerima";
+import PopupVerifikasiSelisih from "./PopupVerifikasiSelisih";
+import TabelAntrianBagian from "./TabelAntrianBagian";
+import TabelPemantauan from "./TabelPemantauan";
 import TabelPenyerahan from "./TabelPenyerahan";
-import TabelProses from "./TabelProses";
-import {
-  LABEL_TAHAP,
-  bolehPindahTahap,
-  dalamProses,
-  siapDiserahkan,
-  tahapBerikutnya,
-  type PesananKerja,
-  type Tahap,
-} from "@/lib/petugas/pengerjaan";
+import TabelVerifikasi from "./TabelVerifikasi";
+import { LABEL_BAGIAN, PENERIMA_BERIKUTNYA, adaSelisihTerbuka, type Jejak, type PesananAlur } from "@/lib/petugas/alur";
 
-type Popup = "tutup" | "update" | "konfirmasiTahap" | "serah";
+type Popup = "tutup" | "terima" | "verifikasi" | "serah" | "jejak";
 
-export default function PengerjaanPetugas({ awal }: { awal: PesananKerja[] }) {
-  const [daftar, setDaftar] = useState<PesananKerja[]>(awal);
-  const [dipilih, setDipilih] = useState<PesananKerja | null>(null);
-  const [tujuan, setTujuan] = useState<Tahap | null>(null);
+export default function PengerjaanPetugas() {
+  const { pengguna, kerja, hitungSerahTerima, verifikasi, serahkan } = usePetugas();
   const [popup, setPopup] = useState<Popup>("tutup");
+  const [kodeDipilih, setKodeDipilih] = useState<string | null>(null);
+  const [jejakId, setJejakId] = useState<string | null>(null);
   const [pesan, setPesan] = useState("");
+
+  const bagian = pengguna.bagian;
+  const frontOffice = bagian === "front_office";
+  const dipilih = kerja.find((p) => p.kode === kodeDipilih) ?? null;
+  const jejakDipilih = dipilih?.jejak.find((j) => j.id === jejakId) ?? null;
+
+  const antrianBagian = kerja.filter((p) => PENERIMA_BERIKUTNYA[p.tahap] === bagian && !adaSelisihTerbuka(p));
+  const siapSerah = kerja.filter((p) => p.tahap === "siap");
+  const berjalan = kerja.filter((p) => p.tahap !== "selesai");
+
+  function buka(jenis: Popup, p: PesananAlur, j?: Jejak) {
+    setKodeDipilih(p.kode);
+    setJejakId(j?.id ?? null);
+    setPesan("");
+    setPopup(jenis);
+  }
 
   function tutup() {
     setPopup("tutup");
-    setDipilih(null);
-    setTujuan(null);
-  }
-
-  function bukaUpdate(p: PesananKerja) {
-    const berikut = tahapBerikutnya(p.tahap);
-    if (!berikut) return;
-    setDipilih(p);
-    setTujuan(berikut);
-    setPesan("");
-    setPopup("update");
-  }
-
-  function simpanTahap() {
-    if (!dipilih || !tujuan || !bolehPindahTahap(dipilih.tahap, tujuan)) return;
-    // TODO (Supabase): ubah status pesanan, tulis log status, dan buat notifikasi
-    // untuk pelanggan, sebaiknya dalam satu server action.
-    setDaftar((d) => d.map((p) => (p.kode === dipilih.kode ? { ...p, tahap: tujuan } : p)));
-    setPesan(`Tahap ${dipilih.kode} diperbarui menjadi "${LABEL_TAHAP[tujuan]}".`);
-    tutup();
-  }
-
-  function bukaSerah(p: PesananKerja) {
-    setDipilih(p);
-    setPesan("");
-    setPopup("serah");
-  }
-
-  function serahkan(data: DataPenyerahan) {
-    if (!dipilih) return;
-    // TODO (Supabase): catat pembayaran (metode, waktu, petugas), ubah status
-    // jadi "selesai", dan simpan nama penerima.
-    setDaftar((d) =>
-      d.map((p) =>
-        p.kode === dipilih.kode
-          ? { ...p, tahap: "selesai", lunas: true, metodeBayar: data.metodeBayar, penerima: data.penerima }
-          : p,
-      ),
-    );
-    setPesan(`Pesanan ${dipilih.kode} sudah diserahkan kepada ${data.penerima}.`);
-    tutup();
+    setKodeDipilih(null);
+    setJejakId(null);
   }
 
   return (
     <>
-      <div className="pt-kepala">
-        <LoncengPetugas />
-        <h1 className="pt-d" style={{ fontSize: 40, color: "var(--b)" }}>Pengerjaan</h1>
-      </div>
+      <HeaderHalaman judul="Pengerjaan" hrefKembali="/petugas" />
+
+      <p className="pt-hint" style={{ margin: 0 }}>
+        Masuk sebagai <b>{pengguna.nama}</b>, bagian <b>{LABEL_BAGIAN[bagian]}</b>.
+      </p>
 
       <div aria-live="polite">{pesan && <p className="pt-pesan">{pesan}</p>}</div>
 
-      <section id="proses" className="pt-kartu">
-        <h2 className="pt-d">Proses pengerjaan</h2>
-        <TabelProses daftar={dalamProses(daftar)} onUbah={bukaUpdate} />
+      <section id="antrian" className="pt-kartu">
+        <h2 className="pt-d">Perlu diterima di {LABEL_BAGIAN[bagian]}</h2>
+        <p className="pt-hint">Hitung ulang jumlah pakaian saat menerima. Kalau tidak sama dengan catatan, tulis catatan selisih.</p>
+        <TabelAntrianBagian daftar={antrianBagian} onTerima={(p) => buka("terima", p)} />
       </section>
 
-      <section id="penyerahan" className="pt-kartu">
-        <h2 className="pt-d">Penyerahan cucian</h2>
-        <TabelPenyerahan daftar={siapDiserahkan(daftar)} onSerahkan={bukaSerah} />
+      {frontOffice && (
+        <>
+          <section id="verifikasi" className="pt-kartu">
+            <h2 className="pt-d">Perlu verifikasi</h2>
+            <p className="pt-hint">Pesanan dengan selisih ditahan sampai Front Office memverifikasi.</p>
+            <TabelVerifikasi daftar={kerja} onVerifikasi={(p, j) => buka("verifikasi", p, j)} />
+          </section>
+
+          <section id="penyerahan" className="pt-kartu">
+            <h2 className="pt-d">Penyerahan cucian</h2>
+            <TabelPenyerahan daftar={siapSerah} onSerahkan={(p) => buka("serah", p)} />
+          </section>
+        </>
+      )}
+
+      <section id="pemantauan" className="pt-kartu">
+        <h2 className="pt-d">Pemantauan semua pesanan</h2>
+        <p className="pt-hint">Posisi cucian dan status pengecekan jumlah. Klik Lihat untuk jejak lengkap.</p>
+        <TabelPemantauan daftar={berjalan} onJejak={(p) => buka("jejak", p)} />
       </section>
 
-      {popup === "update" && dipilih && tujuan && (
-        <PopupUpdateTahap
+      {popup === "terima" && dipilih && (
+        <PopupSerahTerima
           pesanan={dipilih}
-          tujuanAwal={tujuan}
+          bagian={bagian}
           onBatal={tutup}
-          onLanjut={(t) => {
-            setTujuan(t);
-            setPopup("konfirmasiTahap");
+          onKonfirmasi={(jumlah, catatan) => {
+            const galat = hitungSerahTerima(dipilih.kode, jumlah, catatan);
+            if (galat) return galat;
+            setPesan(
+              jumlah === dipilih.jumlahAcuan
+                ? `Pesanan ${dipilih.kode} diterima, jumlah sesuai.`
+                : `Pesanan ${dipilih.kode} diterima dengan selisih. Menunggu verifikasi Front Office.`,
+            );
+            tutup();
+            return null;
           }}
         />
       )}
-      {popup === "konfirmasiTahap" && dipilih && tujuan && (
-        <PopupKonfirmasiSimpanTahap
+      {popup === "verifikasi" && dipilih && jejakDipilih && (
+        <PopupVerifikasiSelisih
           pesanan={dipilih}
-          tujuan={tujuan}
-          onYa={simpanTahap}
-          onKembali={() => setPopup("update")}
+          jejak={jejakDipilih}
+          onBatal={tutup}
+          onVerifikasi={(catatan, jumlahBaru) => {
+            const galat = verifikasi(dipilih.kode, jejakDipilih.id, catatan, jumlahBaru);
+            if (galat) return galat;
+            setPesan(`Selisih pesanan ${dipilih.kode} sudah diverifikasi. Pesanan bisa dilanjutkan.`);
+            tutup();
+            return null;
+          }}
         />
       )}
       {popup === "serah" && dipilih && (
-        <PopupKonfirmasiPenyerahan pesanan={dipilih} onBatal={tutup} onSerahkan={serahkan} />
+        <PopupKonfirmasiPenyerahan
+          pesanan={dipilih}
+          onBatal={tutup}
+          onSerahkan={(d) => {
+            const galat = serahkan(dipilih.kode, d);
+            if (galat) return galat;
+            setPesan(`Pesanan ${dipilih.kode} sudah diserahkan kepada ${d.penerima.trim()}.`);
+            tutup();
+            return null;
+          }}
+        />
       )}
+      {popup === "jejak" && dipilih && <PopupJejak pesanan={dipilih} onTutup={tutup} />}
     </>
   );
 }
