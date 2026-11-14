@@ -209,17 +209,24 @@ export default function RiwayatPesananClient() {
         </p>
       </section>
 
-      {/* Popup Invoice Riwayat */}
+      {/* Popup Invoice Riwayat (Zoom & Responsive Safe) */}
       {selectedInvoice && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-5"
-          style={{ background: "rgba(51,71,126,0.85)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{
+            background: "rgba(51,71,126,0.85)",
+            overflowY: "auto",
+            WebkitOverflowScrolling: "touch",
+          }}
           onClick={(e) => e.target === e.currentTarget && setSelectedInvoice(null)}
         >
           <div
             style={{
               width: "100%",
-              maxWidth: 420,
+              maxWidth: 440,
+              maxHeight: "calc(100vh - 40px)",
+              overflowY: "auto",
+              margin: "auto",
               background: "#fff",
               border: "2px solid #0B2A6B",
               borderRadius: 18,

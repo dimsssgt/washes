@@ -28,6 +28,8 @@ export default function PelangganLayout({
           gap: 32,
           background: "#EEF2F7",
           minHeight: "100vh",
+          minWidth: 0,
+          overflowX: "hidden",
         }}
       >
         {children}

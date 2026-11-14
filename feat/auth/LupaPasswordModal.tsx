@@ -48,8 +48,12 @@ export default function LupaPasswordModal({ onClose }: LupaPasswordModalProps) {
   return (
     // Overlay
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-5"
-      style={{ background: "rgba(51,71,126,0.85)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{
+        background: "rgba(51,71,126,0.85)",
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
+      }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       {/* Card */}
@@ -57,6 +61,9 @@ export default function LupaPasswordModal({ onClose }: LupaPasswordModalProps) {
         style={{
           width: "100%",
           maxWidth: 420,
+          maxHeight: "calc(100vh - 40px)",
+          overflowY: "auto",
+          margin: "auto",
           background: "#fff",
           border: "2px solid #0B2A6B",
           borderRadius: 18,
@@ -64,7 +71,7 @@ export default function LupaPasswordModal({ onClose }: LupaPasswordModalProps) {
           padding: 28,
           boxSizing: "border-box",
           color: "#0B2A6B",
-          fontFamily: "'Space Mono', monospace",
+          fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
         }}
       >
         {sent ? (

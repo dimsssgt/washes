@@ -420,8 +420,12 @@ export default function BuatPesananSection() {
       {/* Modal KonfirmasiKirimPesanan */}
       {showKonfirmasi && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-5"
-          style={{ background: "rgba(51,71,126,0.85)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{
+            background: "rgba(51,71,126,0.85)",
+            overflowY: "auto",
+            WebkitOverflowScrolling: "touch",
+          }}
           onClick={() => setShowKonfirmasi(false)}
         >
           <div
@@ -433,6 +437,9 @@ export default function BuatPesananSection() {
               padding: 28,
               maxWidth: 400,
               width: "100%",
+              maxHeight: "calc(100vh - 40px)",
+              overflowY: "auto",
+              margin: "auto",
               fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
               color: "#0B2A6B",
             }}
@@ -482,14 +489,21 @@ export default function BuatPesananSection() {
       {/* Modal Pesanan Terkirim */}
       {showTerkirim && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-5"
-          style={{ background: "rgba(51,71,126,0.85)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{
+            background: "rgba(51,71,126,0.85)",
+            overflowY: "auto",
+            WebkitOverflowScrolling: "touch",
+          }}
           onClick={() => setShowTerkirim(false)}
         >
           <div
             style={{
               width: "100%",
               maxWidth: 420,
+              maxHeight: "calc(100vh - 40px)",
+              overflowY: "auto",
+              margin: "auto",
               background: "#fff",
               border: "2px solid #0B2A6B",
               borderRadius: 18,

@@ -116,6 +116,8 @@ function ModalDetailPesanan({
         style={{
           width: "100%",
           maxWidth: 420,
+          maxHeight: "calc(100vh - 40px)",
+          overflowY: "auto",
           background: "#fff",
           border: "2px solid #0B2A6B",
           borderRadius: 18,
@@ -259,14 +261,21 @@ export function ModalQRIS({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-5"
-      style={{ background: "rgba(51,71,126,0.85)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{
+        background: "rgba(51,71,126,0.85)",
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
+      }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         style={{
           width: "100%",
           maxWidth: 420,
+          maxHeight: "calc(100vh - 40px)",
+          overflowY: "auto",
+          margin: "auto",
           background: "#fff",
           border: "2px solid #0B2A6B",
           borderRadius: 18,
@@ -347,14 +356,21 @@ function ModalKonfirmasiBayar({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-5"
-      style={{ background: "rgba(51,71,126,0.85)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{
+        background: "rgba(51,71,126,0.85)",
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
+      }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         style={{
           width: "100%",
           maxWidth: 380,
+          maxHeight: "calc(100vh - 40px)",
+          overflowY: "auto",
+          margin: "auto",
           background: "#fff",
           border: "2px solid #0B2A6B",
           borderRadius: 24,
