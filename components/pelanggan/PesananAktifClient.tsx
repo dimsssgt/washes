@@ -183,6 +183,25 @@ function ModalDetailPesanan({
               Tagihan / Invoice
             </h3>
             <div style={{ fontSize: 12, marginTop: 6 }}>{pesanan.invoiceNo} · {pesanan.estimasi}</div>
+            
+            {/* Info Alamat & Petugas */}
+            <div
+              style={{
+                background: "#F4F7FC",
+                border: "1.5px solid #C5D4F5",
+                borderRadius: 10,
+                padding: "8px 12px",
+                margin: "10px 0",
+                fontSize: 12,
+                color: "#0B2A6B",
+                display: "flex",
+                flexDirection: "column",
+                gap: 4,
+              }}
+            >
+              <div>📍 <b>Alamat:</b> Jl. Mawar No. 12, Sukolilo, Surabaya</div>
+              <div>👤 <b>Petugas:</b> Gilang Pratama (Staff Operasional)</div>
+            </div>
             <div style={{ marginTop: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
                 <span>{pesanan.layanan} · {pesanan.detail}</span>
@@ -201,7 +220,7 @@ function ModalDetailPesanan({
                 variant="yellow"
                 size="sm"
                 onClick={() => {
-                  const content = `====================================\nINVOICE RESMI - LAUNDYKU\n====================================\nInvoice: ${pesanan.invoiceNo ?? "-"}\nPesanan: ${pesanan.kode}\nLayanan: ${pesanan.layanan} (${pesanan.detail})\nEstimasi: ${pesanan.estimasi}\nStatus Bayar: ${pesanan.statusBayar === "lunas" ? "LUNAS" : "BELUM DIBAYAR"}\nTotal: ${pesanan.total ? formatRupiah(pesanan.total) : "-"}\n====================================\nTerima kasih telah menggunakan Laundyku!`;
+                  const content = `====================================\nINVOICE RESMI - LAUNDYKU\n====================================\nInvoice     : ${pesanan.invoiceNo ?? "-"}\nPesanan     : ${pesanan.kode}\nAlamat      : Jl. Mawar No. 12, Sukolilo, Surabaya\nPetugas     : Gilang Pratama (Staff Operasional)\nLayanan     : ${pesanan.layanan} (${pesanan.detail})\nEstimasi    : ${pesanan.estimasi}\nStatus Bayar: ${pesanan.statusBayar === "lunas" ? "LUNAS" : "BELUM DIBAYAR"}\nTotal       : ${pesanan.total ? formatRupiah(pesanan.total) : "-"}\n====================================\nTerima kasih telah menggunakan Laundyku!`;
                   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement("a");
@@ -427,6 +446,25 @@ export default function PesananAktifClient() {
 
   return (
     <>
+      {/* Tombol Kembali */}
+      <div style={{ marginBottom: 4 }}>
+        <Link
+          href="/pelanggan"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+            fontWeight: 700,
+            fontSize: 13,
+            color: "#0B2A6B",
+            textDecoration: "underline",
+          }}
+        >
+          ← Kembali ke dashboard pelanggan
+        </Link>
+      </div>
+
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
         <h1 style={{ fontFamily: "'Archivo Black', Impact, sans-serif", textTransform: "uppercase", letterSpacing: "-0.01em", lineHeight: 1, margin: 0, fontSize: 40, color: "#1457D6" }}>

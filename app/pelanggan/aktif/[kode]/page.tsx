@@ -170,6 +170,32 @@ export default function DetailPesananPage({
               No. {pesanan.invoiceNo ?? "INV-20261028-014"} · 28 Okt 2026
             </div>
 
+            {/* Informasi Alamat & Nama Petugas */}
+            <div
+              style={{
+                background: "#F4F7FC",
+                border: "1.5px solid #C5D4F5",
+                borderRadius: 12,
+                padding: "12px 14px",
+                marginBottom: 16,
+                fontSize: 13,
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+                color: "#0B2A6B",
+              }}
+            >
+              <div>
+                <span style={{ fontWeight: 700, color: "#1457D6" }}>📍 Alamat: </span>
+                Jl. Mawar No. 12, RT 01/RW 02, Sukolilo, Surabaya
+              </div>
+              <div>
+                <span style={{ fontWeight: 700, color: "#1457D6" }}>👤 Petugas: </span>
+                Gilang Pratama (Staff Operasional)
+              </div>
+            </div>
+
             <div style={{ overflowX: "auto" }}>
               <table style={{ borderCollapse: "collapse", width: "100%", minWidth: "100%" }}>
                 <thead>
@@ -283,7 +309,7 @@ export default function DetailPesananPage({
                 variant="yellow"
                 size="sm"
                 onClick={() => {
-                  const content = `====================================\nINVOICE RESMI - LAUNDYKU\n====================================\nNo. Invoice: ${pesanan.invoiceNo ?? "INV-20261028-014"}\nTanggal: 28 Okt 2026\nPesanan: ${pesanan.kode}\n\nRINCIAN BIAYA:\n1. Cuci Kiloan Reguler (4 kg) : Rp 24.000\n2. Antar jemput (1 trip)       : Rp 5.000\n------------------------------------\nTOTAL: Rp 29.000\nSTATUS: BELUM DIBAYAR\n====================================\nTerima kasih telah mempercayakan cucianmu kepada Laundyku!`;
+                  const content = `====================================\nINVOICE RESMI - LAUNDYKU\n====================================\nNo. Invoice : ${pesanan.invoiceNo ?? "INV-20261028-014"}\nTanggal     : 28 Okt 2026\nPesanan     : ${pesanan.kode}\nAlamat      : Jl. Mawar No. 12, RT 01/RW 02, Sukolilo, Surabaya\nPetugas     : Gilang Pratama (Staff Operasional)\n\nRINCIAN BIAYA:\n1. Cuci Kiloan Reguler (4 kg) : Rp 24.000\n2. Antar jemput (1 trip)       : Rp 5.000\n------------------------------------\nTOTAL       : Rp 29.000\nSTATUS      : BELUM DIBAYAR\n====================================\nTerima kasih telah mempercayakan cucianmu kepada Laundyku!`;
                   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement("a");

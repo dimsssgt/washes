@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Button from "@/components/ui/Button";
 
 interface RiwayatItem {
@@ -81,6 +82,25 @@ export default function RiwayatPesananClient() {
 
   return (
     <>
+      {/* Tombol Kembali */}
+      <div style={{ marginBottom: 4 }}>
+        <Link
+          href="/pelanggan"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+            fontWeight: 700,
+            fontSize: 13,
+            color: "#0B2A6B",
+            textDecoration: "underline",
+          }}
+        >
+          ← Kembali ke dashboard pelanggan
+        </Link>
+      </div>
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
         <h1
           style={{
@@ -249,6 +269,25 @@ export default function RiwayatPesananClient() {
               {selectedInvoice.invoiceNo} · {selectedInvoice.tanggal}
             </div>
 
+            {/* Info Alamat & Petugas */}
+            <div
+              style={{
+                background: "#F4F7FC",
+                border: "1.5px solid #C5D4F5",
+                borderRadius: 10,
+                padding: "8px 12px",
+                marginBottom: 12,
+                fontSize: 12,
+                color: "#0B2A6B",
+                display: "flex",
+                flexDirection: "column",
+                gap: 4,
+              }}
+            >
+              <div>📍 <b>Alamat:</b> Jl. Mawar No. 12, Sukolilo, Surabaya</div>
+              <div>👤 <b>Petugas:</b> Gilang Pratama (Staff Operasional)</div>
+            </div>
+
             {/* List Detail */}
             <div>
               {[
@@ -289,7 +328,7 @@ export default function RiwayatPesananClient() {
               <Button
                 size="sm"
                 onClick={() => {
-                  const content = `====================================\nINVOICE RESMI - LAUNDYKU\n====================================\nInvoice: ${selectedInvoice.invoiceNo}\nPesanan: ${selectedInvoice.kode}\nTanggal: ${selectedInvoice.tanggal}\nLayanan: ${selectedInvoice.layanan} (${selectedInvoice.jumlah})\nStatus: ${selectedInvoice.statusPesanan}\nDibayar: ${selectedInvoice.dibayar}\n------------------------------------\nRincian Layanan: ${formatRupiah(selectedInvoice.rincianLayanan)}\nAntar Jemput: ${formatRupiah(selectedInvoice.ongkir)}\nTOTAL: ${formatRupiah(selectedInvoice.total)}\n====================================\nStatus: LUNAS\nTerima kasih telah menggunakan Laundyku!`;
+                  const content = `====================================\nINVOICE RESMI - LAUNDYKU\n====================================\nInvoice     : ${selectedInvoice.invoiceNo}\nPesanan     : ${selectedInvoice.kode}\nTanggal     : ${selectedInvoice.tanggal}\nAlamat      : Jl. Mawar No. 12, Sukolilo, Surabaya\nPetugas     : Gilang Pratama (Staff Operasional)\nLayanan     : ${selectedInvoice.layanan} (${selectedInvoice.jumlah})\nStatus      : ${selectedInvoice.statusPesanan}\nDibayar     : ${selectedInvoice.dibayar}\n------------------------------------\nRincian Layanan: ${formatRupiah(selectedInvoice.rincianLayanan)}\nAntar Jemput: ${formatRupiah(selectedInvoice.ongkir)}\nTOTAL: ${formatRupiah(selectedInvoice.total)}\n====================================\nStatus: LUNAS\nTerima kasih telah menggunakan Laundyku!`;
                   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement("a");

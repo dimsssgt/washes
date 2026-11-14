@@ -29,7 +29,7 @@ export default function LupaPasswordModal({ onClose }: LupaPasswordModalProps) {
 
     const result = lupaPasswordSchema.safeParse(values);
     if (!result.success) {
-      setErrors({ identifier: result.error.errors[0].message });
+      setErrors({ identifier: result.error.issues[0].message });
       return;
     }
 

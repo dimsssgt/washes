@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Button from "@/components/ui/Button";
 
 interface NotificationItem {
@@ -60,6 +61,25 @@ export default function NotifikasiClient() {
 
   return (
     <>
+      {/* Tombol Kembali */}
+      <div style={{ marginBottom: 4 }}>
+        <Link
+          href="/pelanggan"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+            fontWeight: 700,
+            fontSize: 13,
+            color: "#0B2A6B",
+            textDecoration: "underline",
+          }}
+        >
+          ← Kembali ke dashboard pelanggan
+        </Link>
+      </div>
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
         <h1
           style={{

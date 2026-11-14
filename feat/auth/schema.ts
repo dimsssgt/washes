@@ -26,6 +26,9 @@ export const registerSchema = z
       .string()
       .min(1, "Email wajib diisi")
       .email("Format email tidak valid"),
+    alamat: z
+      .string()
+      .min(5, "Alamat wajib diisi (minimal 5 karakter)"),
     password: z
       .string()
       .min(1, "Password wajib diisi")

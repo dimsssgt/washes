@@ -66,12 +66,38 @@ export default function LoginPage() {
         <div
           style={{
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             padding: 48,
             background: "#FFF4DE",
           }}
         >
+          {/* Tombol Kembali ke Beranda */}
+          <div style={{ width: "100%", maxWidth: 460, marginBottom: 14 }}>
+            <Link
+              href="/"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#0B2A6B",
+                textDecoration: "none",
+                background: "#fff",
+                border: "2px solid #0B2A6B",
+                borderRadius: 999,
+                padding: "8px 18px",
+                boxShadow: "3px 3px 0 #0B2A6B",
+                transition: "transform 0.1s",
+              }}
+            >
+              ← Kembali ke Beranda
+            </Link>
+          </div>
+
           <div
             style={{
               width: "100%",
@@ -84,14 +110,6 @@ export default function LoginPage() {
               color: "#0B2A6B",
             }}
           >
-            <h2
-              className="d"
-              style={{ fontSize: 32, color: "#1457D6", marginBottom: 8, fontFamily: "'Archivo Black', Impact, sans-serif", textTransform: "uppercase", letterSpacing: "-0.01em", lineHeight: 1 }}
-            >
-              Masuk
-            </h2>
-            <p style={{ margin: "0 0 20px", fontSize: 13 }}>Isi akunmu untuk masuk.</p>
-
             <LoginForm />
           </div>
         </div>

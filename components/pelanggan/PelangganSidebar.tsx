@@ -83,6 +83,27 @@ export default function PelangganSidebar() {
       {/* Spacer */}
       <div style={{ flex: 1 }} />
 
+      {/* Tombol Kembali ke Beranda Utama */}
+      <Link
+        href="/"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "8px 12px",
+          borderRadius: 10,
+          background: "rgba(255,255,255,0.12)",
+          color: "#fff",
+          fontSize: 12,
+          fontWeight: 600,
+          marginBottom: 10,
+          textDecoration: "none",
+          fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+        }}
+      >
+        ← Beranda Utama
+      </Link>
+
       {/* User info */}
       <div
         style={{
