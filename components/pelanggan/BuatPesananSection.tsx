@@ -420,10 +420,14 @@ export default function BuatPesananSection() {
       {/* Modal KonfirmasiKirimPesanan */}
       {showKonfirmasi && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 overflow-y-auto"
           style={{
             background: "rgba(51,71,126,0.85)",
-            overflowY: "auto",
+            padding: "40px 16px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            zIndex: 9999,
             WebkitOverflowScrolling: "touch",
           }}
           onClick={() => setShowKonfirmasi(false)}
@@ -437,9 +441,7 @@ export default function BuatPesananSection() {
               padding: 28,
               maxWidth: 400,
               width: "100%",
-              maxHeight: "calc(100vh - 40px)",
-              overflowY: "auto",
-              margin: "auto",
+              margin: "auto 0",
               fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
               color: "#0B2A6B",
             }}
@@ -489,10 +491,14 @@ export default function BuatPesananSection() {
       {/* Modal Pesanan Terkirim */}
       {showTerkirim && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 overflow-y-auto"
           style={{
             background: "rgba(51,71,126,0.85)",
-            overflowY: "auto",
+            padding: "40px 16px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            zIndex: 9999,
             WebkitOverflowScrolling: "touch",
           }}
           onClick={() => setShowTerkirim(false)}
@@ -501,9 +507,7 @@ export default function BuatPesananSection() {
             style={{
               width: "100%",
               maxWidth: 420,
-              maxHeight: "calc(100vh - 40px)",
-              overflowY: "auto",
-              margin: "auto",
+              margin: "auto 0",
               background: "#fff",
               border: "2px solid #0B2A6B",
               borderRadius: 18,

@@ -108,16 +108,22 @@ function ModalDetailPesanan({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-5"
-      style={{ background: "rgba(51,71,126,0.85)", overflowY: "auto" }}
+      className="fixed inset-0 z-50 overflow-y-auto"
+      style={{
+        background: "rgba(51,71,126,0.85)",
+        padding: "40px 16px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        zIndex: 9999,
+        WebkitOverflowScrolling: "touch",
+      }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         style={{
           width: "100%",
           maxWidth: 420,
-          maxHeight: "calc(100vh - 40px)",
-          overflowY: "auto",
           background: "#fff",
           border: "2px solid #0B2A6B",
           borderRadius: 18,
@@ -125,7 +131,7 @@ function ModalDetailPesanan({
           padding: 28,
           fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
           color: "#0B2A6B",
-          margin: "auto",
+          margin: "auto 0",
         }}
       >
         {/* Header */}
@@ -261,10 +267,14 @@ export function ModalQRIS({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 overflow-y-auto"
       style={{
         background: "rgba(51,71,126,0.85)",
-        overflowY: "auto",
+        padding: "40px 16px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        zIndex: 9999,
         WebkitOverflowScrolling: "touch",
       }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
@@ -273,9 +283,6 @@ export function ModalQRIS({
         style={{
           width: "100%",
           maxWidth: 420,
-          maxHeight: "calc(100vh - 40px)",
-          overflowY: "auto",
-          margin: "auto",
           background: "#fff",
           border: "2px solid #0B2A6B",
           borderRadius: 18,
@@ -283,6 +290,7 @@ export function ModalQRIS({
           padding: 28,
           fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
           color: "#0B2A6B",
+          margin: "auto 0",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 8 }}>
@@ -356,10 +364,14 @@ function ModalKonfirmasiBayar({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 overflow-y-auto"
       style={{
         background: "rgba(51,71,126,0.85)",
-        overflowY: "auto",
+        padding: "40px 16px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        zIndex: 9999,
         WebkitOverflowScrolling: "touch",
       }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
@@ -368,9 +380,6 @@ function ModalKonfirmasiBayar({
         style={{
           width: "100%",
           maxWidth: 380,
-          maxHeight: "calc(100vh - 40px)",
-          overflowY: "auto",
-          margin: "auto",
           background: "#fff",
           border: "2px solid #0B2A6B",
           borderRadius: 24,
@@ -378,6 +387,7 @@ function ModalKonfirmasiBayar({
           padding: 26,
           fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
           color: "#0B2A6B",
+          margin: "auto 0",
         }}
       >
         <h2 style={{ fontFamily: "'Archivo Black', Impact, sans-serif", textTransform: "uppercase", fontSize: 22, color: "#1457D6" }}>
