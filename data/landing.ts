@@ -1,14 +1,12 @@
-// Semua teks & harga landing page ada di sini.
-// Ubah isi di file ini saja, komponen tidak perlu diedit.
 
 export const SITE = {
   name: "Laundyku",
-  whatsapp: "+62 856 4791 6005", // TODO: ganti nomor WhatsApp asli
-  address: "Jl. pamularsih Raya,", // TODO: ganti alamat asli
-  orderHref: "#login", // TODO: arahkan ke halaman pemesanan
+  whatsapp: "+62 856 4791 6005", 
+  address: "Jl. pamularsih Raya,", 
+  orderHref: "#login", 
   statusHref: "#status",
 };
-
+ 
 export const NAV_LINKS = [
   { label: "Layanan", href: "#layanan" },
   { label: "Harga", href: "#harga" },
@@ -16,34 +14,64 @@ export const NAV_LINKS = [
   { label: "Cek Status", href: "#status" },
   { label: "Jam Buka", href: "#jam" },
 ];
-
+ 
 export const SERVICES = [
   {
     title: "Cuci Kiloan",
-    desc: "Cuci, kering, dan dilipat rapi. Cocok untuk pakaian harian.",
+    tagline: "Cucian harian, tanpa khawatir",
+    lead: "Pakaianmu dicuci di mesin khusus untukmu sendiri, lalu dikeringkan dan dilipat rapi siap pakai.",
+    highlight: { label: "Mulai dari", value: "Rp 5.000/kg" },
+    points: ["Satu mesin, satu customer", "Pilih lipat atau gosok", "Minimal 3 kg", "Express 6 jam"],
+    image: "/layanan/kiloan.jpg",
+    imageAlt: "Tas cucian kiloan siap diproses",
   },
   {
     title: "Cuci Satuan",
-    desc: "Dicuci per item untuk pakaian khusus, sepatu, tas, dan lainnya.",
+    tagline: "Baju kesayangan, ditangani pelan-pelan",
+    lead: "Baju kerja, gaun, jas, dan jaket dirawat satu per satu supaya bentuk dan bahannya tetap terjaga.",
+    highlight: { label: "Mulai dari", value: "Rp 12.000/item" },
+    points: ["Tanpa minimal pesanan", "Reguler 3 hari", "Express 24 jam"],
+    image: "/layanan/satuan.jpg",
+    imageAlt: "Pakaian satuan dirawat dengan steamer",
   },
   {
     title: "Cuci Linen",
-    desc: "Sprei, bed cover, selimut, gorden, dan linen lainnya.",
+    tagline: "Tidur nyenyak mulai dari sprei bersih",
+    lead: "Sprei, bed cover, selimut, dan bantal kembali segar dan bersih, siap dipakai malam ini juga.",
+    highlight: { label: "Sprei mulai", value: "Rp 20.000" },
+    points: ["Gorden dihitung per meter", "Reguler 3 hari", "Express 24 jam"],
+    image: "/layanan/linen.jpg",
+    imageAlt: "Linen dikeringkan di mesin pengering",
   },
   {
     title: "Self Service",
-    desc: "Cuci sendiri di outlet dengan mesin bersih dan siap pakai.",
+    tagline: "Kamu yang pegang kendali",
+    lead: "Mesin bersih dan siap pakai. Cuci sendiri, lalu tunggu sambil bersantai di ruangan ber-AC.",
+    highlight: { label: "Mesin 8 kg", value: "Rp 15.000 / 30 menit" },
+    points: ["Mesin 8 kg & 12 kg", "Pengering A & B", "Ruangan ber-AC"],
+    image: "/layanan/self-services.jpg",
+    imageAlt: "Pelanggan memakai mesin cuci self service",
   },
   {
     title: "Antar Jemput",
-    desc: "Kurir menjemput cucianmu dan mengantarnya kembali. Rp 5.000 per perjalanan.",
+    tagline: "Tak perlu keluar rumah",
+    lead: "Kurir datang ke alamatmu dan mengantar cucianmu kembali ke depan pintu.",
+    highlight: { label: "Biaya", value: "Rp 5.000 / perjalanan" },
+    points: ["Kurir datang maks. 30 menit", "Bayar QRIS atau transfer", "Diantar kembali"],
+    image: "/layanan/antar-jemput.jpg",
+    imageAlt: "Kurir dengan motor antar jemput",
   },
   {
     title: "Status Realtime",
-    desc: "Pantau cucianmu langsung: diterima, dicuci, disetrika, siap diambil, hingga selesai.",
+    tagline: "Tanpa menebak-nebak",
+    lead: "Pantau cucianmu dari diterima sampai siap diambil, langsung dari layar kamu.",
+    highlight: { label: "Update", value: "Setiap tahap" },
+    points: ["Dari diterima sampai selesai", "Estimasi selesai terlihat", "Tahu cucian ada di tahap mana"],
+    image: "/layanan/status-realtime.jpg",
+    imageAlt: "Kurir mencuci dengan keranjang cucian",
   },
 ];
-
+ 
 export type PriceTable = {
   id: string;
   label: string;
@@ -51,7 +79,7 @@ export type PriceTable = {
   rows: { name: string; prices: string[] }[];
   note?: string;
 };
-
+ 
 export const PRICE_TABLES: PriceTable[] = [
   {
     id: "kiloan",
@@ -105,20 +133,20 @@ export const PRICE_TABLES: PriceTable[] = [
     ],
   },
 ];
-
+ 
 export const STEPS = [
   { title: "Isi reservasi", desc: "Isi form pemesanan atau chat WhatsApp." },
   { title: "Dijemput kurir", desc: "Kurir menjemput ke alamatmu." },
   { title: "Diproses", desc: "Satu mesin untuk satu customer." },
   { title: "Diantar", desc: "Bersih, wangi, dan rapi di depan pintu." },
 ];
-
+ 
 export type StatusStep = {
   label: string;
   state: "done" | "active" | "todo";
   note?: string;
 };
-
+ 
 // Contoh tampilan timeline status. Sambungkan ke data pesanan asli nanti.
 export const SAMPLE_STATUS: StatusStep[] = [
   { label: "Menunggu jemput", state: "done" },
@@ -129,15 +157,15 @@ export const SAMPLE_STATUS: StatusStep[] = [
   { label: "Siap diantar/diambil", state: "todo" },
   { label: "Selesai", state: "todo" },
 ];
-
+ 
 export const SAMPLE_CODE = "LDY-20261028-014";
-
+ 
 export const HOURS = [
   { day: "Senin – Jumat", time: "07.00 – 21.00" },
   { day: "Sabtu", time: "08.00 – 20.00" },
   { day: "Minggu", time: "09.00 – 17.00" },
 ];
-
+ 
 export const TESTIMONIALS = [
   {
     quote: "Cepat, wangi, rapi, dan ada layanan antar jemput. Tidak khawatir kehabisan baju.",
@@ -170,7 +198,7 @@ export const TESTIMONIALS = [
     tone: "white" as const,
   },
 ];
-
+ 
 export const FAQ = [
   {
     q: "Berapa minimal cuci?",
@@ -189,3 +217,4 @@ export const FAQ = [
     a: "Bayar lewat QRIS atau transfer. Estimasi waktu dimulai setelah pembayaran lunas.",
   },
 ];
+ 

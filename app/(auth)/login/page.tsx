@@ -53,7 +53,7 @@ export default function LoginPage() {
             }}
           >
             <Image
-              src="/hero-laundry.webp"
+              src="/herolaundry.webp"
               alt="Ilustrasi Laundry"
               fill
               style={{ objectFit: "cover" }}

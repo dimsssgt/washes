@@ -1,5 +1,7 @@
 import Navbar from "@/components/landingpage/Navbar";
+import NavbarWrapper from "@/components/landingpage/NavbarWrapper";
 import Hero from "@/components/landingpage/Hero";
+import Baju from "@/components/landingpage/Baju";
 import Marquee from "@/components/landingpage/Marquee";
 import Services from "@/components/landingpage/Services";
 import Marquee1 from "@/components/landingpage/Marquee1";
@@ -13,9 +15,12 @@ import Footer from "@/components/landingpage/Footer";
 export default function Home() {
   return (
     <>
-      <Navbar />
+      <NavbarWrapper>
+        <Navbar />
+      </NavbarWrapper>
       <main>
         <Hero />
+        {/* <Baju /> */}
         <Marquee />
         <Services />
         <Marquee1 />

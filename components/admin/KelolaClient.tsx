@@ -14,7 +14,6 @@ type Popup =
   | { jenis: "harga"; data: Harga }
   | { jenis: "pengguna"; data: Pengguna | null }
   | { jenis: "lihatPengguna"; data: Pengguna }
-  | { jenis: "nonaktifkan"; data: Pengguna }
   | { jenis: "hapusPengguna"; data: Pengguna };
 
 interface KelolaClientProps {

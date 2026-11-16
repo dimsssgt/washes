@@ -12,8 +12,8 @@ export default function Pricing() {
   return (
     <section id="harga" className="border-b-[3px] border-ink bg-cream py-40">
       <div className="container-lk">
-        <SectionTitle className="mb-4 text-brand md:text-[80px]">Harga &amp; kecepatan</SectionTitle>
-        <p className="mb-10 max-w-[640px] text-lg">
+        <SectionTitle className="mb-4 text-brand md:text-[80px]">Harga</SectionTitle>
+        <p className="mb-10 max-w-[640px] text-ink text-lg">
           Pilih jenis laundry, lalu lihat harga dan kecepatannya. Harga belum
           termasuk antar jemput.
         </p>
@@ -38,7 +38,6 @@ export default function Pricing() {
           })}
         </div>
 
-        {/* Tabel harga — font lebih besar */}
         <div role="tabpanel" className="card-brut overflow-x-auto bg-white p-8">
           <table className="w-full min-w-[640px] border-collapse text-left font-mono text-base">
             <thead>
