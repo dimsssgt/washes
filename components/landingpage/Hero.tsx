@@ -1,47 +1,81 @@
 import Image from "next/image";
 import Button from "@/components/landingpage/ui/Button";
-import { SITE } from "@/data/landing";
+
+const HERO_IMAGE = "/hero/hero.webp";
+const HERO_ALT = "Maskot Washes duduk di antara tumpukan pakaian dan mesin cuci";
 
 export default function Hero() {
   return (
-    <section className="bg-grid py-20 md:min-h-[min(1950px,calc(109vh-85px))] md:py-0 md:flex md:items-center">
-      <div className="container-lk grid items-center gap-10 md:grid-cols-2">
-        <div>
-          <h1 className="font-display text-[44px] uppercase leading-[0.98] text-brand md:text-[78px]">
-            <span className="bg-paper px-1 box-decoration-clone">
-              Laundry ramah di lingkungan
-              <br />
-              mu
-            </span>
+    <section className="relative isolate overflow-hidden bg-paper">
+      {/* Mobile: foto full screen, konten di atasnya */}
+      <div className="relative flex min-h-[100svh] flex-col md:hidden">
+        <Image
+          src={HERO_IMAGE}
+          alt={HERO_ALT}
+          fill
+          priority
+          sizes="100vw"
+          className="-z-10 object-cover object-center"
+        />
+
+        <div className="flex flex-1 flex-col px-6 pb-8 pt-24">
+          <span className="chip self-start -rotate-2 bg-white px-4 py-2 text-xs uppercase shadow-brut-sm">
+            Satu mesin, satu pelanggan
+          </span>
+
+          <h1 className="mt-6 font-display text-[60px] uppercase leading-[1.05] text-brand">
+            You Leave It,
+            <br />
+            We Clean It
           </h1>
-          <p className="my-7 inline-block max-w-[440px] bg-paper p-2 text-ink text-sm leading-relaxed">
-            Jemput cuciannya, cuci bersih, antar kembali wangi dan rapi. Satu
-            mesin untuk satu pelanggan, tanpa dicampur.
-          </p>
-          <div className="flex flex-wrap gap-3 ">
-            <Button href="/login" className="transition-all duration-200 hover:scale-105">Pesan Sekarang</Button>
+
+          <div className="mt-auto flex flex-col gap-7">
+            <div className="flex items-center justify-between">
+              <span className="chip -rotate-4 bg-sun px-4 py-2 text-xs uppercase shadow-brut-sm">
+                Jemput maks. 30 menit
+              </span>
+              <span className="chip rotate-4 bg-white px-4 py-2 text-xs uppercase shadow-brut-sm">
+                Express 6 jam
+              </span>
+            </div>
+            <Button href="/login" className="w-full transition-all duration-200 active:scale-95">
+              Pesan Sekarang
+            </Button>
           </div>
         </div>
+      </div>
 
-        <div className="relative flex min-h-[440px] items-center justify-center md:translate-x-[30px]">
-          <div className="relative h-[420px] w-full max-w-[380px]">
-            <div className="relative h-full w-full overflow-hidden rounded-t-[190px] rounded-b-[24px] border-[3px] border-ink shadow-brut">
-              <Image
-                src="/herolaundry.webp"
-                alt="Maskot"
-                fill
-                priority
-                sizes="(max-width: 768px) 90vw, 380px"
-                className="object-cover"
-              />
-            </div>
-            <span className="chip absolute -left-4 top-12 -rotate-6 z-10 text-sm md:text-base px-4 py-2 shadow-brut-sm">
-              Jemput maks. 30 menit
-            </span>
-            <span className="chip absolute -right-4 bottom-14 rotate-6 bg-white z-10 text-sm md:text-base px-4 py-2 shadow-brut-sm">
-              Express 6 jam
-            </span>
-          </div>
+      {/* Desktop: foto full viewport, susunan teks mengikuti desain */}
+      <div className="relative hidden h-[100svh] md:block">
+        <Image
+          src={HERO_IMAGE}
+          alt={HERO_ALT}
+          fill
+          priority
+          sizes="100vw"
+          className="-z-10 object-cover object-center"
+        />
+
+        <h1 className="absolute left-0 right-0 top-[90px] text-center font-display text-[72px] uppercase leading-[1.02] text-brand">
+          You Leave It,
+          <br />
+          We Clean It
+        </h1>
+
+        <span className="chip absolute left-[27%] top-[350px] -rotate-2 bg-white px-5 py-2 text-sm uppercase shadow-brut-sm">
+          Satu mesin, satu pelanggan
+        </span>
+        <span className="chip absolute left-[27%] top-[430px] -rotate-2 bg-sun px-5 py-2.5 text-base uppercase shadow-brut-sm">
+          Jemput maks. 30 menit
+        </span>
+        <span className="chip absolute left-[27%] top-[510px] -rotate-4 bg-white px-4 py-2 text-sm uppercase shadow-brut-sm">
+          Express 6 jam
+        </span>
+
+        <div className="absolute bottom-[66px] left-1/2 z-10 -translate-x-1/2">
+          <Button href="/login" className="h-14 px-16 text-base transition-all duration-200 hover:scale-105">
+            Pesan Sekarang
+          </Button>
         </div>
       </div>
     </section>

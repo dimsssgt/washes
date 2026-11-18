@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo_Black, Space_Mono, Poppins } from "next/font/google";
 import "./globals.css";
+import SmoothScroll from "@/components/SmoothScroll";
 
 const archivo = Archivo_Black({
   weight: "400",
@@ -34,7 +35,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="id"
       className={`${archivo.variable} ${spaceMono.variable} ${poppins.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body>
+        <SmoothScroll>{children}</SmoothScroll>
+      </body>
     </html>
   );
 }

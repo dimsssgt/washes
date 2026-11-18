@@ -202,13 +202,13 @@ export default function NavbarClient({ name }: NavbarClientProps) {
                 </div>
 
                 {/* Kolom Kanan: Menu Links dengan font-display */}
-                <nav className="flex flex-col items-center md:items-end justify-center gap-2 md:gap-3 w-full md:w-auto">
+                <nav className="flex flex-col items-center md:items-end justify-center gap-4 sm:gap-9 md:gap-3 w-full md:w-auto py-2">
                   {NAV_LINKS.map((link) => (
                     <a
                       key={link.href}
                       href={link.href}
                       onClick={() => setDrawerOpen(false)}
-                      className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl uppercase tracking-tight text-ink transition-all duration-200 hover:text-brand hover:translate-x-[-6px]"
+                      className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl uppercase tracking-tight text-brand transition-all duration-200 hover:text-brand hover:translate-x-[-6px] py-1"
                     >
                       {link.label}
                     </a>

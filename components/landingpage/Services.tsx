@@ -126,7 +126,7 @@ export default function Services() {
   } as CSSProperties;
 
   return (
-    <section id="layanan" className="bg-brand py-20 md:py-[150px]">
+    <section id="layanan" className="bg-brand pt-14 pb-0 -mb-46 md:mb-0 md:py-[150px]">
       <div
         ref={progressRef}
         aria-hidden="true"
