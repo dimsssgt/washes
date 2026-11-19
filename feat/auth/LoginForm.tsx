@@ -7,6 +7,7 @@ import { loginSchema, registerSchema, type LoginInput, type RegisterInput } from
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import LupaPasswordModal from "./LupaPasswordModal";
+import { createClient } from "@/lib/supabase/client";
 
 type LoginFieldErrors = Partial<Record<keyof LoginInput, string>>;
 type RegisterFieldErrors = Partial<Record<keyof RegisterInput, string>>;
@@ -72,13 +73,29 @@ export default function LoginForm() {
 
     setLoginLoading(true);
     try {
-      // Mock login delay
-      await new Promise((r) => setTimeout(r, 600));
+            const supabase = createClient(); // dari lib/supabase/client.ts
+      const { error } = await supabase.auth.signInWithPassword({
+        email: result.data.identifier,
+        password: result.data.password,
+      });
+      if (error) {
+        setLoginServerError("Email atau password salah.");
+        return;
+      }
 
-      setSessionCookie(
-        displayNameFromIdentifier(result.data.identifier),
-        !!result.data.rememberMe
-      );
+      // Peran dibaca dari database, bukan dari pilihan di form.
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: profil } = await supabase
+        .from("profiles")
+        .select("peran")
+        .eq("id", user!.id)
+        .single();
+
+      if (profil?.peran !== kategori) {
+        await supabase.auth.signOut();
+        setLoginServerError(`Akun ini bukan akun ${kategori}.`);
+        return;
+      }
 
       if (kategori === "admin") {
         router.push("/admin");
@@ -122,19 +139,20 @@ export default function LoginForm() {
 
     setRegisterLoading(true);
     try {
-      // Mock register delay
-      await new Promise((r) => setTimeout(r, 800));
-      // Simpan data pendaftaran ke localStorage untuk simulasi dinamis
-      if (typeof window !== "undefined") {
-        localStorage.setItem(
-          "laundyku_user_profile",
-          JSON.stringify({
+      const supabase = createClient();
+      const { error } = await supabase.auth.signUp({
+        email: registerValues.email,
+        password: registerValues.password,
+        options: {
+          data: {
             nama: registerValues.namaLengkap,
-            email: registerValues.email,
-            telepon: registerValues.noWhatsapp,
-            alamat: registerValues.alamat,
-          })
-        );
+            no_wa: registerValues.noWhatsapp,
+          },
+        },
+      });
+      if (error) {
+        setRegisterServerError(error.message);
+        return;
       }
       setRegisterSuccess(true);
     } catch {

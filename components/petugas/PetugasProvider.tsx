@@ -11,15 +11,17 @@ import {
   type Bagian,
   type PesananAlur,
 } from "@/lib/petugas/alur";
-import { NAMA_DEMO } from "@/lib/petugas/alur-tiruan";
 import type { RiwayatPenyerahan } from "@/lib/petugas/riwayat";
 import type { MetodeBayar } from "@/lib/petugas/pengerjaan";
 import type { HasilPenimbangan, PesananMasuk } from "@/lib/petugas/types";
 
+interface Pengguna {
+  nama: string;
+  bagian: Bagian;
+}
+
 interface Nilai {
-  pengguna: { nama: string; bagian: Bagian };
-  /** Hanya untuk demo. TODO: hapus setelah bagian diambil dari akun yang login. */
-  gantiBagianDemo: (b: Bagian) => void;
+  pengguna: Pengguna;
   antrian: PesananMasuk[];
   kerja: PesananAlur[];
   riwayatBaru: RiwayatPenyerahan[];
@@ -46,27 +48,27 @@ function nomorTerbesar(kode: string[]): number {
 }
 
 /**
- * Satu sumber data untuk seluruh halaman petugas (Dashboard, Pengerjaan, Riwayat),
- * jadi pesanan yang diterima di Dashboard langsung muncul di Pengerjaan.
+ * Satu sumber data untuk seluruh halaman petugas.
+ * `pengguna` berasal dari layout yang sudah memeriksa login dan peran di server,
+ * jadi komponen di bawahnya tidak perlu memeriksa ulang.
  * Setiap fungsi di sini nantinya diganti dengan server action ke Supabase.
  */
 export function PetugasProvider({
+  pengguna,
   antrianAwal,
   kerjaAwal,
   children,
 }: {
+  pengguna: Pengguna;
   antrianAwal: PesananMasuk[];
   kerjaAwal: PesananAlur[];
   children: ReactNode;
 }) {
-  const [bagian, setBagian] = useState<Bagian>("front_office");
   const [antrian, setAntrian] = useState<PesananMasuk[]>(antrianAwal);
   const [kerja, setKerja] = useState<PesananAlur[]>(kerjaAwal);
   const [nomorTerakhir, setNomorTerakhir] = useState(() =>
     nomorTerbesar([...antrianAwal.map((p) => p.kode), ...kerjaAwal.map((p) => p.kode)]),
   );
-
-  const pengguna = useMemo(() => ({ nama: NAMA_DEMO[bagian], bagian }), [bagian]);
 
   const tambahManual = useCallback(
     (data: DataInputManual) => {
@@ -115,7 +117,6 @@ export function PetugasProvider({
 
   const nilai: Nilai = {
     pengguna,
-    gantiBagianDemo: setBagian,
     antrian,
     kerja,
     riwayatBaru: kerja.map(keRiwayat).filter((r): r is RiwayatPenyerahan => r !== null),
