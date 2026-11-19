@@ -83,8 +83,16 @@ body {
   font-family: var(--font-poppins), "Poppins", Arial, sans-serif;
 }
 
-/* Tinggi kartu layanan. vh dipakai sebagai cadangan untuk browser lama yang belum mengenal svh. */
+/* Tinggi kartu layanan. vh dipakai sebagai cadangan untuk browser lama. */
 .layanan-kartu {
   height: calc(100vh - var(--card-top, 224px) - 24px);
   height: calc(100svh - var(--card-top, 224px) - 24px);
+}
+
+/* Di desktop, kartu tidak boleh lebih pendek dari isinya */
+@media (min-width: 860px) {
+  .layanan-kartu {
+    height: max(calc(100vh - var(--card-top, 224px) - 24px), 520px);
+    height: max(calc(100svh - var(--card-top, 224px) - 24px), 520px);
+  }
 }
