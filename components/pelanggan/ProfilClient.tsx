@@ -372,7 +372,7 @@ export default function ProfilClient() {
               {profile.nama}
             </div>
             <div style={{ fontSize: 14, color: "#4A5A80", marginTop: 4 }}>
-              {profile.email} · {profile.telepon}
+              {profile.email} ï¿½ {profile.telepon}
             </div>
             <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center" }}>
               <span
@@ -634,7 +634,7 @@ export default function ProfilClient() {
             >
               <input
                 type="password"
-                placeholder="••••••••"
+                placeholder="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                 value={passwordForm.newPassword}
                 onChange={(e) =>
                   setPasswordForm({ ...passwordForm, newPassword: e.target.value })
@@ -646,7 +646,7 @@ export default function ProfilClient() {
             <Field label="Ulangi Password Baru" id="pass-konfirm">
               <input
                 type="password"
-                placeholder="••••••••"
+                placeholder="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                 value={passwordForm.confirmPassword}
                 onChange={(e) =>
                   setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })

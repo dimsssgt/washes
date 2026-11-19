@@ -30,8 +30,8 @@ const dummyRiwayat: RiwayatItem[] = [
     total: 40000,
     status: "Lunas",
     invoiceNo: "INV-20261015-009",
-    statusPesanan: "Selesai · diantar 18 Okt",
-    dibayar: "16 Okt 2026 · QRIS",
+    statusPesanan: "Selesai ï¿½ diantar 18 Okt",
+    dibayar: "16 Okt 2026 ï¿½ QRIS",
     rincianLayanan: 40000,
     ongkir: 0,
     alamat: "Jl. Mawar No. 12, Sukolilo, Surabaya",
@@ -45,8 +45,8 @@ const dummyRiwayat: RiwayatItem[] = [
     total: 36000,
     status: "Lunas",
     invoiceNo: "INV-20261002-021",
-    statusPesanan: "Selesai · diambil 5 Okt",
-    dibayar: "3 Okt 2026 · QRIS",
+    statusPesanan: "Selesai ï¿½ diambil 5 Okt",
+    dibayar: "3 Okt 2026 ï¿½ QRIS",
     rincianLayanan: 36000,
     ongkir: 0,
     alamat: "Jl. Dharmahusada Indah No. 45, Gubeng, Surabaya",
@@ -60,8 +60,8 @@ const dummyRiwayat: RiwayatItem[] = [
     total: 24000,
     status: "Lunas",
     invoiceNo: "INV-20260920-003",
-    statusPesanan: "Selesai · diantar 23 Sep",
-    dibayar: "21 Sep 2026 · QRIS",
+    statusPesanan: "Selesai ï¿½ diantar 23 Sep",
+    dibayar: "21 Sep 2026 ï¿½ QRIS",
     rincianLayanan: 24000,
     ongkir: 0,
     alamat: "Jl. Mawar No. 12, Sukolilo, Surabaya",
@@ -75,8 +75,8 @@ const dummyRiwayat: RiwayatItem[] = [
     total: 30000,
     status: "Lunas",
     invoiceNo: "INV-20260908-011",
-    statusPesanan: "Selesai · diantar 11 Sep",
-    dibayar: "9 Sep 2026 · QRIS",
+    statusPesanan: "Selesai ï¿½ diantar 11 Sep",
+    dibayar: "9 Sep 2026 ï¿½ QRIS",
     rincianLayanan: 30000,
     ongkir: 0,
     alamat: "Jl. Mawar No. 12, Sukolilo, Surabaya",
@@ -168,7 +168,7 @@ export default function RiwayatPesananClient() {
               total: total,
               status: "Lunas",
               invoiceNo: `INV-${item.kode}`,
-              statusPesanan: `Selesai · ${
+              statusPesanan: `Selesai ï¿½ ${
                 item.selesai_at
                   ? new Date(item.selesai_at).toLocaleDateString("id-ID", {
                       day: "numeric",
@@ -176,7 +176,7 @@ export default function RiwayatPesananClient() {
                     })
                   : "diantar"
               }`,
-              dibayar: `${tglBayar} · ${metode}`,
+              dibayar: `${tglBayar} ï¿½ ${metode}`,
               rincianLayanan: subtotal,
               ongkir: Math.max(0, total - subtotal),
               alamat: item.alamat_jemput || "Jl. Mawar No. 12, Sukolilo, Surabaya",
@@ -389,7 +389,7 @@ export default function RiwayatPesananClient() {
               </span>
             </div>
             <div style={{ margin: "6px 0 12px", fontSize: 12 }}>
-              {selectedInvoice.invoiceNo} · {selectedInvoice.tanggal}
+              {selectedInvoice.invoiceNo} ï¿½ {selectedInvoice.tanggal}
             </div>
 
             {/* Info Alamat & Petugas */}
@@ -431,7 +431,7 @@ export default function RiwayatPesananClient() {
             </h3>
             <div style={{ marginTop: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
-                <span>{selectedInvoice.layanan} · {selectedInvoice.jumlah}</span>
+                <span>{selectedInvoice.layanan} ï¿½ {selectedInvoice.jumlah}</span>
                 <b>{formatRupiah(selectedInvoice.rincianLayanan)}</b>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
