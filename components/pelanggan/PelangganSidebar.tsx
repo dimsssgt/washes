@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
   { href: "/pelanggan", label: "Pesanan" },
@@ -12,6 +14,59 @@ const navItems = [
 
 export default function PelangganSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [namaPelanggan, setNamaPelanggan] = useState<string>("Pelanggan");
+
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          const { data: profil } = await supabase
+            .from("profiles")
+            .select("nama")
+            .eq("id", user.id)
+            .single();
+
+          if (profil?.nama) {
+            setNamaPelanggan(profil.nama);
+            return;
+          }
+          if (user.user_metadata?.nama) {
+            setNamaPelanggan(user.user_metadata.nama);
+            return;
+          }
+          if (user.email) {
+            const base = user.email.split("@")[0];
+            setNamaPelanggan(base.charAt(0).toUpperCase() + base.slice(1));
+            return;
+          }
+        }
+
+        // Fallback jika ada data dari pendaftaran lokal
+        const saved = localStorage.getItem("laundyku_user_profile");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.nama) setNamaPelanggan(parsed.nama);
+        }
+      } catch {
+        // Abaikan error jaringan
+      }
+    }
+    loadUser();
+  }, []);
+
+  async function handleLogout() {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch {}
+    router.push("/login");
+  }
 
   return (
     <aside
@@ -101,7 +156,7 @@ export default function PelangganSidebar() {
           fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
         }}
       >
-        ← Beranda Utama
+        ? Beranda Utama
       </Link>
 
       {/* User info */}
@@ -115,10 +170,9 @@ export default function PelangganSidebar() {
           lineHeight: 1.6,
         }}
       >
-        {/* TODO: ganti dengan nama user dari session */}
-        [Nama pelanggan]
+        <span style={{ fontWeight: 700 }}>{namaPelanggan}</span>
         <br />
-        Pelanggan
+        <span style={{ fontSize: 11, opacity: 0.85 }}>Pelanggan</span>
       </div>
 
       {/* Profil & Keluar */}
@@ -141,6 +195,7 @@ export default function PelangganSidebar() {
         Profil
       </Link>
       <button
+        type="button"
         style={{
           display: "flex",
           alignItems: "center",
@@ -157,10 +212,7 @@ export default function PelangganSidebar() {
           cursor: "pointer",
           textAlign: "left",
         }}
-        onClick={() => {
-          // TODO: panggil API logout saat backend sudah siap
-          window.location.href = "/login";
-        }}
+        onClick={handleLogout}
       >
         Keluar
       </button>

@@ -4,24 +4,29 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
+import { createClient } from "@/lib/supabase/client";
 
 interface AddressItem {
   id: string;
-  label: string; // misal: "Rumah", "Kost", "Kantor"
+  label: string;
   alamatLengkap: string;
   catatan?: string;
   isUtama: boolean;
 }
 
 export default function ProfilClient() {
-  /* ─── State Data Diri (Dinamis dengan LocalStorage) ─── */
+  const [userId, setUserId] = useState<string | null>(null);
+
+  /* --- State Data Diri (Tersambung ke Supabase & LocalStorage) --- */
   const [profile, setProfile] = useState({
     nama: "Asahi Sakura",
     email: "asahisakuraa@gmail.com",
     telepon: "0812-3456-7890",
   });
 
-  /* ─── State Daftar Alamat (Dinamis) ─── */
+  const [pesananSelesaiCount, setPesananSelesaiCount] = useState<number>(4);
+
+  /* --- State Daftar Alamat (Dinamis) --- */
   const [alamatList, setAlamatList] = useState<AddressItem[]>([
     {
       id: "addr-1",
@@ -39,7 +44,7 @@ export default function ProfilClient() {
     },
   ]);
 
-  /* ─── State Form Tambah Alamat ─── */
+  /* --- State Form Tambah Alamat --- */
   const [showTambahAlamat, setShowTambahAlamat] = useState(false);
   const [newAlamat, setNewAlamat] = useState({
     label: "",
@@ -48,7 +53,7 @@ export default function ProfilClient() {
     isUtama: false,
   });
 
-  /* ─── State Ubah Password ─── */
+  /* --- State Ubah Password --- */
   const [passwordForm, setPasswordForm] = useState({
     oldPassword: "",
     newPassword: "",
@@ -56,57 +61,151 @@ export default function ProfilClient() {
   });
 
   const [profileSaved, setProfileSaved] = useState(false);
+  const [profileError, setProfileError] = useState("");
   const [passwordSaved, setPasswordSaved] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  /* ─── Load data dari localStorage jika ada ─── */
+  /* --- Load data dari Supabase (dan fallback localStorage) --- */
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("laundyku_user_profile");
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (parsed.nama) setProfile((prev) => ({ ...prev, nama: parsed.nama }));
-          if (parsed.email) setProfile((prev) => ({ ...prev, email: parsed.email }));
-          if (parsed.telepon) setProfile((prev) => ({ ...prev, telepon: parsed.telepon }));
-          if (parsed.alamat) {
-            setAlamatList((prev) => [
-              {
-                id: "addr-saved",
-                label: "Alamat Pendaftaran",
-                alamatLengkap: parsed.alamat,
-                catatan: "Alamat default akun",
-                isUtama: true,
-              },
-              ...prev.map((a) => ({ ...a, isUtama: false })),
-            ]);
+    async function fetchUserData() {
+      try {
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          setUserId(user.id);
+
+          // 1. Ambil data profil dari tabel profiles
+          const { data: profilData } = await supabase
+            .from("profiles")
+            .select("nama, email, no_wa")
+            .eq("id", user.id)
+            .single();
+
+          if (profilData) {
+            setProfile({
+              nama: profilData.nama || user.user_metadata?.nama || "Pelanggan",
+              email: profilData.email || user.email || "",
+              telepon: profilData.no_wa || user.user_metadata?.no_wa || "",
+            });
+          } else {
+            setProfile((prev) => ({
+              ...prev,
+              nama: user.user_metadata?.nama || prev.nama,
+              email: user.email || prev.email,
+              telepon: user.user_metadata?.no_wa || prev.telepon,
+            }));
           }
-        } catch {}
+
+          // 2. Ambil jumlah pesanan selesai dari tabel pesanan
+          const { count } = await supabase
+            .from("pesanan")
+            .select("id", { count: "exact", head: true })
+            .eq("pelanggan_id", user.id)
+            .eq("status", "selesai");
+
+          if (typeof count === "number") {
+            setPesananSelesaiCount(count);
+          }
+        }
+      } catch {
+        // Fallback jika belum login Supabase
       }
 
-      const savedAddresses = localStorage.getItem("laundyku_user_addresses");
-      if (savedAddresses) {
-        try {
-          const parsedAddr = JSON.parse(savedAddresses);
-          if (Array.isArray(parsedAddr) && parsedAddr.length > 0) {
-            setAlamatList(parsedAddr);
-          }
-        } catch {}
+      // Load alamat dari localStorage
+      if (typeof window !== "undefined") {
+        const savedAddresses = localStorage.getItem("laundyku_user_addresses");
+        if (savedAddresses) {
+          try {
+            const parsedAddr = JSON.parse(savedAddresses);
+            if (Array.isArray(parsedAddr) && parsedAddr.length > 0) {
+              setAlamatList(parsedAddr);
+            }
+          } catch {}
+        }
       }
     }
+
+    fetchUserData();
   }, []);
 
-  /* ─── Handler Simpan Profil ─── */
-  function handleProfileSubmit(e: React.FormEvent) {
+  /* --- Handler Simpan Profil ke Supabase --- */
+  async function handleProfileSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (typeof window !== "undefined") {
-      localStorage.setItem("laundyku_user_profile", JSON.stringify(profile));
+    setProfileError("");
+    setProfileSaved(false);
+    setIsLoading(true);
+
+    try {
+      if (userId) {
+        const supabase = createClient();
+        const { error } = await supabase
+          .from("profiles")
+          .update({
+            nama: profile.nama,
+            no_wa: profile.telepon,
+          })
+          .eq("id", userId);
+
+        if (error) {
+          setProfileError(error.message);
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Update cache di localStorage juga
+      if (typeof window !== "undefined") {
+        localStorage.setItem("laundyku_user_profile", JSON.stringify(profile));
+      }
+
+      setProfileSaved(true);
+      setTimeout(() => setProfileSaved(false), 3000);
+    } catch {
+      setProfileError("Gagal memperbarui profil. Periksa koneksi internet.");
+    } finally {
+      setIsLoading(false);
     }
-    setProfileSaved(true);
-    setTimeout(() => setProfileSaved(false), 3000);
   }
 
-  /* ─── Handler Tambah Alamat ─── */
+  /* --- Handler Ubah Password via Supabase Auth --- */
+  async function handlePasswordSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setPasswordError("");
+    setPasswordSaved(false);
+
+    if (passwordForm.newPassword.length < 8) {
+      setPasswordError("Password baru minimal 8 karakter");
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError("Password baru dan konfirmasi tidak cocok!");
+      return;
+    }
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.updateUser({
+        password: passwordForm.newPassword,
+      });
+
+      if (error) {
+        setPasswordError(error.message);
+        return;
+      }
+
+      setPasswordSaved(true);
+      setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
+      setTimeout(() => setPasswordSaved(false), 3000);
+    } catch {
+      setPasswordError("Gagal mengubah password.");
+    }
+  }
+
+  /* --- Handler Tambah Alamat --- */
   function handleTambahAlamatSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!newAlamat.label.trim() || !newAlamat.alamatLengkap.trim()) return;
@@ -134,7 +233,7 @@ export default function ProfilClient() {
     setShowTambahAlamat(false);
   }
 
-  /* ─── Handler Set Alamat Utama ─── */
+  /* --- Handler Set Alamat Utama --- */
   function setAlamatUtama(id: string) {
     const updated = alamatList.map((a) => ({
       ...a,
@@ -146,7 +245,7 @@ export default function ProfilClient() {
     }
   }
 
-  /* ─── Handler Hapus Alamat ─── */
+  /* --- Handler Hapus Alamat --- */
   function hapusAlamat(id: string) {
     const updated = alamatList.filter((a) => a.id !== id);
     if (updated.length > 0 && !updated.some((a) => a.isUtama)) {
@@ -158,29 +257,7 @@ export default function ProfilClient() {
     }
   }
 
-  /* ─── Handler Ubah Password ─── */
-  function handlePasswordSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setPasswordError("");
-    if (!passwordForm.oldPassword) {
-      setPasswordError("Password lama wajib diisi");
-      return;
-    }
-    if (passwordForm.newPassword.length < 8) {
-      setPasswordError("Password baru minimal 8 karakter");
-      return;
-    }
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordError("Password baru dan konfirmasi tidak cocok!");
-      return;
-    }
-
-    setPasswordSaved(true);
-    setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
-    setTimeout(() => setPasswordSaved(false), 3000);
-  }
-
-  // Ambil inisial nama untuk avatar dinamis
+  // Inisial nama untuk avatar
   const initials = profile.nama
     .split(" ")
     .filter(Boolean)
@@ -212,7 +289,7 @@ export default function ProfilClient() {
             textDecoration: "underline",
           }}
         >
-          ← Kembali ke dashboard pelanggan
+          ? Kembali ke dashboard pelanggan
         </Link>
       </div>
 
@@ -242,9 +319,9 @@ export default function ProfilClient() {
         </p>
       </div>
 
-      {/* ════════════════════════════════════════════════════════════
+      {/* --------------------------------------------------------------
           CARD 1: BANNER PROFIL DINAMIS & STATISTIK
-      ════════════════════════════════════════════════════════════ */}
+      -------------------------------------------------------------- */}
       <div
         style={{
           background: "#fff",
@@ -295,7 +372,7 @@ export default function ProfilClient() {
               {profile.nama}
             </div>
             <div style={{ fontSize: 14, color: "#4A5A80", marginTop: 4 }}>
-              {profile.email} · {profile.telepon}
+              {profile.email} � {profile.telepon}
             </div>
             <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center" }}>
               <span
@@ -325,7 +402,7 @@ export default function ProfilClient() {
                   color: "#2E7D32",
                 }}
               >
-                ⭐ 120 Poin Laundry
+                ? 120 Poin Laundry
               </span>
             </div>
           </div>
@@ -350,7 +427,7 @@ export default function ProfilClient() {
                 color: "#1457D6",
               }}
             >
-              4
+              {pesananSelesaiCount}
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#0B2A6B", textTransform: "uppercase" }}>
               Pesanan Selesai
@@ -382,9 +459,9 @@ export default function ProfilClient() {
           gap: 28,
         }}
       >
-        {/* ════════════════════════════════════════════════════════════
+        {/* --------------------------------------------------------------
             CARD 2: DATA DIRI (DINAMIS EDIT)
-        ════════════════════════════════════════════════════════════ */}
+        -------------------------------------------------------------- */}
         <section
           style={{
             background: "#fff",
@@ -424,7 +501,25 @@ export default function ProfilClient() {
                 marginBottom: 20,
               }}
             >
-              ✓ Data profil berhasil diperbarui!
+              ? Data profil berhasil diperbarui!
+            </p>
+          )}
+
+          {profileError && (
+            <p
+              role="alert"
+              style={{
+                padding: "12px 16px",
+                borderRadius: 12,
+                background: "rgba(212,42,37,0.1)",
+                border: "2px solid #D42A25",
+                fontSize: 14,
+                color: "#D42A25",
+                fontWeight: 700,
+                marginBottom: 20,
+              }}
+            >
+              {profileError}
             </p>
           )}
 
@@ -443,9 +538,9 @@ export default function ProfilClient() {
               <input
                 type="email"
                 value={profile.email}
-                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                required
-                style={{ fontSize: 15, padding: "12px 16px" }}
+                disabled
+                title="Email akun tidak dapat diubah"
+                style={{ fontSize: 15, padding: "12px 16px", opacity: 0.7, cursor: "not-allowed", background: "#f5f5f5" }}
               />
             </Field>
 
@@ -460,14 +555,16 @@ export default function ProfilClient() {
             </Field>
 
             <div style={{ marginTop: 24 }}>
-              <Button type="submit">Simpan Perubahan</Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
+              </Button>
             </div>
           </form>
         </section>
 
-        {/* ════════════════════════════════════════════════════════════
+        {/* --------------------------------------------------------------
             CARD 3: KEAMANAN & UBAH PASSWORD
-        ════════════════════════════════════════════════════════════ */}
+        -------------------------------------------------------------- */}
         <section
           style={{
             background: "#fff",
@@ -507,7 +604,7 @@ export default function ProfilClient() {
                 marginBottom: 20,
               }}
             >
-              ✓ Password baru berhasil disimpan!
+              ? Password baru berhasil disimpan!
             </p>
           )}
 
@@ -530,18 +627,6 @@ export default function ProfilClient() {
           )}
 
           <form onSubmit={handlePasswordSubmit}>
-            <Field label="Password Lama" id="pass-lama">
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={passwordForm.oldPassword}
-                onChange={(e) =>
-                  setPasswordForm({ ...passwordForm, oldPassword: e.target.value })
-                }
-                style={{ fontSize: 15, padding: "12px 16px" }}
-              />
-            </Field>
-
             <Field
               label="Password Baru"
               id="pass-baru"
@@ -549,7 +634,7 @@ export default function ProfilClient() {
             >
               <input
                 type="password"
-                placeholder="••••••••"
+                placeholder="��������"
                 value={passwordForm.newPassword}
                 onChange={(e) =>
                   setPasswordForm({ ...passwordForm, newPassword: e.target.value })
@@ -561,7 +646,7 @@ export default function ProfilClient() {
             <Field label="Ulangi Password Baru" id="pass-konfirm">
               <input
                 type="password"
-                placeholder="••••••••"
+                placeholder="��������"
                 value={passwordForm.confirmPassword}
                 onChange={(e) =>
                   setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
@@ -577,9 +662,9 @@ export default function ProfilClient() {
         </section>
       </div>
 
-      {/* ════════════════════════════════════════════════════════════
+      {/* --------------------------------------------------------------
           CARD 4: KELOLA DAFTAR ALAMAT JEMPUT (DINAMIS)
-      ════════════════════════════════════════════════════════════ */}
+      -------------------------------------------------------------- */}
       <section
         style={{
           background: "#fff",
@@ -621,7 +706,7 @@ export default function ProfilClient() {
             variant="yellow"
             onClick={() => setShowTambahAlamat(!showTambahAlamat)}
           >
-            {showTambahAlamat ? "✕ Tutup Form" : "+ Tambah Alamat Baru"}
+            {showTambahAlamat ? "? Tutup Form" : "+ Tambah Alamat Baru"}
           </Button>
         </div>
 
@@ -741,7 +826,7 @@ export default function ProfilClient() {
                       color: "#0B2A6B",
                     }}
                   >
-                    📍 {addr.label}
+                    ?? {addr.label}
                   </span>
                   {addr.isUtama && (
                     <span

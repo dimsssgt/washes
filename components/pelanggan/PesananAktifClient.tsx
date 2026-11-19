@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
+import { createClient } from "@/lib/supabase/client";
 
 // Tipe data pesanan aktif
 export type StatusPesanan =
@@ -356,8 +357,24 @@ function ModalKonfirmasiBayar({
 
   async function handleKonfirmasi() {
     setLoading(true);
-    // TODO: POST ke /api/pesanan/:kode/konfirmasi-bayar
-    await new Promise((r) => setTimeout(r, 1000));
+    try {
+      const supabase = createClient();
+      const { data: pData } = await supabase
+        .from("pesanan")
+        .select("id")
+        .eq("kode", pesanan.kode)
+        .single();
+
+      if (pData?.id) {
+        await supabase.from("transaksi").insert({
+          pesanan_id: pData.id,
+          total: pesanan.total || 0,
+          metode: "QRIS",
+          dibayar_at: new Date().toISOString(),
+        });
+      }
+    } catch {}
+    await new Promise((r) => setTimeout(r, 600));
     setLoading(false);
     onBerhasil();
   }
@@ -468,7 +485,105 @@ type ModalState =
 
 export default function PesananAktifClient() {
   const [modal, setModal] = useState<ModalState>({ type: "none" });
-  const [pesananList] = useState(dummyPesanan);
+  const [pesananList, setPesananList] = useState<PesananAktif[]>(dummyPesanan);
+
+  useEffect(() => {
+    async function fetchPesananAktif() {
+      try {
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from("pesanan")
+          .select(`
+            id,
+            kode,
+            status,
+            dibuat_at,
+            jam_jemput,
+            layanan:layanan_id (nama),
+            waktu_cuci:waktu_cuci_id (nama),
+            penimbangan (berat_kg, jumlah_item, subtotal),
+            transaksi (total, metode, dibayar_at)
+          `)
+          .eq("pelanggan_id", user.id)
+          .neq("status", "selesai")
+          .order("dibuat_at", { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          const mapped: PesananAktif[] = data.map((item: any) => {
+            const layananNama =
+              (Array.isArray(item.layanan) ? item.layanan[0]?.nama : item.layanan?.nama) ||
+              "Cuci Reguler";
+            const durasiNama =
+              (Array.isArray(item.waktu_cuci) ? item.waktu_cuci[0]?.nama : item.waktu_cuci?.nama) ||
+              "Reguler 3 hari";
+
+            const berat = item.penimbangan?.[0]?.berat_kg;
+            const jumlahItem = item.penimbangan?.[0]?.jumlah_item;
+            const detailStr = berat ? `${berat} kg` : jumlahItem ? `${jumlahItem} pcs` : "-";
+
+            const hasBayar = item.transaksi && item.transaksi.length > 0;
+            const total = item.transaksi?.[0]?.total || item.penimbangan?.[0]?.subtotal || null;
+
+            let st: StatusPesanan = "menunggu_jemput";
+            if (item.status === "masuk" || item.status === "diterima") st = "diterima";
+            else if (item.status === "ditimbang") st = "ditimbang";
+            else if (item.status === "dicuci") st = "dicuci";
+            else if (item.status === "disetrika") st = "disetrika";
+            else if (item.status === "siap_diambil") st = "siap_diambil";
+
+            const steps = [
+              { key: "diterima", label: "Pesanan diterima" },
+              { key: "ditimbang", label: "Cucian ditimbang" },
+              { key: "dicuci", label: "Sedang dicuci" },
+              { key: "disetrika", label: "Sedang disetrika" },
+              { key: "siap_diambil", label: "Siap diantar/diambil" },
+              { key: "selesai", label: "Selesai" },
+            ];
+
+            const currentIndex = steps.findIndex((s) => s.key === st);
+
+            const riwayatStatus = [
+              {
+                label: "Menunggu jemput",
+                waktu: item.jam_jemput || "09.00",
+                selesai: currentIndex >= 0,
+                aktif: currentIndex === -1,
+              },
+              ...steps.map((step, idx) => ({
+                label: step.label,
+                waktu: null,
+                selesai: idx < currentIndex,
+                aktif: idx === currentIndex,
+              })),
+            ];
+
+            return {
+              kode: item.kode,
+              layanan: layananNama,
+              detail: detailStr,
+              kecepatan: durasiNama,
+              estimasi: item.jam_jemput ? `Jemput ${item.jam_jemput}` : "Sedang diproses",
+              status: st,
+              statusBayar: (hasBayar ? "lunas" : "belum_bayar") as StatusBayar,
+              total: total,
+              invoiceNo: `INV-${item.kode}`,
+              riwayatStatus,
+            };
+          });
+
+          setPesananList(mapped);
+        }
+      } catch {}
+    }
+
+    fetchPesananAktif();
+  }, []);
 
   return (
     <>
@@ -605,7 +720,14 @@ export default function PesananAktifClient() {
         <ModalKonfirmasiBayar
           pesanan={modal.pesanan}
           onClose={() => setModal({ type: "qris", pesanan: modal.pesanan })}
-          onBerhasil={() => setModal({ type: "none" })}
+          onBerhasil={() => {
+            setPesananList((prev) =>
+              prev.map((p) =>
+                p.kode === modal.pesanan.kode ? { ...p, statusBayar: "lunas" } : p
+              )
+            );
+            setModal({ type: "none" });
+          }}
         />
       )}
     </>
