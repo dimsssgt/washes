@@ -31,7 +31,8 @@ import {
   formatRibu,
 } from "@/lib/admin/ringkasan";
 import { Donut, KartuKpi, LineChart, Pill } from "./Grafik";
-import type { Transaksi } from "@/lib/admin/types";
+import PesananAktifCard from "./PesananAktifcard";
+import type { PesananAktif, Transaksi } from "@/lib/admin/types";
 
 const TAB: { nilai: ModeRekap; label: string }[] = [
   { nilai: "harian", label: "Harian" },
@@ -40,7 +41,7 @@ const TAB: { nilai: ModeRekap; label: string }[] = [
   { nilai: "tahunan", label: "Tahunan" },
 ];
 
-export default function RekapClient({ transaksi }: { transaksi: Transaksi[] }) {
+export default function RekapClient({ transaksi, pesananAktif }: { transaksi: Transaksi[]; pesananAktif: PesananAktif[] }) {
   const daftarTahun = tahunTersedia(transaksi);
   const tanggalAwal = tanggalTerbaru(transaksi);
 
@@ -115,7 +116,6 @@ export default function RekapClient({ transaksi }: { transaksi: Transaksi[] }) {
   const layanan = ringkasLayanan(periode);
   const terbaru = urutkan(periode, "terbaru");
   const pesananTerbaru = terbaru.slice(0, 5);
-  const aktivitas = terbaru.slice(0, 4);
 
   return (
     <>
@@ -263,21 +263,7 @@ export default function RekapClient({ transaksi }: { transaksi: Transaksi[] }) {
           {pesananTerbaru.length === 0 && <p className="ad-kosong">Belum ada pesanan.</p>}
         </section>
 
-        <section className="ad-kartu">
-          <h2 className="ad-d">Aktivitas terbaru</h2>
-          <ul className="ad-aktivitas">
-            {aktivitas.map((t) => (
-              <li key={t.kode}>
-                <strong>{t.pelanggan}</strong>
-                <time>
-                  {formatTanggalPendek(t.selesai.slice(0, 10))} · {t.selesai.slice(11, 16).replace(":", ".")}
-                </time>
-                <span>menyelesaikan {t.kode}</span>
-              </li>
-            ))}
-          </ul>
-          {aktivitas.length === 0 && <p className="ad-kosong">Belum ada aktivitas.</p>}
-        </section>
+        <PesananAktifCard awal={pesananAktif} />
       </div>
     </>
   );

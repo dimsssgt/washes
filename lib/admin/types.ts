@@ -36,3 +36,23 @@ export interface Transaksi {
   pembayaran: MetodeBayar;
   selesai: string;
 }
+
+export type StatusPesanan = "Diterima" | "Dicuci" | "Dikeringkan" | "Disetrika" | "Siap diambil";
+
+export interface ItemNota {
+  id: string;
+  nama: string;    // mis. "Cuci Kiloan"
+  jumlah: number;  // kg atau pcs
+  satuan: string;  // "kg", "pcs", atau "mesin"
+  harga: number;   // harga per satuan
+}
+
+export interface PesananAktif {
+  kode: string;
+  pelanggan: string;
+  masuk: string;     // "YYYY-MM-DDTHH:MM"
+  estimasi: string;  // "YYYY-MM-DDTHH:MM"
+  status: StatusPesanan;
+  catatan: string;
+  items: ItemNota[];
+}

@@ -46,3 +46,47 @@ export const transaksiTiruan: Transaksi[] = [
   { kode: "LDY-002", pelanggan: "Nur Hidayah", kategori: "Cuci Satuan", total: 24000, pembayaran: "Tunai", selesai: "2026-07-30T14:25" },
   { kode: "LDY-003", pelanggan: "Yudi Prasetyo", kategori: "Cuci Kiloan", total: 42000, pembayaran: "QRIS", selesai: "2026-08-09T09:45" },
 ];
+
+import type { PesananAktif } from "./types";
+
+export const pesananAktifTiruan: PesananAktif[] = [
+  {
+    kode: "LDY-021",
+    pelanggan: "Budi Santoso",
+    masuk: "2026-10-28T08:30",
+    estimasi: "2026-10-29T17:00",
+    status: "Dicuci",
+    catatan: "Pakai pelembut sedikit",
+    items: [{ id: "i1", nama: "Cuci Kiloan", jumlah: 4, satuan: "kg", harga: 5000 }],
+  },
+  {
+    kode: "LDY-022",
+    pelanggan: "Siti Aminah",
+    masuk: "2026-10-28T10:15",
+    estimasi: "2026-10-30T12:00",
+    status: "Diterima",
+    catatan: "",
+    items: [{ id: "i1", nama: "Cuci Linen", jumlah: 2, satuan: "pcs", harga: 20000 }],
+  },
+  {
+    kode: "LDY-023",
+    pelanggan: "Rina Lestari",
+    masuk: "2026-10-27T09:40",
+    estimasi: "2026-10-28T18:00",
+    status: "Dikeringkan",
+    catatan: "",
+    items: [{ id: "i1", nama: "Cuci Satuan", jumlah: 3, satuan: "pcs", harga: 12000 }],
+  },
+  {
+    kode: "LDY-024",
+    pelanggan: "Andi Wijaya",
+    masuk: "2026-10-27T11:00",
+    estimasi: "2026-10-28T10:00",
+    status: "Siap diambil",
+    catatan: "Lipat rapi",
+    items: [
+      { id: "i1", nama: "Cuci Kiloan", jumlah: 6, satuan: "kg", harga: 5000 },
+      { id: "i2", nama: "Cuci Linen", jumlah: 1, satuan: "pcs", harga: 20000 },
+    ],
+  },
+];
