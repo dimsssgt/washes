@@ -82,3 +82,9 @@ body {
   color: var(--foreground);
   font-family: var(--font-poppins), "Poppins", Arial, sans-serif;
 }
+
+/* Tinggi kartu layanan. vh dipakai sebagai cadangan untuk browser lama yang belum mengenal svh. */
+.layanan-kartu {
+  height: calc(100vh - var(--card-top, 224px) - 24px);
+  height: calc(100svh - var(--card-top, 224px) - 24px);
+}

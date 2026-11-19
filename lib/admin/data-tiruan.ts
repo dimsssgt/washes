@@ -36,4 +36,13 @@ export const transaksiTiruan: Transaksi[] = [
   { kode: "LDY-006", pelanggan: "Siti Aminah", kategori: "Cuci Linen", total: 60000, pembayaran: "Tunai", selesai: "2026-09-18T09:20" },
   { kode: "LDY-005", pelanggan: "Andi Wijaya", kategori: "Self Service", total: 10000, pembayaran: "QRIS", selesai: "2026-08-02T12:00" },
   { kode: "LDY-004", pelanggan: "Rina Lestari", kategori: "Cuci Kiloan", total: 53000, pembayaran: "Tunai", selesai: "2025-12-30T18:45" },
+  { kode: "LDY-015", pelanggan: "Fitri Handayani", kategori: "Cuci Satuan", total: 36000, pembayaran: "QRIS", selesai: "2026-10-25T10:30" },
+  { kode: "LDY-016", pelanggan: "Andi Wijaya", kategori: "Cuci Linen", total: 80000, pembayaran: "Tunai", selesai: "2026-10-25T16:20" },
+  { kode: "LDY-017", pelanggan: "Rina Lestari", kategori: "Cuci Kiloan", total: 45000, pembayaran: "QRIS", selesai: "2026-10-23T08:50" },
+  { kode: "LDY-018", pelanggan: "Yudi Prasetyo", kategori: "Self Service", total: 20000, pembayaran: "Tunai", selesai: "2026-10-21T19:10" },
+  { kode: "LDY-019", pelanggan: "Dewi Anggraini", kategori: "Cuci Kiloan", total: 27000, pembayaran: "QRIS", selesai: "2026-10-19T12:40" },
+  { kode: "LDY-020", pelanggan: "Fitri Handayani", kategori: "Cuci Linen", total: 60000, pembayaran: "Tunai", selesai: "2026-10-17T15:05" },
+  { kode: "LDY-001", pelanggan: "Hendra Pratama", kategori: "Cuci Kiloan", total: 33000, pembayaran: "QRIS", selesai: "2026-07-14T11:00" },
+  { kode: "LDY-002", pelanggan: "Nur Hidayah", kategori: "Cuci Satuan", total: 24000, pembayaran: "Tunai", selesai: "2026-07-30T14:25" },
+  { kode: "LDY-003", pelanggan: "Yudi Prasetyo", kategori: "Cuci Kiloan", total: 42000, pembayaran: "QRIS", selesai: "2026-08-09T09:45" },
 ];

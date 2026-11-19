@@ -92,7 +92,7 @@ export default function NavbarClient({ name }: NavbarClientProps) {
               href="/"
               className="font-display text-[26px] md:text-[32px] tracking-wider uppercase leading-none text-brand transition-transform hover:scale-105"
             >
-              washes
+              Laundyku
             </Link>
           </div>
 
@@ -169,7 +169,7 @@ export default function NavbarClient({ name }: NavbarClientProps) {
                     onClick={() => setDrawerOpen(false)}
                     className="font-display text-[26px] md:text-[32px] tracking-wider uppercase leading-none text-brand transition-transform hover:scale-105"
                   >
-                    washes
+                    Laundyku
                   </Link>
                 </div>
 

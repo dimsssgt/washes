@@ -1,119 +1,290 @@
-/* Gaya area admin, mengikuti palet dan pola petugas.
-   Semua selector diawali .admin supaya tidak mengganggu area lain. */
+/* Gaya area admin, mengikuti screenshot dashboard Laundyku.
+   Latar abu sangat muda, kartu putih dengan border jelas, aksen biru (utama),
+   kuning (sorotan), dan krem (latar lembut). Semua selector diawali .admin. */
 
 .admin {
   --b: #1457d6;
+  --b-soft: #eef4ff;
   --y: #ffd21f;
-  --c: #fff4de;
+  --c: #fff7e6;
   --r: #d42a25;
+  --r-soft: #fde8e7;
   --g: #12805c;
-  --k: #0b2a6b;
+  --g-soft: #e6f6ef;
+  --k: #0f1b33;
+  --muted: #6b7489;
+  --line: #dfe3eb;
+  --latar: #f4f5f8;
   display: grid;
-  grid-template-columns: 270px 1fr;
+  grid-template-columns: 260px 1fr;
   min-height: 100vh;
-  background: #eef2f7;
+  background: var(--latar);
   color: var(--k);
-  font-family: var(--font-mono), "Space Mono", monospace;
-  font-size: 13px;
-  line-height: 1.6;
+  font-family: var(--font-jakarta), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
 }
 .admin a { color: inherit; text-decoration: none; }
 
+/* Judul dan teks */
 .admin .ad-d {
-  font-family: var(--font-archivo), "Archivo Black", Impact, sans-serif;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
   margin: 0;
+  color: var(--k);
 }
-.admin h2.ad-d { font-size: 24px; color: var(--b); margin-bottom: 16px; }
-.admin .ad-hint { font-size: 12px; margin: 12px 0 0; color: #4a5a80; }
-.admin .ad-kosong { padding: 24px 0; text-align: center; color: #4a5a80; }
+.admin h1.ad-d { font-size: 30px; }
+.admin h2.ad-d { font-size: 17px; color: var(--k); }
+.admin .ad-hint { font-size: 13px; margin: 4px 0 0; color: var(--muted); }
+.admin .ad-crumb { margin: 0 0 4px; font-size: 13px; }
+.admin .ad-kosong { padding: 24px 0; text-align: center; color: var(--muted); margin: 0; }
+.admin .ad-sumbu { font-size: 11px; fill: var(--muted); font-family: inherit; }
 
-/* Sidebar */
+/* Sidebar putih */
 .admin .ad-side {
-  background: var(--b);
-  color: #fff;
-  padding: 28px 20px;
+  background: #ffffff;
+  border-right: 1px solid var(--line);
+  padding: 22px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   position: sticky;
   top: 0;
   height: 100vh;
   box-sizing: border-box;
+  overflow-y: auto;
 }
-.admin .ad-logo { font-size: 22px; color: var(--y); margin-bottom: 24px; }
-.admin .ad-nav { display: flex; flex-direction: column; gap: 8px; }
+.admin .ad-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px 14px;
+}
+.admin .ad-brand strong { display: block; font-size: 16px; font-weight: 800; line-height: 1.1; }
+.admin .ad-brand small { display: block; font-size: 12px; color: var(--muted); }
+.admin .ad-brand-ikon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--b);
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.admin .ad-cari {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 12px;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.admin .ad-cari kbd {
+  font-family: inherit;
+  font-size: 11px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1px 6px;
+}
+.admin .ad-grup {
+  margin: 14px 10px 6px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.admin .ad-nav { display: flex; flex-direction: column; gap: 4px; }
 .admin .ad-side a.ad-menu,
 .admin .ad-side a.ad-keluar {
   display: flex;
   align-items: center;
-  min-height: 44px;
-  padding: 0 16px;
-  border-radius: 12px;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--k);
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.admin .ad-side a.ad-menu::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #c9ccd6;
+  flex-shrink: 0;
+}
+.admin .ad-side a.ad-menu:hover { background: var(--latar); }
+.admin .ad-side a.on {
+  background: #ffffff;
+  border-color: var(--line);
+  box-shadow: 0 1px 2px rgba(15, 27, 51, 0.06);
+}
+.admin .ad-side a.on::before { background: var(--b); }
+.admin .ad-badge {
+  margin-left: auto;
+  font-size: 11px;
   font-weight: 700;
-  font-size: 13px;
-  text-transform: uppercase;
-  transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+  background: var(--latar);
+  border-radius: 999px;
+  padding: 1px 8px;
+  color: var(--muted);
 }
-.admin .ad-side a.ad-menu:hover,
-.admin .ad-side a.ad-keluar:hover {
-  transform: scale(1.04);
+.admin .ad-user-kartu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-top: 8px;
 }
-.admin .ad-side a.ad-menu:active,
-.admin .ad-side a.ad-keluar:active {
-  transform: scale(0.98);
+.admin .ad-user-kartu strong { display: block; font-size: 13px; line-height: 1.2; }
+.admin .ad-user-kartu small { display: block; font-size: 11.5px; color: var(--muted); }
+.admin .ad-avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--b);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
 }
-.admin .ad-side a.on { background: var(--y); color: var(--k); }
-.admin .ad-user { background: rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 14px; }
+.admin .ad-side a.ad-keluar { color: var(--r); font-size: 13px; min-height: 36px; }
 
 /* Konten */
 .admin .ad-main {
-  padding: 40px 48px;
+  padding: 28px 36px 40px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 20px;
   min-width: 0;
 }
 .admin .ad-kepala {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.admin .ad-kepala-kartu {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   gap: 16px;
   flex-wrap: wrap;
 }
-.admin .ad-kartu {
-  background: #fff;
-  border: 2px solid var(--k);
-  border-radius: 18px;
-  box-shadow: 5px 5px 0 var(--k);
-  padding: 28px;
+.admin .ad-kepala-kartu {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
 }
-.admin .ad-kartu.kecil { padding: 20px; }
-.admin .ad-g4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-.admin .ad-scroll { overflow-x: auto; }
 .admin .ad-baris-aksi { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.admin .ad-scroll { overflow-x: auto; }
+
+/* Filter tanggal di bawah judul */
+.admin .ad-filter { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+.admin .ad-filter > div { min-width: 140px; }
+.admin .ad-filter label { margin-top: 0; }
+
+/* Kartu */
+.admin .ad-kartu {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: 0 1px 2px rgba(15, 27, 51, 0.05);
+  min-width: 0;
+}
+.admin .ad-kartu.kecil { padding: 16px 18px; }
+.admin .ad-kartu.biru { background: var(--b); border-color: var(--b); color: #fff; }
+.admin .ad-kartu.biru .ad-d { color: #fff; }
+.admin .ad-kartu.krem { background: var(--c); border-color: #f3e2b8; }
+
+/* KPI */
+.admin .ad-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+.admin .ad-kpi { display: flex; flex-direction: column; gap: 6px; }
+.admin .ad-kpi-atas { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); gap: 8px; }
+.admin .ad-kpi-tag { font-size: 12px; }
+.admin .ad-kpi-nilai { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+.admin .ad-kpi-delta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.admin .ad-kpi svg { margin-top: 4px; }
+
+/* Pill delta */
+.admin .ad-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: var(--latar);
+  color: var(--muted);
+}
+.admin .ad-pill.naik { background: var(--g-soft); color: var(--g); }
+.admin .ad-pill.turun { background: var(--r-soft); color: var(--r); }
+.admin .ad-pill.netral { background: var(--latar); color: var(--muted); }
+.admin .ad-pill.biru { background: var(--b-soft); color: var(--b); }
+.admin .ad-pill.kuning { background: #fff1b8; color: #6b5300; }
+
+/* Layout dua kolom */
+.admin .ad-split { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
+.admin .ad-split.dua { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+
+/* Donut dan legenda */
+.admin .ad-donut-wrap { display: flex; justify-content: center; margin: 14px 0 10px; }
+.admin .ad-donut-angka { font-size: 20px; font-weight: 800; fill: var(--k); font-family: inherit; }
+.admin .ad-donut-sub { font-size: 12px; fill: var(--muted); font-family: inherit; }
+.admin .ad-legenda { display: flex; flex-direction: column; }
+.admin .ad-legenda-baris {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.admin .ad-legenda-baris strong { font-weight: 700; }
+.admin .ad-legenda-baris small { color: var(--muted); font-size: 12px; margin-left: 6px; }
+.admin .ad-titik { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+
+/* Aktivitas */
+.admin .ad-aktivitas { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; }
+.admin .ad-aktivitas li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.admin .ad-aktivitas li:first-child { border-top: 0; }
+.admin .ad-aktivitas strong { font-weight: 700; }
+.admin .ad-aktivitas span { color: var(--muted); grid-column: 1; }
+.admin .ad-aktivitas time { color: var(--muted); font-size: 12px; grid-row: 1; grid-column: 2; text-align: right; }
 
 /* Tabel */
 .admin table { border-collapse: collapse; width: 100%; min-width: 560px; }
 .admin th,
 .admin td {
-  padding: 12px 10px;
-  border-bottom: 2px dashed #c9b98f;
+  padding: 13px 10px;
+  border-bottom: 1px solid var(--line);
   text-align: left;
-  font-size: 13px;
+  font-size: 13.5px;
   vertical-align: middle;
 }
-.admin th { font-size: 11px; text-transform: uppercase; }
+.admin th { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.admin tbody tr:last-child td { border-bottom: 0; }
+.admin th:last-child, .admin td:last-child { text-align: right; }
+.admin td strong { font-weight: 700; }
 
 /* Tombol */
 .admin button,
@@ -121,127 +292,133 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   background: var(--b);
   color: #fff;
-  font-family: var(--font-archivo), "Archivo Black", sans-serif;
-  text-transform: uppercase;
-  font-size: 13px;
-  padding: 10px 22px;
-  border-radius: 999px;
-  min-height: 44px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 13.5px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  min-height: 42px;
   box-sizing: border-box;
-  border: 0;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-}
-.admin .ad-btn.y { background: var(--y); color: var(--k); box-shadow: inset 0 0 0 2px var(--k); }
-.admin .ad-btn.r { background: var(--r); color: #fff; }
-.admin .ad-btn.s { padding: 6px 16px; min-height: 40px; font-size: 12px; }
-.admin .ad-btn.icon {
-  padding: 0;
-  width: 38px;
-  min-width: 38px;
-  height: 38px;
-  min-height: 38px;
-  border-radius: 999px;
-  flex-shrink: 0;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+  text-decoration: none;
 }
 .admin button:hover,
-.admin .ad-btn:hover {
-  transform: scale(1.05);
+.admin .ad-btn:hover { background: #0f47b5; }
+.admin .ad-btn.ghost {
+  background: #ffffff;
+  color: var(--k);
+  border-color: var(--line);
 }
+.admin .ad-btn.ghost:hover { background: var(--latar); }
+.admin .ad-btn.y { background: var(--y); color: var(--k); }
+.admin .ad-btn.y:hover { background: #f5c800; }
+.admin .ad-btn.r { background: var(--r); color: #fff; }
+.admin .ad-btn.s { padding: 6px 12px; min-height: 34px; font-size: 12.5px; border-radius: 8px; }
 .admin button:active,
-.admin .ad-btn:active {
-  transform: scale(0.98);
-}
+.admin .ad-btn:active { opacity: 0.85; }
 .admin button:disabled,
 .admin .ad-btn:disabled,
-.admin .ad-btn[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-.admin .ad-btn:focus-visible,
+.admin .ad-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
 .admin button:focus-visible,
 .admin a:focus-visible,
 .admin input:focus-visible,
-.admin select:focus-visible { outline: 3px solid var(--r); outline-offset: 2px; }
+.admin select:focus-visible { outline: 3px solid #9cc0ff; outline-offset: 2px; }
 
-/* Chip status */
+/* Ikon aksi kecil di tabel */
+.admin .ad-ikon {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  border-radius: 9px;
+  background: #ffffff;
+  color: var(--k);
+  border: 1px solid var(--line);
+}
+.admin .ad-ikon:hover { background: var(--latar); }
+.admin .ad-ikon.hapus { color: var(--r); }
+.admin .ad-ikon.biru { color: var(--b); }
+
+/* Chip */
 .admin .ad-chip {
   display: inline-block;
-  border: 2px solid var(--k);
   border-radius: 999px;
   padding: 3px 12px;
   font-size: 12px;
-  font-weight: 700;
-  background: var(--c);
+  font-weight: 600;
+  background: var(--latar);
+  color: var(--k);
   white-space: nowrap;
 }
-.admin .ad-chip.y { background: var(--y); }
-.admin .ad-chip.b { background: var(--b); color: #fff; }
-.admin .ad-chip.g { background: var(--g); color: #fff; }
-.admin .ad-chip.r { background: var(--r); color: #fff; }
+.admin .ad-chip.y { background: #fff1b8; color: #6b5300; }
+.admin .ad-chip.b { background: var(--b-soft); color: var(--b); }
+.admin .ad-chip.g { background: var(--g-soft); color: var(--g); }
+.admin .ad-chip.r { background: var(--r-soft); color: var(--r); }
 
-/* Segmen pilihan (Harian / Mingguan / Bulanan) */
+/* Segmen periode */
 .admin .ad-seg {
   display: inline-flex;
-  border: 2px solid var(--k);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  overflow: hidden;
-  background: #fff;
+  padding: 4px;
+  gap: 2px;
+  background: #ffffff;
 }
 .admin .ad-seg button {
-  padding: 10px 20px;
+  padding: 7px 14px;
+  min-height: 32px;
   border: 0;
   background: transparent;
-  color: var(--k);
-  font-family: var(--font-archivo), "Archivo Black", sans-serif;
-  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
   font-size: 13px;
-  cursor: pointer;
   border-radius: 999px;
-  transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 }
-.admin .ad-seg button:hover {
-  transform: scale(1.05);
-}
-.admin .ad-seg button:active {
-  transform: scale(0.98);
-}
+.admin .ad-seg button:hover { background: var(--latar); color: var(--k); }
 .admin .ad-seg button[aria-pressed="true"] { background: var(--b); color: #fff; }
+.admin .ad-seg button[aria-pressed="true"]:hover { background: var(--b); }
 
 /* Formulir */
 .admin label {
   display: block;
   font-size: 12px;
-  font-weight: 700;
-  margin: 14px 0 6px;
-  text-transform: uppercase;
+  font-weight: 600;
+  margin: 12px 0 6px;
+  color: var(--muted);
 }
 .admin input,
 .admin select {
   width: 100%;
-  padding: 12px 16px;
-  border: 2px solid var(--k);
-  border-radius: 12px;
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--k);
-  background: #fff;
+  background: #ffffff;
   box-sizing: border-box;
-  min-height: 44px;
+  min-height: 42px;
 }
+.admin input:focus,
+.admin select:focus { border-color: var(--b); outline: none; }
 .admin input[aria-invalid="true"] { border-color: var(--r); }
-.admin .ad-galat { color: var(--r); font-size: 12px; font-weight: 700; margin: 6px 0 0; }
+.admin .ad-galat { color: var(--r); font-size: 12px; font-weight: 600; margin: 6px 0 0; }
 .admin .ad-aksi { display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+.admin .ad-kolom-cari { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.admin .ad-kolom-cari input,
+.admin .ad-kolom-cari select { width: auto; min-width: 180px; }
 
 /* Pop-up */
 .admin .ad-ov {
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: rgba(11, 42, 107, 0.55);
+  background: rgba(15, 27, 51, 0.4);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -249,55 +426,92 @@
   overflow-y: auto;
 }
 .admin .ad-pop {
-  background: #fff;
-  border: 2px solid var(--k);
-  border-radius: 22px;
-  box-shadow: 8px 8px 0 var(--k);
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(15, 27, 51, 0.18);
   width: 100%;
   max-width: 520px;
-  padding: 34px;
+  padding: 30px;
   box-sizing: border-box;
   margin: auto;
 }
 
-/* Grafik batang sederhana */
-.admin .ad-grafik {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  height: 240px;
-  padding-top: 12px;
-  border-bottom: 2px solid var(--k);
+/* Tabel dengan tinggi tetap: tampil 9 baris, sisanya digulir di dalam kartu */
+.admin .ad-tabel-scroll {
+  max-height: 492px; /* 42px header + 9 baris x 50px */
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
 }
-.admin .ad-kolom {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
+.admin .ad-tabel-scroll table { min-width: 620px; }
+.admin .ad-tabel-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #ffffff;
+  height: 42px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.admin .ad-tabel-scroll tbody tr { height: 50px; }
+.admin .ad-tabel-scroll tbody tr:last-child td { border-bottom: 0; }
+
+/* Menu titik tiga dan dropdown aksi */
+.admin .ad-titik-tiga {
+  font-size: 18px;
+  line-height: 1;
+  padding-bottom: 4px;
+}
+.admin .ad-dropdown {
+  position: fixed;
+  z-index: 60;
+  min-width: 170px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(15, 27, 51, 0.14);
+  padding: 6px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  gap: 2px;
+}
+.admin .ad-dropdown-item {
+  display: flex;
   align-items: center;
-  gap: 6px;
-}
-.admin .ad-batang {
+  justify-content: flex-start;
+  gap: 10px;
   width: 100%;
-  max-width: 44px;
-  min-height: 2px;
-  background: var(--b);
-  border: 2px solid var(--k);
-  border-radius: 8px 8px 0 0;
-  box-sizing: border-box;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--k);
+  font-size: 13px;
+  font-weight: 600;
 }
-.admin .ad-label { font-size: 11px; }
-
+.admin .ad-dropdown-item:hover { background: var(--latar); }
+.admin .ad-dropdown-item.bahaya { color: var(--r); }
+/* Tablet dan ponsel */
+@media (max-width: 1100px) {
+  .admin .ad-split,
+  .admin .ad-split.dua { grid-template-columns: 1fr; }
+}
 @media (max-width: 900px) {
   .admin { grid-template-columns: 1fr; }
-  .admin .ad-side { flex-direction: row; flex-wrap: wrap; align-items: center; height: auto; position: static; }
-  .admin .ad-logo { margin-bottom: 0; }
+  .admin .ad-side {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    height: auto;
+    position: static;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
   .admin .ad-nav { flex-direction: row; flex-wrap: wrap; }
-  .admin .ad-main { padding: 24px 20px; }
+  .admin .ad-grup { display: none; }
+  .admin .ad-main { padding: 22px 18px; }
   .admin .ad-pop { padding: 22px; }
 }
-
-.admin .ad-baris-aksi .ad-aksi-hapus { margin-left: auto; }
-.admin th:last-child, .admin td:last-child { text-align: right; }

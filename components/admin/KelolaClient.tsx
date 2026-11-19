@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Modal, { Konfirmasi } from "./Modal";
 import { FormHarga, FormLayanan, FormPengguna } from "./FormAdmin";
+import { Pill } from "./Grafik";
+import MenuAksi from "./MenuAksi";
 import { formatRupiah } from "@/lib/admin/rekap";
-import { TrashIcon, EyeIcon, EditIcon } from "./Icons";
 import type { Harga, Layanan, Pengguna } from "@/lib/admin/types";
 
 type Popup =
@@ -45,13 +46,7 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
     tutup();
   }
 
-  function simpanHarga(
-    id: string,
-    reguler: number,
-    oneDay: number | null,
-    express: number | null,
-    quick: number | null,
-  ) {
+  function simpanHarga(id: string, reguler: number, oneDay: number | null, express: number | null, quick: number | null) {
     setHarga((hs) => hs.map((h) => (h.id === id ? { ...h, reguler, oneDay, express, quick } : h)));
     tutup();
   }
@@ -68,117 +63,147 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
     tutup();
   }
 
+  // Ringkasan kartu atas
+  const layananAktif = layanan.filter((l) => l.aktif).length;
+  const penggunaAktif = pengguna.filter((p) => p.aktif);
+  const penggunaNonaktif = pengguna.length - penggunaAktif.length;
+  const peranAktif = Array.from(new Set(penggunaAktif.map((p) => p.peran.toLowerCase()))).join(", ");
+  const hargaTerendah = harga.length ? harga.reduce((m, h) => (h.reguler < m.reguler ? h : m)) : null;
+
+  // Baris tabel: setiap layanan dipasangkan dengan harganya (jika ada).
+  const baris = layanan.map((l) => ({ l, h: harga.find((x) => x.layanan === l.nama) ?? null }));
+
   return (
     <>
       <div className="ad-kepala">
-        <h1 className="ad-d" style={{ fontSize: 40, color: "var(--b)" }}>
-          Kelola
-        </h1>
+        <div>
+          <p className="ad-hint ad-crumb">Laundyku · Kelola</p>
+          <h1 className="ad-d">Kelola layanan</h1>
+        </div>
+        <div className="ad-baris-aksi">
+          <a href="#kelola-pengguna" className="ad-btn ghost">
+            Atur pengguna
+          </a>
+          <button type="button" onClick={() => setPopup({ jenis: "layanan", data: null })}>
+            + Tambah layanan
+          </button>
+        </div>
+      </div>
+
+      <div className="ad-kpi-grid">
+        <div className="ad-kartu kecil ad-kpi">
+          <div className="ad-kpi-atas">
+            <span>Layanan aktif</span>
+            <span className="ad-kpi-tag">30 hari</span>
+          </div>
+          <div className="ad-kpi-nilai">{layananAktif}</div>
+          <div>
+            {layanan.every((l) => l.aktif) ? (
+              <Pill tone="naik">↗ semua aktif</Pill>
+            ) : (
+              <Pill tone="turun">↘ {layanan.length - layananAktif} nonaktif</Pill>
+            )}
+          </div>
+        </div>
+        <div className="ad-kartu kecil ad-kpi">
+          <div className="ad-kpi-atas">
+            <span>Pengguna aktif</span>
+            <span className="ad-kpi-tag">30 hari</span>
+          </div>
+          <div className="ad-kpi-nilai">{penggunaAktif.length}</div>
+          <div>
+            <Pill tone="naik">↗ {peranAktif || "belum ada"}</Pill>
+          </div>
+        </div>
+        <div className="ad-kartu kecil ad-kpi">
+          <div className="ad-kpi-atas">
+            <span>Pengguna nonaktif</span>
+            <span className="ad-kpi-tag">30 hari</span>
+          </div>
+          <div className="ad-kpi-nilai">{penggunaNonaktif}</div>
+          <div>
+            {penggunaNonaktif > 0 ? <Pill tone="turun">↘ perlu ditinjau</Pill> : <Pill tone="netral">tidak ada</Pill>}
+          </div>
+        </div>
+        <div className="ad-kartu kecil ad-kpi">
+          <div className="ad-kpi-atas">
+            <span>Harga terendah</span>
+            <span className="ad-kpi-tag">30 hari</span>
+          </div>
+          <div className="ad-kpi-nilai">{hargaTerendah ? formatRupiah(hargaTerendah.reguler) : "-"}</div>
+          <div>
+            {hargaTerendah ? (
+              <Pill tone="naik">↗ {hargaTerendah.layanan.toLowerCase()} {hargaTerendah.satuan}</Pill>
+            ) : (
+              <Pill tone="netral">belum ada harga</Pill>
+            )}
+          </div>
+        </div>
       </div>
 
       <section id="kelola-layanan" className="ad-kartu">
-        <h2 className="ad-d">Layanan</h2>
-        <div className="ad-scroll">
+        <div className="ad-kepala-kartu">
+          <h2 className="ad-d">Daftar layanan dan harga</h2>
+          <p className="ad-hint">Harga dalam rupiah</p>
+        </div>
+        <div className="ad-scroll" style={{ marginTop: 12 }}>
           <table>
             <thead>
               <tr>
                 <th>Layanan</th>
-                <th>Deskripsi</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {layanan.map((l) => (
-                <tr key={l.id}>
-                  <td>{l.nama}</td>
-                  <td>{l.deskripsi || "-"}</td>
-                  <td>
-                    <span className={`ad-chip ${l.aktif ? "g" : "r"}`}>{l.aktif ? "Aktif" : "Nonaktif"}</span>
-                  </td>
-                  <td>
-                    <div className="ad-baris-aksi" style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                      <button
-                        type="button"
-                        className="ad-btn s"
-                        style={{ padding: "6px 12px", fontSize: 12, background: "#1457D6", color: "#fff", display: "inline-flex", gap: 4, alignItems: "center" }}
-                        onClick={() => setPopup({ jenis: "lihatLayanan", data: l })}
-                        title="Lihat detail layanan"
-                      >
-                        <EyeIcon size={14} /> Baca
-                      </button>
-                      <button
-                        type="button"
-                        className="ad-btn y s"
-                        style={{ padding: "6px 12px", fontSize: 12, display: "inline-flex", gap: 4, alignItems: "center" }}
-                        onClick={() => setPopup({ jenis: "layanan", data: l })}
-                        title="Edit layanan"
-                      >
-                        <EditIcon size={14} /> Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="ad-btn r icon ad-aksi-hapus"
-                        style={{ width: 34, height: 34, padding: 0 }}
-                        onClick={() => setPopup({ jenis: "hapusLayanan", data: l })}
-                        title="Hapus layanan"
-                        aria-label={`Hapus layanan ${l.nama}`}
-                      >
-                        <TrashIcon size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div style={{ marginTop: 20 }}>
-          <button className="ad-btn" onClick={() => setPopup({ jenis: "layanan", data: null })}>
-            Tambah layanan
-          </button>
-        </div>
-      </section>
-
-      <section id="kelola-harga" className="ad-kartu">
-        <h2 className="ad-d">Harga</h2>
-        <div className="ad-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Layanan</th>
+                <th>Keterangan</th>
                 <th>Satuan</th>
                 <th>Reguler</th>
-                <th>One Day</th>
+                <th>1 Hari</th>
                 <th>Express</th>
                 <th>Quick</th>
                 <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
-              {harga.map((h) => (
-                <tr key={h.id}>
-                  <td>{h.layanan}</td>
-                  <td>{h.satuan}</td>
-                  <td>{formatRupiah(h.reguler)}</td>
-                  <td>{h.oneDay === null ? "-" : formatRupiah(h.oneDay)}</td>
-                  <td>{h.express === null ? "-" : formatRupiah(h.express)}</td>
-                  <td>{h.quick === null ? "-" : formatRupiah(h.quick)}</td>
+              {baris.map(({ l, h }) => (
+                <tr key={l.id}>
                   <td>
-                    <button className="ad-btn y s" onClick={() => setPopup({ jenis: "harga", data: h })}>
-                      Ubah
-                    </button>
+                    <strong>{l.nama}</strong>
+                  </td>
+                  <td>{l.deskripsi || "-"}</td>
+                  <td>{h?.satuan ?? "-"}</td>
+                  <td>{h ? formatRupiah(h.reguler) : "-"}</td>
+                  <td>{h?.oneDay == null ? "-" : formatRupiah(h.oneDay)}</td>
+                  <td>{h?.express == null ? "-" : formatRupiah(h.express)}</td>
+                  <td>{h?.quick == null ? "-" : formatRupiah(h.quick)}</td>
+                  <td>
+                    <MenuAksi
+                      label={`Aksi untuk layanan ${l.nama}`}
+                      items={[
+                        ...(h ? [{ label: "Ubah harga", ikon: "edit" as const, onKlik: () => setPopup({ jenis: "harga", data: h }) }] : []),
+                        { label: "Lihat detail", ikon: "lihat" as const, onKlik: () => setPopup({ jenis: "lihatLayanan", data: l }) },
+                        { label: "Edit layanan", ikon: "edit" as const, onKlik: () => setPopup({ jenis: "layanan", data: l }) },
+                        { label: "Hapus", ikon: "hapus" as const, bahaya: true, onKlik: () => setPopup({ jenis: "hapusLayanan", data: l }) },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        {layanan.length === 0 && <p className="ad-kosong">Belum ada layanan.</p>}
       </section>
 
       <section id="kelola-pengguna" className="ad-kartu">
-        <h2 className="ad-d">Pengguna</h2>
-        <div className="ad-scroll">
+        <div className="ad-kepala-kartu">
+          <h2 className="ad-d">Pengguna</h2>
+          <div className="ad-baris-aksi">
+            <p className="ad-hint" style={{ margin: 0 }}>
+              {pengguna.length} akun terdaftar
+            </p>
+            <button type="button" className="ad-btn s" onClick={() => setPopup({ jenis: "pengguna", data: null })}>
+              + Tambah pengguna
+            </button>
+          </div>
+        </div>
+        <div className="ad-scroll" style={{ marginTop: 12 }}>
           <table>
             <thead>
               <tr>
@@ -192,7 +217,9 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
             <tbody>
               {pengguna.map((p) => (
                 <tr key={p.id}>
-                  <td>{p.nama}</td>
+                  <td>
+                    <strong>{p.nama}</strong>
+                  </td>
                   <td>{p.email}</td>
                   <td>
                     <span className={`ad-chip ${p.peran === "Admin" ? "b" : p.peran === "Petugas" ? "y" : ""}`}>
@@ -203,47 +230,21 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
                     <span className={`ad-chip ${p.aktif ? "g" : "r"}`}>{p.aktif ? "Aktif" : "Nonaktif"}</span>
                   </td>
                   <td>
-                    <div className="ad-baris-aksi" style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                      <button
-                        type="button"
-                        className="ad-btn s"
-                        style={{ padding: "6px 12px", fontSize: 12, background: "#1457D6", color: "#fff", display: "inline-flex", gap: 4, alignItems: "center" }}
-                        onClick={() => setPopup({ jenis: "lihatPengguna", data: p })}
-                        title="Lihat detail pengguna"
-                      >
-                        <EyeIcon size={14} /> Baca
-                      </button>
-                      <button
-                        type="button"
-                        className="ad-btn y s"
-                        style={{ padding: "6px 12px", fontSize: 12, display: "inline-flex", gap: 4, alignItems: "center" }}
-                        onClick={() => setPopup({ jenis: "pengguna", data: p })}
-                        title="Edit pengguna"
-                      >
-                        <EditIcon size={14} /> Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="ad-btn r icon ad-aksi-hapus"
-                        style={{ width: 34, height: 34, padding: 0 }}
-                        onClick={() => setPopup({ jenis: "hapusPengguna", data: p })}
-                        title="Hapus pengguna"
-                        aria-label={`Hapus pengguna ${p.nama}`}
-                      >
-                        <TrashIcon size={14} />
-                      </button>
-                    </div>
+                    <MenuAksi
+                      label={`Aksi untuk pengguna ${p.nama}`}
+                      items={[
+                        { label: "Lihat detail", ikon: "lihat", onKlik: () => setPopup({ jenis: "lihatPengguna", data: p }) },
+                        { label: "Edit pengguna", ikon: "edit", onKlik: () => setPopup({ jenis: "pengguna", data: p }) },
+                        { label: "Hapus", ikon: "hapus", bahaya: true, onKlik: () => setPopup({ jenis: "hapusPengguna", data: p }) },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div style={{ marginTop: 20 }}>
-          <button className="ad-btn" onClick={() => setPopup({ jenis: "pengguna", data: null })}>
-            Tambah pengguna
-          </button>
-        </div>
+        {pengguna.length === 0 && <p className="ad-kosong">Belum ada pengguna.</p>}
       </section>
 
       {/* ---------- Popup ---------- */}
@@ -258,15 +259,15 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
         <Modal judul={`Detail Layanan: ${popup.data.nama}`} onTutup={tutup}>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
-              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>NAMA LAYANAN</div>
+              <div style={{ fontSize: 12, color: "#6B7489", fontWeight: 700 }}>NAMA LAYANAN</div>
               <div style={{ fontSize: 16, fontWeight: 700, marginTop: 2 }}>{popup.data.nama}</div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>DESKRIPSI</div>
+              <div style={{ fontSize: 12, color: "#6B7489", fontWeight: 700 }}>DESKRIPSI</div>
               <div style={{ fontSize: 14, marginTop: 2 }}>{popup.data.deskripsi || "Tidak ada deskripsi tambahan."}</div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>STATUS</div>
+              <div style={{ fontSize: 12, color: "#6B7489", fontWeight: 700 }}>STATUS</div>
               <span className={`ad-chip ${popup.data.aktif ? "g" : "r"}`} style={{ marginTop: 4 }}>
                 {popup.data.aktif ? "Aktif" : "Nonaktif"}
               </span>
@@ -292,9 +293,7 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
         <Modal judul={`Ubah harga ${popup.data.layanan}`} onTutup={tutup}>
           <FormHarga
             awal={popup.data}
-            onSimpan={(reguler, oneDay, express, quick) =>
-              simpanHarga(popup.data.id, reguler, oneDay, express, quick)
-            }
+            onSimpan={(reguler, oneDay, express, quick) => simpanHarga(popup.data.id, reguler, oneDay, express, quick)}
             onBatal={tutup}
           />
         </Modal>
@@ -310,21 +309,24 @@ export default function KelolaClient({ layananAwal, hargaAwal, penggunaAwal }: K
         <Modal judul={`Detail Pengguna: ${popup.data.nama}`} onTutup={tutup}>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
-              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>NAMA</div>
+              <div style={{ fontSize: 12, color: "#6B7489", fontWeight: 700 }}>NAMA</div>
               <div style={{ fontSize: 16, fontWeight: 700, marginTop: 2 }}>{popup.data.nama}</div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>EMAIL</div>
+              <div style={{ fontSize: 12, color: "#6B7489", fontWeight: 700 }}>EMAIL</div>
               <div style={{ fontSize: 14, marginTop: 2 }}>{popup.data.email}</div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>PERAN</div>
-              <span className={`ad-chip ${popup.data.peran === "Admin" ? "b" : popup.data.peran === "Petugas" ? "y" : ""}`} style={{ marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: "#6B7489", fontWeight: 700 }}>PERAN</div>
+              <span
+                className={`ad-chip ${popup.data.peran === "Admin" ? "b" : popup.data.peran === "Petugas" ? "y" : ""}`}
+                style={{ marginTop: 4 }}
+              >
                 {popup.data.peran}
               </span>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: "#4A5A80", fontWeight: 700 }}>STATUS AKUN</div>
+              <div style={{ fontSize: 12, color: "#6B7489", fontWeight: 700 }}>STATUS AKUN</div>
               <span className={`ad-chip ${popup.data.aktif ? "g" : "r"}`} style={{ marginTop: 4 }}>
                 {popup.data.aktif ? "Aktif" : "Nonaktif"}
               </span>

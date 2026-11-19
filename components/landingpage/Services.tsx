@@ -122,7 +122,6 @@ export default function Services() {
 
   const cardStyle = {
     top: "var(--card-top)",
-    height: `calc(100svh - var(--card-top) - ${CARD_BOTTOM}px)`,
   } as CSSProperties;
 
   return (
@@ -156,7 +155,7 @@ export default function Services() {
               <div
                 key={service.title}
                 data-slot
-                className="sticky mb-[50svh] last:mb-0 min-[860px]:mb-[25vh] relative"
+                className="layanan-kartu sticky mb-[50svh] last:mb-0 min-[860px]:mb-[25vh] relative"
                 style={{ ...cardStyle, zIndex: i + 1 }}
               >
                 <article
@@ -230,7 +229,7 @@ export default function Services() {
             ))}
 
             {/* Ruang kosong setinggi kartu agar kartu terakhir bisa menempel penuh sampai akhir */}
-            <div aria-hidden="true" style={{ height: cardStyle.height }} />
+            <div aria-hidden="true" className="layanan-kartu" />
           </div>
         </div>
       </div>
