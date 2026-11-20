@@ -192,7 +192,7 @@ export default function NavbarClient({ name }: NavbarClientProps) {
                 <div className="hidden md:flex flex-col justify-center">
                   <div className="relative h-[160px] w-[200px] lg:h-[200px] lg:w-[260px] overflow-hidden rounded-2xl border-[3px] border-ink shadow-brut bg-paper">
                     <Image
-                      src="/herolaundry.webp"
+                      src="/hero/herolaundry.webp"
                       alt="Washes Laundry"
                       fill
                       className="object-cover"
