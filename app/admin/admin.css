@@ -494,24 +494,94 @@
 }
 .admin .ad-dropdown-item:hover { background: var(--latar); }
 .admin .ad-dropdown-item.bahaya { color: var(--r); }
+
+.admin button.ad-keluar {
+  background: none;
+  color: var(--r);
+  border: 0;
+  min-height: 36px;
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0 12px;
+  font-size: 13px;
+}
+.admin button.ad-keluar:hover { background: var(--r-soft); }
+
 /* Tablet dan ponsel */
 @media (max-width: 1100px) {
   .admin .ad-split,
   .admin .ad-split.dua { grid-template-columns: 1fr; }
 }
+/* Layar kecil: sidebar jadi menu hamburger */
+.admin .ad-topbar { display: none; }
+.admin .ad-overlay { display: none; }
+
 @media (max-width: 900px) {
   .admin { grid-template-columns: 1fr; }
-  .admin .ad-side {
-    flex-direction: row;
-    flex-wrap: wrap;
+
+  .admin .ad-topbar {
+    display: flex;
     align-items: center;
-    height: auto;
-    position: static;
-    border-right: 0;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #ffffff;
     border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 40;
   }
-  .admin .ad-nav { flex-direction: row; flex-wrap: wrap; }
-  .admin .ad-grup { display: none; }
+  .admin .ad-topbar .ad-brand { padding: 0; }
+  .admin .ad-topbar .ad-brand strong { font-size: 15px; }
+
+  .admin .ad-hamburger {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 40px;
+    height: 40px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #ffffff;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .admin .ad-hamburger span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: var(--k);
+    border-radius: 2px;
+  }
+
+  /* Sidebar disembunyikan di kiri, muncul saat .terbuka */
+  .admin .ad-side {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    max-width: 85vw;
+    z-index: 70;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 0 0 40px rgba(15, 27, 51, 0.2);
+  }
+  .admin .ad-side.terbuka { transform: translateX(0); }
+
+  .admin .ad-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 65;
+    background: rgba(15, 27, 51, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .admin .ad-overlay.terbuka { opacity: 1; pointer-events: auto; }
+
   .admin .ad-main { padding: 22px 18px; }
   .admin .ad-pop { padding: 22px; }
 }
