@@ -18,19 +18,22 @@ export default function MenuAksi({ label, items }: { label: string; items: ItemA
   const tombolRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Dropdown memakai posisi fixed, jadi tidak terpotong oleh area tabel yang bisa di-scroll.
+  // Hitung posisi dropdown dari posisi tombol. Dipanggil saat dibuka dan saat halaman di-scroll.
+  function hitungPosisi() {
+    if (!tombolRef.current) return;
+    const r = tombolRef.current.getBoundingClientRect();
+    setPosisi({ top: r.bottom + 6, right: window.innerWidth - r.right });
+  }
+
   function toggle() {
-    if (!buka && tombolRef.current) {
-      const r = tombolRef.current.getBoundingClientRect();
-      setPosisi({ top: r.bottom + 6, right: window.innerWidth - r.right });
-    }
+    if (!buka) hitungPosisi();
     setBuka(!buka);
   }
 
   useEffect(() => {
     if (!buka) return;
-    const tutup = () => setBuka(false);
-    function onDown(e: MouseEvent) {
+
+    function onPointerDown(e: PointerEvent) {
       const target = e.target as Node;
       if (menuRef.current?.contains(target) || tombolRef.current?.contains(target)) return;
       setBuka(false);
@@ -38,15 +41,22 @@ export default function MenuAksi({ label, items }: { label: string; items: ItemA
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setBuka(false);
     }
-    document.addEventListener("mousedown", onDown);
+    function onScroll() {
+      hitungPosisi();
+    }
+    function onResize() {
+      setBuka(false);
+    }
+
+    document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKey);
-    window.addEventListener("scroll", tutup, true);
-    window.addEventListener("resize", tutup);
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onResize);
     return () => {
-      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKey);
-      window.removeEventListener("scroll", tutup, true);
-      window.removeEventListener("resize", tutup);
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onResize);
     };
   }, [buka]);
 
