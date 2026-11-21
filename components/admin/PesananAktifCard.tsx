@@ -217,4 +217,4 @@ export default function PesananAktifCard({ awal }: { awal: PesananAktif[] }) {
       )}
     </section>
   );
-}
+} 
