@@ -31,7 +31,7 @@ import {
   formatRibu,
 } from "@/lib/admin/ringkasan";
 import { Donut, KartuKpi, LineChart, Pill } from "./Grafik";
-import PesananAktifCard from "./PesananAktifcard";
+import PesananAktifCard from "./PesananAktifCard";
 import type { PesananAktif, Transaksi } from "@/lib/admin/types";
 
 const TAB: { nilai: ModeRekap; label: string }[] = [

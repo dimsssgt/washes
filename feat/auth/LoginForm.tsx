@@ -79,7 +79,7 @@ export default function LoginForm() {
         password: result.data.password,
       });
       if (error) {
-        setLoginServerError("Email atau password salah.");
+        setLoginServerError(error.message);
         return;
       }
 
