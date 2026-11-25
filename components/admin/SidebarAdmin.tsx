@@ -115,7 +115,27 @@ export default function SidebarAdmin({
         <nav aria-label="Ruang kerja" className="ad-nav">
           {renderMenu(RUANG_KERJA)}
         </nav>
-
+        
+        {pathname.startsWith("/admin/pengaturan") && (
+          <nav aria-label="Submenu pengaturan" className="ad-nav ad-sub">
+            <Link
+              href="/admin/pengaturan"
+              className={`ad-menu ad-submenu${pathname === "/admin/pengaturan" ? " on" : ""}`}
+              aria-current={pathname === "/admin/pengaturan" ? "page" : undefined}
+              onClick={() => setTerbuka(false)}
+            >
+              Umum
+            </Link>
+            <Link
+              href="/admin/pengaturan/promo"
+              className={`ad-menu ad-submenu${pathname.startsWith("/admin/pengaturan/promo") ? " on" : ""}`}
+              aria-current={pathname.startsWith("/admin/pengaturan/promo") ? "page" : undefined}
+              onClick={() => setTerbuka(false)}
+            >
+              Promo &amp; Diskon
+            </Link>
+          </nav>
+        )}
         <div style={{ flex: 1 }} />
 
         <div className="ad-user-kartu">

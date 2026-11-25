@@ -27,8 +27,8 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // Memanggil getUser memperbarui token yang kedaluwarsa dan menyimpannya ke cookie.
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.redirect(new URL("/login", request.url));
   return response;
 }
 

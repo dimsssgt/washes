@@ -3,7 +3,7 @@ export const SITE = {
   name: "Laundyku",
   whatsapp: "+62 856 4791 6005", 
   address: "Jl. pamularsih Raya,", 
-  orderHref: "#login", 
+  orderHref: "/login", 
   statusHref: "#status",
 };
  

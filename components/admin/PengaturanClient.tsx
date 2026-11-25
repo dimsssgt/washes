@@ -1,349 +1,594 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import {
+  simpanPengaturan,
+  simpanPromo as simpanPromoKeDb,
+  ubahStatusPromo,
+  hapusPromo as hapusPromoDb,
+  type DataAwal,
+  type KunciPengaturan,
+} from "@/lib/pengaturan/actions";
 
 /* ─── Tipe ─────────────────────────────────────────────── */
-interface DataStruk {
+interface InfoToko {
   namaToko: string;
   alamat: string;
   noWhatsapp: string;
-  footerUcapan: string;
+  emailKontak: string;
+}
+
+interface JamHari {
+  hari: string;
+  buka: boolean;
+  mulai: string;
+  selesai: string;
+}
+
+interface AntarJemput {
+  aktif: boolean;
+  biaya: number;
+  jarakKm: number;
+  estimasiMenit: number;
+}
+
+interface AturanPesanan {
+  minKg: number;
+  estReguler: number;
+  estOneDay: number;
+  estExpress: number;
+  estQuick: number;
+}
+
+interface NotaSettings {
+  ucapan: string;
+  ketentuan: string;
+  metode: string[];
 }
 
 interface Promo {
-  id: number;
-  namaDiskon: string;
-  persentase: number;
-  tanggalMulai: string;
-  tanggalSelesai: string;
+  id: string;
+  nama: string;
+  jenis: "persen" | "nominal";
+  nilai: number;
+  berlakuUntuk: "semua" | "tertentu";
+  layanan: string[]; // berisi layanan_id
+  minBelanja: number;
+  maksPotongan: number | null;
+  mulai: string;
+  selesai: string;
+  kuota: number | null;
   aktif: boolean;
 }
 
-/* ─── Dummy data awal ───────────────────────────────────── */
-const dataStrukAwal: DataStruk = {
-  namaToko: "Laundyku",
-  alamat: "Jl. Contoh No. 1, Kota, Provinsi",
-  noWhatsapp: "08123456789",
-  footerUcapan: "Terima kasih telah menggunakan layanan kami!",
-};
+type FormPromo = Omit<Promo, "id">;
 
-const promoAwal: Promo[] = [
-  {
-    id: 1,
-    namaDiskon: "Diskon Lebaran",
-    persentase: 20,
-    tanggalMulai: "2026-03-28",
-    tanggalSelesai: "2026-04-05",
-    aktif: false,
-  },
-  {
-    id: 2,
-    namaDiskon: "Promo Akhir Tahun",
-    persentase: 15,
-    tanggalMulai: "2026-12-20",
-    tanggalSelesai: "2026-12-31",
-    aktif: true,
-  },
+/* ─── Konstanta ─────────────────────────────────────────── */
+const METODE = [
+  { kode: "QRIS", label: "QRIS" },
+  { kode: "Tunai", label: "Tunai" },
 ];
 
-/* ─── Komponen utama ────────────────────────────────────── */
-export default function PengaturanClient() {
-  /* -- State Struk -- */
-  const [struk, setStruk] = useState<DataStruk>(dataStrukAwal);
-  const [strukTersimpan, setStrukTersimpan] = useState(false);
+const formKosong: FormPromo = {
+  nama: "",
+  jenis: "persen",
+  nilai: 0,
+  berlakuUntuk: "semua",
+  layanan: [],
+  minBelanja: 0,
+  maksPotongan: null,
+  mulai: "",
+  selesai: "",
+  kuota: null,
+  aktif: true,
+};
 
-  /* -- State Promo -- */
-  const [daftarPromo, setDaftarPromo] = useState<Promo[]>(promoAwal);
-  const [showFormPromo, setShowFormPromo] = useState(false);
-  const [editPromo, setEditPromo] = useState<Promo | null>(null);
-  const [formPromo, setFormPromo] = useState<Omit<Promo, "id" | "aktif">>({
-    namaDiskon: "",
-    persentase: 0,
-    tanggalMulai: "",
-    tanggalSelesai: "",
-  });
+/* ─── Helper ────────────────────────────────────────────── */
+const rp = (n: number) => "Rp " + n.toLocaleString("id-ID");
+
+const fmtTanggal = (s: string) =>
+  s
+    ? new Date(s + ":00+07:00").toLocaleString("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Asia/Jakarta",
+      })
+    : "-";
+
+function statusPromo(p: Promo, sekarang: number): { teks: string; kelas: string } {
+  if (!p.aktif) return { teks: "Nonaktif", kelas: "r" };
+  if (sekarang < new Date(p.mulai + ":00+07:00").getTime()) return { teks: "Akan datang", kelas: "b" };
+  if (sekarang > new Date(p.selesai + ":00+07:00").getTime()) return { teks: "Berakhir", kelas: "y" };
+  return { teks: "Berlangsung", kelas: "g" };
+}
+
+/* ─── Komponen utama ────────────────────────────────────── */
+export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo"; awal: DataAwal }) {
+  /* -- Umum -- */
+  const [info, setInfo] = useState<InfoToko>(awal.info);
+  const [jam, setJam] = useState<JamHari[]>(awal.jam);
+  const [antar, setAntar] = useState<AntarJemput>(awal.antar);
+  const [pesanan, setPesanan] = useState<AturanPesanan>(awal.pesanan);
+  const [nota, setNota] = useState<NotaSettings>(awal.nota);
+  const [tersimpan, setTersimpan] = useState<string | null>(null);
+  const [errorJam, setErrorJam] = useState("");
+
+  /* -- Promo -- */
+  const [daftarPromo, setDaftarPromo] = useState<Promo[]>(awal.promo);
+  const [showForm, setShowForm] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [form, setForm] = useState<FormPromo>(formKosong);
+  const [errorForm, setErrorForm] = useState("");
   const [hapusPromo, setHapusPromo] = useState<Promo | null>(null);
 
-  /* ── Handler Struk ── */
-  function simpanStruk(e: React.FormEvent) {
+  const sekarang = Date.now();
+
+  /* ── Handler Umum ── */
+  async function simpanBagian(nama: KunciPengaturan, e: FormEvent) {
     e.preventDefault();
-    // TODO: simpan ke Supabase
-    setStrukTersimpan(true);
-    setTimeout(() => setStrukTersimpan(false), 2500);
+
+    if (nama === "jam") {
+      const salah = jam.find((h) => h.buka && h.selesai <= h.mulai);
+      if (salah) {
+        setErrorJam(`Jam tutup ${salah.hari} harus setelah jam buka.`);
+        return;
+      }
+      setErrorJam("");
+    }
+
+    const nilai = { info, jam, antar, pesanan, nota }[nama];
+    const hasil = await simpanPengaturan(nama, nilai);
+    if (!hasil.ok) {
+      alert("Gagal menyimpan: " + hasil.pesan);
+      return;
+    }
+
+    setTersimpan(nama);
+    setTimeout(() => setTersimpan(null), 2500);
+  }
+
+  function updateJam(i: number, patch: Partial<JamHari>) {
+    setJam((prev) => prev.map((h, idx) => (idx === i ? { ...h, ...patch } : h)));
+  }
+
+  function toggleMetode(kode: string) {
+    setNota((n) => ({
+      ...n,
+      metode: n.metode.includes(kode) ? n.metode.filter((x) => x !== kode) : [...n.metode, kode],
+    }));
   }
 
   /* ── Handler Promo ── */
   function bukaFormTambah() {
-    setEditPromo(null);
-    setFormPromo({ namaDiskon: "", persentase: 0, tanggalMulai: "", tanggalSelesai: "" });
-    setShowFormPromo(true);
+    setEditId(null);
+    setForm(formKosong);
+    setErrorForm("");
+    setShowForm(true);
   }
 
   function bukaFormEdit(p: Promo) {
-    setEditPromo(p);
-    setFormPromo({
-      namaDiskon: p.namaDiskon,
-      persentase: p.persentase,
-      tanggalMulai: p.tanggalMulai,
-      tanggalSelesai: p.tanggalSelesai,
-    });
-    setShowFormPromo(true);
+    setEditId(p.id);
+    const { id: _id, ...sisa } = p;
+    setForm(sisa);
+    setErrorForm("");
+    setShowForm(true);
   }
 
-  function simpanPromo(e: React.FormEvent) {
+  function tutupForm() {
+    setShowForm(false);
+    setEditId(null);
+    setErrorForm("");
+  }
+
+  function toggleLayanan(layananId: string) {
+    setForm((f) => ({
+      ...f,
+      layanan: f.layanan.includes(layananId)
+        ? f.layanan.filter((l) => l !== layananId)
+        : [...f.layanan, layananId],
+    }));
+  }
+
+  function validasi(): string | null {
+    if (form.nilai <= 0) return "Nilai diskon harus lebih dari 0.";
+    if (form.jenis === "persen" && form.nilai > 100) return "Diskon persen maksimal 100%.";
+    if (!form.mulai || !form.selesai) return "Tanggal mulai dan selesai wajib diisi.";
+    if (new Date(form.selesai) <= new Date(form.mulai)) return "Waktu selesai harus setelah waktu mulai.";
+    if (form.berlakuUntuk === "tertentu" && form.layanan.length === 0) return "Pilih minimal satu layanan.";
+    return null;
+  }
+
+  async function simpanPromo(e: FormEvent) {
     e.preventDefault();
-    if (editPromo) {
-      setDaftarPromo((prev) =>
-        prev.map((p) => (p.id === editPromo.id ? { ...editPromo, ...formPromo } : p))
-      );
-    } else {
-      const idBaru = Date.now();
-      setDaftarPromo((prev) => [...prev, { id: idBaru, aktif: true, ...formPromo }]);
+    const err = validasi();
+    if (err) {
+      setErrorForm(err);
+      return;
     }
-    setShowFormPromo(false);
-    setEditPromo(null);
-  }
 
-  function toggleAktif(id: number) {
+    const input = {
+      ...form,
+      layanan: form.berlakuUntuk === "tertentu" ? form.layanan : [],
+      maksPotongan: form.jenis === "persen" ? form.maksPotongan : null,
+    };
+
+    const hasil = await simpanPromoKeDb(editId, input);
+    if (!hasil.ok) {
+      setErrorForm("Gagal menyimpan: " + hasil.pesan);
+      return;
+    }
+
+    const baru: Promo = { id: hasil.id, ...input };
     setDaftarPromo((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, aktif: !p.aktif } : p))
+      editId !== null ? prev.map((p) => (p.id === editId ? baru : p)) : [baru, ...prev],
     );
+    tutupForm();
   }
 
-  function konfirmasiHapus(p: Promo) {
-    setHapusPromo(p);
+  async function toggleAktif(p: Promo) {
+    const hasil = await ubahStatusPromo(p.id, !p.aktif);
+    if (!hasil.ok) {
+      alert("Gagal mengubah status: " + hasil.pesan);
+      return;
+    }
+    setDaftarPromo((prev) => prev.map((x) => (x.id === p.id ? { ...x, aktif: !x.aktif } : x)));
   }
 
-  function hapusKonfirmasi() {
+  async function hapusKonfirmasi() {
     if (!hapusPromo) return;
+    const hasil = await hapusPromoDb(hapusPromo.id);
+    if (!hasil.ok) {
+      alert("Gagal menghapus: " + hasil.pesan);
+      return;
+    }
     setDaftarPromo((prev) => prev.filter((p) => p.id !== hapusPromo.id));
     setHapusPromo(null);
   }
 
-  /* ── Render ── */
+  const namaLayanan = (id: string) => awal.layanan.find((l) => l.id === id)?.nama ?? "(layanan dihapus)";
+
   return (
-    <div style={{ padding: "24px 32px", fontFamily: "var(--font-mono, monospace)" }}>
-      {/* Tombol kembali */}
-      <Link
-        href="/admin"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          marginBottom: 20,
-          color: "#1a3353",
-          fontWeight: 600,
-          fontSize: 14,
-          textDecoration: "none",
-        }}
-      >
+    <div>
+      <Link href="/admin" className="ad-crumb">
         ← Kembali ke Dashboard
       </Link>
 
-      <h1 style={{ fontSize: 24, fontWeight: 700, color: "#1a3353", marginBottom: 32 }}>
-        Pengaturan
-      </h1>
+      <h1 className="ad-d">Pengaturan</h1>
 
-      {/* ══════════════ SEKSI 1: STRUK ══════════════ */}
-      <section
-        style={{
-          background: "#fff",
-          borderRadius: 12,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-          padding: 28,
-          marginBottom: 32,
-        }}
-      >
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1a3353", marginBottom: 20 }}>
-          🧾 Pengaturan Struk
-        </h2>
-        <form onSubmit={simpanStruk} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div style={gFieldStyle}>
-            <label style={gLabelStyle}>Nama Toko</label>
-            <input
-              style={gInputStyle}
-              value={struk.namaToko}
-              onChange={(e) => setStruk({ ...struk, namaToko: e.target.value })}
-              required
-              placeholder="Nama toko pada struk"
-            />
-          </div>
-          <div style={gFieldStyle}>
-            <label style={gLabelStyle}>Alamat Toko</label>
-            <input
-              style={gInputStyle}
-              value={struk.alamat}
-              onChange={(e) => setStruk({ ...struk, alamat: e.target.value })}
-              required
-              placeholder="Alamat lengkap toko"
-            />
-          </div>
-          <div style={gFieldStyle}>
-            <label style={gLabelStyle}>Nomor WhatsApp</label>
-            <input
-              style={gInputStyle}
-              value={struk.noWhatsapp}
-              onChange={(e) => setStruk({ ...struk, noWhatsapp: e.target.value })}
-              placeholder="08xxxxxxxxxx"
-            />
-          </div>
-          <div style={gFieldStyle}>
-            <label style={gLabelStyle}>Ucapan Footer Struk</label>
-            <textarea
-              style={{ ...gInputStyle, minHeight: 80, resize: "vertical" }}
-              value={struk.footerUcapan}
-              onChange={(e) => setStruk({ ...struk, footerUcapan: e.target.value })}
-              placeholder="Contoh: Terima kasih atas kepercayaan Anda!"
-            />
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <button type="submit" style={gBtnPrimaryStyle}>
-              Simpan Pengaturan Struk
-            </button>
-            {strukTersimpan && (
-              <span style={{ color: "#16a34a", fontWeight: 600, fontSize: 14 }}>
-                ✓ Tersimpan!
-              </span>
-            )}
-          </div>
-        </form>
-      </section>
+      <div>
+        {/* ══════════════ TAB UMUM ══════════════ */}
+        {tab === "umum" && (
+          <div className="ad-stack">
+            {/* Informasi toko */}
+            <section className="ad-kartu">
+              <h2 className="ad-d">Informasi Toko</h2>
+              <small>Data ini ditampilkan kepada pelanggan di website dan aplikasi.</small>
+              <form onSubmit={(e) => simpanBagian("info", e)} className="ad-form" style={{ marginTop: 16 }}>
+                <div className="ad-field">
+                  <label>Nama Toko</label>
+                  <input value={info.namaToko} onChange={(e) => setInfo({ ...info, namaToko: e.target.value })} required />
+                </div>
+                <div className="ad-field">
+                  <label>Alamat</label>
+                  <input value={info.alamat} onChange={(e) => setInfo({ ...info, alamat: e.target.value })} required />
+                </div>
+                <div className="ad-grid-2">
+                  <div className="ad-field">
+                    <label>Nomor WhatsApp</label>
+                    <input value={info.noWhatsapp} onChange={(e) => setInfo({ ...info, noWhatsapp: e.target.value })} />
+                  </div>
+                  <div className="ad-field">
+                    <label>Email Kontak</label>
+                    <input type="email" value={info.emailKontak} onChange={(e) => setInfo({ ...info, emailKontak: e.target.value })} />
+                  </div>
+                </div>
+                <div className="ad-aksi">
+                  <button type="submit" className="ad-btn">Simpan Perubahan</button>
+                  {tersimpan === "info" && <span className="ad-chip g">✓ Tersimpan</span>}
+                </div>
+              </form>
+            </section>
 
-      {/* ══════════════ SEKSI 2: PROMO/DISKON ══════════════ */}
-      <section
-        style={{
-          background: "#fff",
-          borderRadius: 12,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-          padding: 28,
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1a3353" }}>
-            🏷️ CMS Promo &amp; Diskon
-          </h2>
-          <button onClick={bukaFormTambah} style={gBtnPrimaryStyle}>
-            + Tambah Promo
-          </button>
-        </div>
-
-        {/* Tabel Promo */}
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-            <thead>
-              <tr style={{ background: "#f0f4f8" }}>
-                {["Nama Diskon", "Diskon", "Tanggal Mulai", "Tanggal Selesai", "Status", "Aksi"].map((h) => (
-                  <th key={h} style={gThStyle}>{h}</th>
+            {/* Jam operasional */}
+            <section className="ad-kartu">
+              <h2 className="ad-d">Jam Operasional</h2>
+              <small>Pelanggan hanya bisa memesan pada jam buka.</small>
+              <form onSubmit={(e) => simpanBagian("jam", e)} className="ad-form" style={{ marginTop: 16 }}>
+                <div className="ad-jam-baris ad-jam-head">
+                  <span>Hari</span>
+                  <span>Status</span>
+                  <span>Buka</span>
+                  <span>Tutup</span>
+                </div>
+                {jam.map((h, i) => (
+                  <div className="ad-jam-baris" key={h.hari}>
+                    <label>
+                      <input type="checkbox" checked={h.buka} onChange={(e) => updateJam(i, { buka: e.target.checked })} />
+                      {h.hari}
+                    </label>
+                    <span style={{ fontSize: 13, color: h.buka ? "var(--g)" : "var(--r)", fontWeight: 600 }}>
+                      {h.buka ? "Buka" : "Tutup"}
+                    </span>
+                    <input type="time" value={h.mulai} disabled={!h.buka} onChange={(e) => updateJam(i, { mulai: e.target.value })} />
+                    <input type="time" value={h.selesai} disabled={!h.buka} onChange={(e) => updateJam(i, { selesai: e.target.value })} />
+                  </div>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {daftarPromo.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ textAlign: "center", padding: 24, color: "#888" }}>
-                    Belum ada promo
-                  </td>
-                </tr>
-              ) : (
-                daftarPromo.map((p) => (
-                  <tr key={p.id} style={{ borderBottom: "1px solid #e5e7eb" }}>
-                    <td style={gTdStyle}>{p.namaDiskon}</td>
-                    <td style={gTdStyle}>{p.persentase}%</td>
-                    <td style={gTdStyle}>{p.tanggalMulai}</td>
-                    <td style={gTdStyle}>{p.tanggalSelesai}</td>
-                    <td style={gTdStyle}>
-                      <button
-                        onClick={() => toggleAktif(p.id)}
-                        style={{
-                          padding: "3px 12px",
-                          borderRadius: 20,
-                          border: "none",
-                          cursor: "pointer",
-                          fontWeight: 600,
-                          fontSize: 12,
-                          background: p.aktif ? "#dcfce7" : "#fee2e2",
-                          color: p.aktif ? "#16a34a" : "#dc2626",
-                        }}
-                      >
-                        {p.aktif ? "Aktif" : "Nonaktif"}
-                      </button>
-                    </td>
-                    <td style={{ ...gTdStyle, display: "flex", gap: 8 }}>
-                      <button onClick={() => bukaFormEdit(p)} style={gBtnEditStyle}>Edit</button>
-                      <button onClick={() => konfirmasiHapus(p)} style={gBtnHapusStyle}>Hapus</button>
-                    </td>
+                {errorJam && <p className="ad-galat">{errorJam}</p>}
+                <div className="ad-aksi">
+                  <button type="submit" className="ad-btn">Simpan Jam</button>
+                  {tersimpan === "jam" && <span className="ad-chip g">✓ Tersimpan</span>}
+                </div>
+              </form>
+            </section>
+
+            {/* Antar jemput */}
+            <section className="ad-kartu">
+              <h2 className="ad-d">Antar Jemput</h2>
+              <small>Kurir menjemput dan mengantar cucian ke alamat pelanggan.</small>
+              <form onSubmit={(e) => simpanBagian("antar", e)} className="ad-form" style={{ marginTop: 16 }}>
+                <label>
+                  <input type="checkbox" checked={antar.aktif} onChange={(e) => setAntar({ ...antar, aktif: e.target.checked })} />
+                  Aktifkan layanan antar jemput
+                </label>
+                <div className="ad-grid-3">
+                  <div className="ad-field">
+                    <label>Biaya Antar (Rp)</label>
+                    <input type="number" min={0} disabled={!antar.aktif} value={antar.biaya} onChange={(e) => setAntar({ ...antar, biaya: Number(e.target.value) })} />
+                  </div>
+                  <div className="ad-field">
+                    <label>Jarak Maksimal (km)</label>
+                    <input type="number" min={1} disabled={!antar.aktif} value={antar.jarakKm} onChange={(e) => setAntar({ ...antar, jarakKm: Number(e.target.value) })} />
+                  </div>
+                  <div className="ad-field">
+                    <label>Kurir Datang Maks. (menit)</label>
+                    <input type="number" min={1} disabled={!antar.aktif} value={antar.estimasiMenit} onChange={(e) => setAntar({ ...antar, estimasiMenit: Number(e.target.value) })} />
+                  </div>
+                </div>
+                <div className="ad-aksi">
+                  <button type="submit" className="ad-btn">Simpan Antar Jemput</button>
+                  {tersimpan === "antar" && <span className="ad-chip g">✓ Tersimpan</span>}
+                </div>
+              </form>
+            </section>
+
+            {/* Aturan pesanan */}
+            <section className="ad-kartu">
+              <h2 className="ad-d">Aturan Pesanan</h2>
+              <small>Batas minimal dan estimasi pengerjaan untuk tiap jenis layanan.</small>
+              <form onSubmit={(e) => simpanBagian("pesanan", e)} className="ad-form" style={{ marginTop: 16 }}>
+                <div className="ad-field">
+                  <label>Minimal Order Cuci Kiloan (kg)</label>
+                  <input type="number" min={0} value={pesanan.minKg} onChange={(e) => setPesanan({ ...pesanan, minKg: Number(e.target.value) })} />
+                </div>
+                <div className="ad-grid-3">
+                  <div className="ad-field">
+                    <label>Estimasi Reguler (hari)</label>
+                    <input type="number" min={1} value={pesanan.estReguler} onChange={(e) => setPesanan({ ...pesanan, estReguler: Number(e.target.value) })} />
+                  </div>
+                  <div className="ad-field">
+                    <label>Estimasi One Day (hari)</label>
+                    <input type="number" min={1} value={pesanan.estOneDay} onChange={(e) => setPesanan({ ...pesanan, estOneDay: Number(e.target.value) })} />
+                  </div>
+                  <div className="ad-field">
+                    <label>Estimasi Express (jam)</label>
+                    <input type="number" min={1} value={pesanan.estExpress} onChange={(e) => setPesanan({ ...pesanan, estExpress: Number(e.target.value) })} />
+                  </div>
+                  <div className="ad-field">
+                    <label>Estimasi Quick (jam)</label>
+                    <input type="number" min={1} value={pesanan.estQuick} onChange={(e) => setPesanan({ ...pesanan, estQuick: Number(e.target.value) })} />
+                  </div>
+                </div>
+                <div className="ad-aksi">
+                  <button type="submit" className="ad-btn">Simpan Aturan</button>
+                  {tersimpan === "pesanan" && <span className="ad-chip g">✓ Tersimpan</span>}
+                </div>
+              </form>
+            </section>
+
+            {/* Pengaturan nota */}
+            <section className="ad-kartu">
+              <h2 className="ad-d">Pengaturan Nota</h2>
+              <small>Teks dan keterangan yang tercetak di bagian bawah nota pelanggan.</small>
+              <form onSubmit={(e) => simpanBagian("nota", e)} className="ad-form" style={{ marginTop: 16 }}>
+                <div className="ad-field">
+                  <label>Ucapan Terima Kasih</label>
+                  <input value={nota.ucapan} onChange={(e) => setNota({ ...nota, ucapan: e.target.value })} />
+                </div>
+
+                <div className="ad-field">
+                  <label>Ketentuan (satu baris satu ketentuan)</label>
+                  <textarea rows={4} value={nota.ketentuan} onChange={(e) => setNota({ ...nota, ketentuan: e.target.value })} />
+                </div>
+
+                <div className="ad-field">
+                  <label>Metode Pembayaran</label>
+                  <div className="ad-baris-radio">
+                    {METODE.map((m) => (
+                      <label key={m.kode}>
+                        <input type="checkbox" checked={nota.metode.includes(m.kode)} onChange={() => toggleMetode(m.kode)} />
+                        {m.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="ad-aksi">
+                  <button type="submit" className="ad-btn">Simpan Pengaturan Nota</button>
+                  {tersimpan === "nota" && <span className="ad-chip g">✓ Tersimpan</span>}
+                </div>
+              </form>
+            </section>
+          </div>
+        )}
+
+        {/* ══════════════ TAB PROMO ══════════════ */}
+        {tab === "promo" && (
+          <section className="ad-kartu">
+            <div className="ad-baris">
+              <h2 className="ad-d">Promo &amp; Diskon</h2>
+              <button onClick={bukaFormTambah} className="ad-btn">+ Tambah Promo</button>
+            </div>
+            <small>Atur diskon untuk layanan tertentu atau semua layanan, lengkap dengan periode waktunya.</small>
+
+            <div className="ad-tabel-scroll" style={{ marginTop: 16 }}>
+              <table>
+                <thead>
+                  <tr>
+                    {["Nama Promo", "Diskon", "Berlaku Untuk", "Periode", "Kuota", "Status", "Aksi"].map((h) => (
+                      <th key={h}>{h}</th>
+                    ))}
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
+                </thead>
+                <tbody>
+                  {daftarPromo.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="ad-kosong">Belum ada promo</td>
+                    </tr>
+                  ) : (
+                    daftarPromo.map((p) => {
+                      const st = statusPromo(p, sekarang);
+                      return (
+                        <tr key={p.id}>
+                          <td><strong>{p.nama}</strong></td>
+                          <td>
+                            {p.jenis === "persen" ? `${p.nilai}%` : rp(p.nilai)}
+                            {p.jenis === "persen" && p.maksPotongan ? <small><br />maks {rp(p.maksPotongan)}</small> : null}
+                            {p.minBelanja > 0 && <small><br />min belanja {rp(p.minBelanja)}</small>}
+                          </td>
+                          <td>
+                            {p.berlakuUntuk === "semua"
+                              ? "Semua layanan"
+                              : p.layanan.map((id) => namaLayanan(id)).join(", ")}
+                          </td>
+                          <td>
+                            {fmtTanggal(p.mulai)}
+                            <small><br />s/d {fmtTanggal(p.selesai)}</small>
+                          </td>
+                          <td>{p.kuota ?? "Tanpa batas"}</td>
+                          <td>
+                            <button onClick={() => toggleAktif(p)} className={`ad-chip ${st.kelas}`}>
+                              {st.teks}
+                            </button>
+                          </td>
+                          <td>
+                            <button onClick={() => bukaFormEdit(p)} className="ad-btn ghost s">Edit</button>{" "}
+                            <button onClick={() => setHapusPromo(p)} className="ad-btn r s">Hapus</button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+      </div>
 
       {/* ══════════════ MODAL FORM PROMO ══════════════ */}
-      {showFormPromo && (
-        <div style={gOverlayStyle}>
-          <div style={gModalStyle}>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1a3353", marginBottom: 20 }}>
-              {editPromo ? "Edit Promo" : "Tambah Promo Baru"}
-            </h3>
-            <form onSubmit={simpanPromo} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={gFieldStyle}>
-                <label style={gLabelStyle}>Nama Diskon</label>
-                <input
-                  style={gInputStyle}
-                  value={formPromo.namaDiskon}
-                  onChange={(e) => setFormPromo({ ...formPromo, namaDiskon: e.target.value })}
-                  required
-                  placeholder="Contoh: Promo Hari Kemerdekaan"
-                />
+      {showForm && (
+        <div className="ad-ov" onClick={tutupForm}>
+          <div className="ad-pop lebar" onClick={(e) => e.stopPropagation()}>
+            <h2 className="ad-d">{editId !== null ? "Edit Promo" : "Tambah Promo Baru"}</h2>
+
+            <form onSubmit={simpanPromo} className="ad-form" style={{ marginTop: 16 }}>
+              <div className="ad-field">
+                <label>Nama Promo</label>
+                <input value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} required placeholder="Contoh: Promo Hari Kemerdekaan" />
               </div>
-              <div style={gFieldStyle}>
-                <label style={gLabelStyle}>Persentase Diskon (%)</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={100}
-                  style={gInputStyle}
-                  value={formPromo.persentase}
-                  onChange={(e) => setFormPromo({ ...formPromo, persentase: Number(e.target.value) })}
-                  required
-                />
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                <div style={gFieldStyle}>
-                  <label style={gLabelStyle}>Tanggal Mulai</label>
-                  <input
-                    type="date"
-                    style={gInputStyle}
-                    value={formPromo.tanggalMulai}
-                    onChange={(e) => setFormPromo({ ...formPromo, tanggalMulai: e.target.value })}
-                    required
-                  />
+
+              <div className="ad-grid-2">
+                <div className="ad-field">
+                  <label>Jenis Diskon</label>
+                  <select value={form.jenis} onChange={(e) => setForm({ ...form, jenis: e.target.value as "persen" | "nominal" })}>
+                    <option value="persen">Persentase (%)</option>
+                    <option value="nominal">Nominal (Rp)</option>
+                  </select>
                 </div>
-                <div style={gFieldStyle}>
-                  <label style={gLabelStyle}>Tanggal Selesai</label>
+                <div className="ad-field">
+                  <label>{form.jenis === "persen" ? "Besar Diskon (%)" : "Potongan (Rp)"}</label>
                   <input
-                    type="date"
-                    style={gInputStyle}
-                    value={formPromo.tanggalSelesai}
-                    onChange={(e) => setFormPromo({ ...formPromo, tanggalSelesai: e.target.value })}
+                    type="number"
+                    min={1}
+                    max={form.jenis === "persen" ? 100 : undefined}
+                    value={form.nilai || ""}
+                    onChange={(e) => setForm({ ...form, nilai: Number(e.target.value) })}
                     required
                   />
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
-                <button type="submit" style={gBtnPrimaryStyle}>
-                  {editPromo ? "Simpan Perubahan" : "Tambah Promo"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setShowFormPromo(false); setEditPromo(null); }}
-                  style={gBtnCancelStyle}
-                >
-                  Batal
-                </button>
+
+              <div className="ad-field">
+                <label>Berlaku Untuk</label>
+                <div className="ad-baris-radio">
+                  <label>
+                    <input type="radio" name="berlaku" checked={form.berlakuUntuk === "semua"} onChange={() => setForm({ ...form, berlakuUntuk: "semua" })} />
+                    Semua layanan
+                  </label>
+                  <label>
+                    <input type="radio" name="berlaku" checked={form.berlakuUntuk === "tertentu"} onChange={() => setForm({ ...form, berlakuUntuk: "tertentu" })} />
+                    Layanan tertentu
+                  </label>
+                </div>
+                {form.berlakuUntuk === "tertentu" && (
+                  <div className="ad-cek-kotak">
+                    {awal.layanan.map((l) => (
+                      <label key={l.id} className="ad-cek">
+                        <input type="checkbox" checked={form.layanan.includes(l.id)} onChange={() => toggleLayanan(l.id)} />
+                        {l.nama}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="ad-grid-2">
+                <div className="ad-field">
+                  <label>Minimal Belanja (Rp)</label>
+                  <input type="number" min={0} value={form.minBelanja || ""} onChange={(e) => setForm({ ...form, minBelanja: Number(e.target.value) })} placeholder="0 = tanpa minimal" />
+                </div>
+                {form.jenis === "persen" && (
+                  <div className="ad-field">
+                    <label>Maksimal Potongan (Rp)</label>
+                    <input type="number" min={0} value={form.maksPotongan ?? ""} onChange={(e) => setForm({ ...form, maksPotongan: e.target.value ? Number(e.target.value) : null })} placeholder="Kosongkan = tanpa batas" />
+                  </div>
+                )}
+              </div>
+
+              <div className="ad-grid-2">
+                <div className="ad-field">
+                  <label>Mulai</label>
+                  <input type="datetime-local" value={form.mulai} onChange={(e) => setForm({ ...form, mulai: e.target.value })} required />
+                </div>
+                <div className="ad-field">
+                  <label>Selesai</label>
+                  <input type="datetime-local" value={form.selesai} onChange={(e) => setForm({ ...form, selesai: e.target.value })} required />
+                </div>
+              </div>
+
+              <div className="ad-grid-2">
+                <div className="ad-field">
+                  <label>Kuota Pemakaian</label>
+                  <input type="number" min={1} value={form.kuota ?? ""} onChange={(e) => setForm({ ...form, kuota: e.target.value ? Number(e.target.value) : null })} placeholder="Kosongkan = tanpa batas" />
+                </div>
+                <div className="ad-field">
+                  <label>Status</label>
+                  <label>
+                    <input type="checkbox" checked={form.aktif} onChange={(e) => setForm({ ...form, aktif: e.target.checked })} />
+                    Aktifkan promo ini
+                  </label>
+                </div>
+              </div>
+
+              {errorForm && <p className="ad-galat">{errorForm}</p>}
+
+              <div className="ad-aksi">
+                <button type="submit" className="ad-btn">{editId !== null ? "Simpan Perubahan" : "Tambah Promo"}</button>
+                <button type="button" onClick={tutupForm} className="ad-btn ghost">Batal</button>
               </div>
             </form>
           </div>
@@ -352,17 +597,13 @@ export default function PengaturanClient() {
 
       {/* ══════════════ MODAL KONFIRMASI HAPUS ══════════════ */}
       {hapusPromo && (
-        <div style={gOverlayStyle}>
-          <div style={{ ...gModalStyle, maxWidth: 400 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a3353", marginBottom: 12 }}>
-              Hapus Promo?
-            </h3>
-            <p style={{ fontSize: 14, color: "#555", marginBottom: 20 }}>
-              Promo <strong>{hapusPromo.namaDiskon}</strong> akan dihapus secara permanen.
-            </p>
-            <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={hapusKonfirmasi} style={gBtnHapusStyle}>Ya, Hapus</button>
-              <button onClick={() => setHapusPromo(null)} style={gBtnCancelStyle}>Batal</button>
+        <div className="ad-ov" onClick={() => setHapusPromo(null)}>
+          <div className="ad-pop" onClick={(e) => e.stopPropagation()}>
+            <h2 className="ad-d">Hapus Promo?</h2>
+            <p>Promo <strong>{hapusPromo.nama}</strong> akan dihapus secara permanen.</p>
+            <div className="ad-aksi">
+              <button onClick={hapusKonfirmasi} className="ad-btn r">Ya, Hapus</button>
+              <button onClick={() => setHapusPromo(null)} className="ad-btn ghost">Batal</button>
             </div>
           </div>
         </div>
@@ -370,87 +611,3 @@ export default function PengaturanClient() {
     </div>
   );
 }
-
-/* ─── Style helpers ─────────────────────────────────────── */
-const gFieldStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 6 };
-const gLabelStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: "#374151" };
-const gInputStyle: React.CSSProperties = {
-  padding: "8px 12px",
-  borderRadius: 8,
-  border: "1.5px solid #d1d5db",
-  fontSize: 14,
-  outline: "none",
-  fontFamily: "inherit",
-  width: "100%",
-  boxSizing: "border-box",
-};
-const gBtnPrimaryStyle: React.CSSProperties = {
-  padding: "8px 20px",
-  borderRadius: 8,
-  border: "none",
-  background: "#1a3353",
-  color: "#fff",
-  fontWeight: 600,
-  fontSize: 14,
-  cursor: "pointer",
-};
-const gBtnEditStyle: React.CSSProperties = {
-  padding: "4px 12px",
-  borderRadius: 6,
-  border: "1.5px solid #1a3353",
-  background: "#fff",
-  color: "#1a3353",
-  fontWeight: 600,
-  fontSize: 12,
-  cursor: "pointer",
-};
-const gBtnHapusStyle: React.CSSProperties = {
-  padding: "4px 12px",
-  borderRadius: 6,
-  border: "none",
-  background: "#fee2e2",
-  color: "#dc2626",
-  fontWeight: 600,
-  fontSize: 12,
-  cursor: "pointer",
-};
-const gBtnCancelStyle: React.CSSProperties = {
-  padding: "8px 20px",
-  borderRadius: 8,
-  border: "1.5px solid #d1d5db",
-  background: "#fff",
-  color: "#555",
-  fontWeight: 600,
-  fontSize: 14,
-  cursor: "pointer",
-};
-const gThStyle: React.CSSProperties = {
-  textAlign: "left",
-  padding: "10px 14px",
-  fontWeight: 700,
-  color: "#374151",
-  fontSize: 13,
-};
-const gTdStyle: React.CSSProperties = {
-  padding: "12px 14px",
-  color: "#374151",
-  fontSize: 14,
-  verticalAlign: "middle",
-};
-const gOverlayStyle: React.CSSProperties = {
-  position: "fixed",
-  inset: 0,
-  background: "rgba(0,0,0,0.4)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  zIndex: 100,
-};
-const gModalStyle: React.CSSProperties = {
-  background: "#fff",
-  borderRadius: 14,
-  padding: 28,
-  width: "100%",
-  maxWidth: 520,
-  boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
-};
