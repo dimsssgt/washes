@@ -8,23 +8,23 @@ export default function HowItWorks() {
         <SectionTitle className="mb-5 text-brand md:text-[84px]">
           Tinggal duduk manis
         </SectionTitle>
-        <p className="mb-16 text-base">
+        <p className="mb-10 text-base md:mb-16">
           Empat langkah, cucian beres. Kamu cukup tunggu di rumah.
         </p>
 
-        <ol className="grid gap-9 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="grid grid-cols-2 gap-3 md:gap-9 lg:grid-cols-4">
           {STEPS.map((step, i) => (
             <li
               key={step.title}
-              className="card-brut flex min-h-[360px] flex-col bg-white px-8 py-10 transition-transform duration-200 hover:scale-105 cursor-pointer"
+              className="card-brut flex min-h-[220px] flex-col bg-white px-4 py-5 transition-transform duration-200 hover:scale-105 cursor-pointer md:min-h-[360px] md:px-8 md:py-10"
             >
-              <span className="mb-7 font-display text-[104px] leading-none text-brand">
+              <span className="mb-3 font-display text-[56px] leading-none text-brand md:mb-7 md:text-[104px]">
                 {i + 1}
               </span>
-              <h3 className="mb-3.5 mt-2 font-display text-2xl uppercase leading-tight">
+              <h3 className="mb-2 mt-1 font-display text-base uppercase leading-tight md:mb-3.5 md:mt-2 md:text-2xl">
                 {step.title}
               </h3>
-              <p className="m-0 text-[15px] leading-relaxed">{step.desc}</p>
+              <p className="m-0 text-[12px] leading-relaxed md:text-[15px]">{step.desc}</p>
             </li>
           ))}
         </ol>

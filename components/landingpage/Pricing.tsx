@@ -18,7 +18,7 @@ export default function Pricing() {
           termasuk antar jemput.
         </p>
 
-        <div role="tablist" aria-label="Jenis laundry" className="mb-8 flex flex-wrap gap-4">
+        <div role="tablist" aria-label="Jenis laundry" className="mb-6 flex flex-wrap gap-2 md:mb-8 md:gap-4">
           {PRICE_TABLES.map((t) => {
             const selected = t.id === active;
             return (
@@ -28,7 +28,7 @@ export default function Pricing() {
                 type="button"
                 aria-selected={selected}
                 onClick={() => setActive(t.id)}
-                className={`inline-flex min-h-14 items-center rounded-full border-2 border-ink px-9 font-display text-base transition-all duration-200 hover:scale-105 ${
+                className={`inline-flex min-h-10 items-center rounded-full border-2 border-ink px-4 font-display text-sm transition-all duration-200 hover:scale-105 md:min-h-14 md:px-9 md:text-base ${
                   selected ? "bg-brand text-white" : "bg-white text-ink"
                 }`}
               >
@@ -38,14 +38,14 @@ export default function Pricing() {
           })}
         </div>
 
-        <div role="tabpanel" className="card-brut overflow-x-auto bg-white p-8">
-          <table className="w-full min-w-[640px] border-collapse text-left font-mono text-base">
+        <div role="tabpanel" className="card-brut overflow-x-auto bg-white p-3 md:p-8">
+          <table className="w-full min-w-[480px] border-collapse text-left font-mono md:min-w-[640px]">
             <thead>
               <tr>
                 {table.headers.map((h, i) => (
                   <th
                     key={i}
-                    className="whitespace-pre-line border-b-2 border-dashed border-sand px-4 py-4 text-sm uppercase"
+                    className="whitespace-pre-line border-b-2 border-dashed border-sand px-2 py-2 text-[10px] uppercase md:px-4 md:py-4 md:text-sm"
                   >
                     {h}
                   </th>
@@ -55,13 +55,13 @@ export default function Pricing() {
             <tbody>
               {table.rows.map((row) => (
                 <tr key={row.name}>
-                  <td className="border-b-2 border-dashed border-sand px-4 py-4">
-                    <b className="text-[15px]">{row.name}</b>
+                  <td className="border-b-2 border-dashed border-sand px-2 py-2 md:px-4 md:py-4">
+                    <b className="text-[12px] md:text-[15px]">{row.name}</b>
                   </td>
                   {row.prices.map((p, i) => (
                     <td
                       key={i}
-                      className={`border-b-2 border-dashed border-sand px-4 py-4 text-[15px] ${
+                      className={`border-b-2 border-dashed border-sand px-2 py-2 text-[12px] md:px-4 md:py-4 md:text-[15px] ${
                         i === 0 && table.id === "self" ? "" : "font-bold text-red"
                       }`}
                     >
@@ -74,7 +74,7 @@ export default function Pricing() {
           </table>
         </div>
 
-        <div className="mt-12">
+        <div className="mt-8 md:mt-12">
           <Button href={SITE.orderHref} variant="outline" className="text-base! min-h-14! px-10! transition-all duration-100 hover:scale-103 hover:bg-brand hover:text-white hover:shadow-none">
             Pesan sekarang
           </Button>
