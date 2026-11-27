@@ -470,7 +470,7 @@ export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo";
         ← Kembali ke Dashboard
       </Link>
 
-      <h1 className="ad-d">Pengaturan</h1>
+      <h1 className="ad-d p-7">Pengaturan</h1>
 
       <div>
         {/* ══════════════ TAB UMUM ══════════════ */}
