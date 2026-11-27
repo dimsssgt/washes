@@ -60,9 +60,9 @@ export default function NavbarClient({ name }: NavbarClientProps) {
     <>
       {/* Header bar utama */}
       <header className="border-b-2 border-ink bg-white">
-        <div className="container-lk max-w-[100rem]! px-6 xl:px-10 flex items-center justify-between gap-4 py-3">
+        <div className="container-lk max-w-[100rem]! px-4 md:px-6 xl:px-10 flex items-center justify-between gap-2 md:gap-4 py-3">
           {/* Sisi Kiri: Tombol Hamburger */}
-          <div className="flex items-center flex-1 justify-start">
+          <div className="flex flex-1 min-w-0 items-center justify-start">
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
@@ -87,22 +87,22 @@ export default function NavbarClient({ name }: NavbarClientProps) {
           </div>
 
           {/* Tengah: Judul WASHES */}
-          <div className="flex items-center justify-center">
+          <div className="flex min-w-0 items-center justify-center">
             <Link
               href="/"
-              className="font-display text-[26px] md:text-[32px] tracking-wider uppercase leading-none text-brand transition-transform hover:scale-105"
+              className="font-display text-[20px] sm:text-[26px] md:text-[32px] tracking-wider uppercase leading-none text-brand transition-transform hover:scale-105"
             >
               Laundyku
             </Link>
           </div>
 
           {/* Sisi Kanan: Notifikasi & Auth */}
-          <div className="flex items-center gap-3 flex-1 justify-end">
+          <div className="flex flex-1 min-w-0 items-center justify-end gap-2 md:gap-3">
             <NotificationButton />
             {name ? (
               <AccountMenu name={name} />
             ) : (
-              <Button href="/login" className="min-h-11! py-2.5! px-5! text-xs">
+              <Button href="/login" className="shrink-0 min-h-11! py-2.5! px-4! md:px-5! text-xs">
                 Login
               </Button>
             )}
