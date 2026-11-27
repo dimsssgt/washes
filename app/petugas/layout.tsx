@@ -12,6 +12,7 @@ import type { Bagian } from "@/lib/petugas/alur";
 import "./petugas.css";
 import "./notifikasi.css";
 import "./alur.css";
+import "./mobile.css";
 
 const archivo = Archivo_Black({ weight: "400", subsets: ["latin"], variable: "--font-archivo" });
 const mono = Space_Mono({ weight: ["400", "700"], subsets: ["latin"], variable: "--font-mono" });
