@@ -1,0 +1,176 @@
+﻿/* ==========================================================================
+   CSS Halaman Login — Responsif & Tema Konsisten Neo-brutalism
+   ========================================================================== */
+
+.login-page {
+  font-family: var(--font-poppins), 'Poppins', Arial, sans-serif;
+  color: #0B2A6B;
+  min-height: 100vh;
+  background: #EEF2F7;
+}
+
+.login-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+/* Kolom kiri — hero */
+.login-hero {
+  background: #1457D6;
+  padding: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  box-sizing: border-box;
+}
+
+.login-brand {
+  font-size: 28px;
+  color: #FFD21F;
+  font-family: 'Archivo Black', Impact, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  margin: 0;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.login-hero-content {
+  margin: auto 0;
+}
+
+.login-hero-title {
+  font-size: clamp(32px, 5.5vw, 68px);
+  color: #FFD21F;
+  font-family: 'Archivo Black', Impact, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.login-hero-desc {
+  color: #fff;
+  font-size: 15px;
+  max-width: 420px;
+  margin: 24px 0 0;
+  line-height: 1.6;
+}
+
+.login-hero-img {
+  position: relative;
+  height: 280px;
+  border: 3px solid #0B2A6B;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #0d44b0;
+  box-shadow: 4px 4px 0 #0B2A6B;
+}
+
+/* Kolom kanan — form */
+.login-form-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+  background: #FFF4DE;
+  box-sizing: border-box;
+}
+
+.login-back-wrapper {
+  width: 100%;
+  max-width: 460px;
+  margin-bottom: 14px;
+}
+
+.login-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-poppins), 'Poppins', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0B2A6B;
+  text-decoration: none;
+  background: #fff;
+  border: 2px solid #0B2A6B;
+  border-radius: 999px;
+  padding: 8px 18px;
+  box-shadow: 3px 3px 0 #0B2A6B;
+  transition: transform 0.1s ease;
+}
+.login-back-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 #0B2A6B;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 460px;
+  background: #fff;
+  border: 2px solid #0B2A6B;
+  border-radius: 18px;
+  box-shadow: 5px 5px 0 #0B2A6B;
+  padding: 40px;
+  box-sizing: border-box;
+  color: #0B2A6B;
+}
+
+/* ==========================================================================
+   Responsif Layar Kecil / Mobile (<= 860px)
+   ========================================================================== */
+@media (max-width: 860px) {
+  .login-container {
+    grid-template-columns: 1fr;
+  }
+
+  .login-hero {
+    padding: 24px 20px 20px;
+    gap: 16px;
+  }
+
+  .login-brand {
+    font-size: 22px;
+  }
+
+  .login-hero-content {
+    margin: 0;
+  }
+
+  .login-hero-title {
+    font-size: clamp(24px, 7vw, 34px);
+    line-height: 1.1;
+  }
+
+  .login-hero-desc {
+    font-size: 13px;
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .login-hero-img {
+    height: 160px;
+    border-radius: 16px;
+    border-width: 2px;
+    box-shadow: 3px 3px 0 #0B2A6B;
+  }
+
+  .login-form-col {
+    padding: 20px 16px 36px;
+    background: #FFF4DE;
+  }
+
+  .login-back-wrapper {
+    margin-bottom: 12px;
+  }
+
+  .login-card {
+    padding: 24px 18px;
+    border-radius: 16px;
+    box-shadow: 4px 4px 0 #0B2A6B;
+  }
+}

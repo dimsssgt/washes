@@ -1,0 +1,217 @@
+﻿/* ==========================================================================
+   CSS Dashboard Pelanggan — Responsif & Tema Konsisten Neo-brutalism
+   ========================================================================== */
+
+.pelanggan-container {
+  display: grid;
+  grid-template-columns: 270px 1fr;
+  min-height: 100vh;
+  font-family: var(--font-poppins), 'Poppins', Arial, sans-serif;
+  color: #0B2A6B;
+  background: #EEF2F7;
+  position: relative;
+}
+
+/* Bilah atas khusus layar kecil / mobile */
+.pelanggan-topbar {
+  display: none;
+}
+
+/* Sidebar Pelanggan */
+.pelanggan-sidebar {
+  background: #1457D6;
+  color: #fff;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  box-sizing: border-box;
+  z-index: 50;
+  overflow-y: auto;
+}
+
+/* Tombol close di dalam drawer (sembunyi di desktop) */
+.pelanggan-drawer-close {
+  display: none !important;
+}
+
+/* Overlay saat sidebar terbuka di layar kecil */
+.pelanggan-overlay {
+  display: none;
+}
+
+/* Area konten utama pelanggan */
+.pelanggan-main {
+  padding: 40px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  background: #EEF2F7;
+  min-height: 100vh;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Header baris judul di halaman-halaman pelanggan */
+.pelanggan-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   Responsif Layar Kecil (Mobile & Tablet <= 900px)
+   ========================================================================== */
+@media (max-width: 900px) {
+  .pelanggan-container {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Bilah atas muncul di layar kecil */
+  .pelanggan-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1457D6;
+    border-bottom: 2px solid #0B2A6B;
+    padding: 12px 18px;
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    box-shadow: 0 3px 0 #0B2A6B;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .pelanggan-hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 2px solid #0B2A6B;
+    border-radius: 12px;
+    background: #FFD21F;
+    box-shadow: 2px 2px 0 #0B2A6B;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.1s ease, background 0.15s ease;
+  }
+  .pelanggan-hamburger:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 #0B2A6B;
+  }
+  .pelanggan-hamburger span {
+    display: block;
+    height: 2.5px;
+    width: 20px;
+    background: #0B2A6B;
+    border-radius: 2px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  /* Animasi X saat hamburger terbuka */
+  .pelanggan-hamburger.terbuka span:nth-child(1) {
+    transform: translateY(7.5px) rotate(45deg);
+  }
+  .pelanggan-hamburger.terbuka span:nth-child(2) {
+    opacity: 0;
+  }
+  .pelanggan-hamburger.terbuka span:nth-child(3) {
+    transform: translateY(-7.5px) rotate(-45deg);
+  }
+
+  .pelanggan-topbar-brand {
+    font-family: 'Archivo Black', Impact, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    font-size: 20px;
+    color: #FFD21F;
+    text-decoration: none;
+    line-height: 1;
+  }
+
+  .pelanggan-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pelanggan-topbar-bell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 2px solid #0B2A6B;
+    border-radius: 10px;
+    background: #fff;
+    color: #0B2A6B;
+    position: relative;
+    box-shadow: 2px 2px 0 #0B2A6B;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  /* Overlay backdrop */
+  .pelanggan-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 65;
+    background: rgba(11, 42, 107, 0.55);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .pelanggan-overlay.terbuka {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Sidebar drawer di layar kecil */
+  .pelanggan-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    max-width: 85vw;
+    z-index: 70;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease-in-out;
+    box-shadow: 5px 0 25px rgba(11, 42, 107, 0.35);
+  }
+  .pelanggan-sidebar.terbuka {
+    transform: translateX(0);
+  }
+
+  .pelanggan-drawer-close {
+    display: inline-flex !important;
+  }
+
+  /* Area main padding berkurang agar pas dan lapang di HP */
+  .pelanggan-main {
+    padding: 24px 16px;
+    gap: 20px;
+  }
+
+  /* Penyesuaian judul utama pada layar HP */
+  .pelanggan-main h1 {
+    font-size: clamp(24px, 6vw, 36px) !important;
+  }
+}
