@@ -67,7 +67,7 @@ export default function NavbarClient({ name }: NavbarClientProps) {
               type="button"
               onClick={() => setDrawerOpen(true)}
               aria-label="Buka menu navigasi"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border-2 border-ink bg-white text-ink transition-transform duration-200 hover:scale-105 hover:bg-sun cursor-pointer shadow-brut-sm"
+              className="inline-flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-xl border-2 border-ink bg-white text-ink transition-transform duration-200 hover:scale-105 hover:bg-sun cursor-pointer shadow-brut-sm"
             >
               <svg
                 width="22"
@@ -90,7 +90,7 @@ export default function NavbarClient({ name }: NavbarClientProps) {
           <div className="flex min-w-0 items-center justify-center">
             <Link
               href="/"
-              className="font-display text-[20px] sm:text-[26px] md:text-[32px] tracking-wider uppercase leading-none text-brand transition-transform hover:scale-105"
+              className="font-display text-[20px] md:text-[32px] tracking-wider uppercase leading-none text-brand transition-transform hover:scale-105"
             >
               Laundyku
             </Link>
@@ -102,7 +102,7 @@ export default function NavbarClient({ name }: NavbarClientProps) {
             {name ? (
               <AccountMenu name={name} />
             ) : (
-              <Button href="/login" className="shrink-0 min-h-11! py-2.5! px-4! md:px-5! text-xs">
+              <Button href="/login" className="shrink-0 min-h-9! py-1.5! px-3! md:min-h-11! md:py-2.5! md:px-5! text-[11px] md:text-xs">
                 Login
               </Button>
             )}

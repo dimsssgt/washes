@@ -15,7 +15,7 @@ export default function NotificationButton() {
         title="Notifikasi"
         aria-label="Notifikasi"
         aria-expanded={open}
-        className="relative inline-flex h-11 w-11 items-center justify-center rounded-xl border-2 border-ink bg-white text-ink transition-all duration-200 hover:scale-110 hover:bg-sun cursor-pointer"
+        className="relative inline-flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-xl border-2 border-ink bg-white text-ink transition-all duration-200 hover:scale-110 hover:bg-sun cursor-pointer"
       >
         <svg
           width="20"
