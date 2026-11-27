@@ -18,7 +18,7 @@ export default function Home() {
       <NavbarWrapper>
         <Navbar />
       </NavbarWrapper>
-      <main>
+      <main className="overflow-x-clip">
         <Hero />
         {/* <Baju /> */}
         <Marquee />

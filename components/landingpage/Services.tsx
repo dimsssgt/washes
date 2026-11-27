@@ -67,7 +67,7 @@ export default function Services() {
         resetStyles();
         return;
       }
-      
+
       // Ukur header, lalu atur spacer dan posisi sticky kartu dari tinggi itu
       const hH = header.offsetHeight;
       spacer.style.height = `${hH}px`;
@@ -182,8 +182,8 @@ export default function Services() {
                 >
                   {/* Tab berjejer dari kiri. Mobile: angka saja. Desktop: "Layanan N". */}
                   <div
-                    style={{ "--tab-i": i } as CSSProperties}
-                    className="absolute -top-[30px] left-[calc(1rem+var(--tab-i)*3.25rem)] flex h-[30px] w-[48px] items-center justify-center rounded-t-[12px] border-2 border-b-0 border-ink bg-sun font-mono text-xs font-bold uppercase text-ink min-[860px]:left-[calc(2rem+var(--tab-i)*8rem)] min-[860px]:w-[116px]"
+                    style={{ "--tab-i": i, "--tab-max": SERVICES.length - 1 } as CSSProperties}
+                    className="absolute -top-[30px] left-[calc(1rem_+_var(--tab-i)*min(3.25rem,(100%_-_2rem_-_3rem)/var(--tab-max)))] flex h-[30px] w-[48px] items-center justify-center rounded-t-[12px] border-2 border-b-0 border-ink bg-sun font-mono text-xs font-bold uppercase text-ink min-[860px]:left-[calc(2rem+var(--tab-i)*8rem)] min-[860px]:w-[116px]"
                   >
                     <span className="hidden min-[860px]:inline">Layanan&nbsp;</span>
                     {i + 1}
