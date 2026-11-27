@@ -653,4 +653,7 @@
   .admin .ad-grid-3 { grid-template-columns: 1fr; }
   .admin .ad-jam-baris { grid-template-columns: 1fr 1fr; }
   .admin .ad-jam-head { display: none; }
+  .admin .ad-main { padding: 18px 14px 32px; }
+  .admin .ad-kartu { padding: 16px 14px; }
+  .admin .ad-kartu.kecil { padding: 14px 12px; }
 }

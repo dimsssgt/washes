@@ -7,6 +7,7 @@ import {
   simpanPromo as simpanPromoKeDb,
   ubahStatusPromo,
   hapusPromo as hapusPromoDb,
+  uploadGambarPromo,
   type DataAwal,
   type KunciPengaturan,
 } from "@/lib/pengaturan/actions";
@@ -60,6 +61,7 @@ interface Promo {
   selesai: string;
   kuota: number | null;
   aktif: boolean;
+  gambarUrl: string | null;
 }
 
 type FormPromo = Omit<Promo, "id">;
@@ -82,7 +84,11 @@ const formKosong: FormPromo = {
   selesai: "",
   kuota: null,
   aktif: true,
+  gambarUrl: null,
 };
+
+const TIPE_GAMBAR_KLIEN = ["image/jpeg", "image/png", "image/webp"];
+const BATAS_GAMBAR_KLIEN = 2 * 1024 * 1024; // 2 MB
 
 /* ─── Helper ────────────────────────────────────────────── */
 const rp = (n: number) => "Rp " + n.toLocaleString("id-ID");
@@ -99,11 +105,182 @@ const fmtTanggal = (s: string) =>
       })
     : "-";
 
+const fmtUkuran = (bytes: number) =>
+  bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.round(bytes / 1024)} KB`;
+
 function statusPromo(p: Promo, sekarang: number): { teks: string; kelas: string } {
   if (!p.aktif) return { teks: "Nonaktif", kelas: "r" };
   if (sekarang < new Date(p.mulai + ":00+07:00").getTime()) return { teks: "Akan datang", kelas: "b" };
   if (sekarang > new Date(p.selesai + ":00+07:00").getTime()) return { teks: "Berakhir", kelas: "y" };
   return { teks: "Berlangsung", kelas: "g" };
+}
+
+/* ─── Komponen upload gambar ────────────────────────────── */
+function UploadGambar({
+  previewUrl,
+  namaFile,
+  ukuran,
+  status,
+  disabled,
+  onPilih,
+  onHapus,
+}: {
+  previewUrl: string | null;
+  namaFile: string | null;
+  ukuran: string | null;
+  status: "baru" | "tersimpan" | null;
+  disabled?: boolean;
+  onPilih: (f: File) => void;
+  onHapus: () => void;
+}) {
+  const [seret, setSeret] = useState(false);
+  const [galat, setGalat] = useState("");
+
+  function terima(f: File | undefined) {
+    if (!f) return;
+    if (!TIPE_GAMBAR_KLIEN.includes(f.type)) {
+      setGalat("Format file harus JPG, PNG, atau WebP.");
+      return;
+    }
+    if (f.size > BATAS_GAMBAR_KLIEN) {
+      setGalat("Ukuran file maksimal 2 MB.");
+      return;
+    }
+    setGalat("");
+    onPilih(f);
+  }
+
+  const inputFile = (
+    <input
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      hidden
+      disabled={disabled}
+      onChange={(e) => {
+        terima(e.target.files?.[0]);
+        e.target.value = ""; // supaya file yang sama bisa dipilih ulang
+      }}
+    />
+  );
+
+  const kotakStyle: React.CSSProperties = {
+    border: `2px dashed ${seret ? "#1457D6" : "#0B2A6B"}`,
+    background: seret ? "#EAF1FF" : "#F4F7FC",
+    borderRadius: 16,
+    padding: previewUrl ? 14 : 0,
+    transition: "background .15s, border-color .15s, transform .15s",
+    transform: seret ? "scale(1.01)" : "none",
+  };
+
+  return (
+    <div>
+      <div
+        style={kotakStyle}
+        onDragOver={(e) => {
+          if (disabled) return;
+          e.preventDefault();
+          setSeret(true);
+        }}
+        onDragLeave={() => setSeret(false)}
+        onDrop={(e) => {
+          if (disabled) return;
+          e.preventDefault();
+          setSeret(false);
+          terima(e.dataTransfer.files[0]);
+        }}
+      >
+        {previewUrl ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+            <div style={{ position: "relative", flexShrink: 0 }}>
+              <img
+                src={previewUrl}
+                alt="Pratinjau gambar promo"
+                style={{
+                  width: 96,
+                  height: 96,
+                  objectFit: "cover",
+                  borderRadius: 12,
+                  border: "2px solid #0B2A6B",
+                  display: "block",
+                }}
+              />
+            </div>
+
+            <div style={{ flex: 1, minWidth: 160 }}>
+              {status && (
+                <span
+                  className={`ad-chip ${status === "baru" ? "b" : "g"}`}
+                  style={{ marginBottom: 6, display: "inline-block" }}
+                >
+                  {status === "baru" ? "Baru" : "Tersimpan"}
+                </span>
+              )}
+              <div style={{ fontWeight: 700, fontSize: 14, wordBreak: "break-all", lineHeight: 1.3 }}>
+                {namaFile}
+              </div>
+              {ukuran && <small style={{ opacity: 0.7 }}>{ukuran}</small>}
+
+              <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                <label
+                  className="ad-btn ghost s"
+                  style={{ cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.5 : 1 }}
+                >
+                  Ganti gambar
+                  {inputFile}
+                </label>
+                <button type="button" onClick={onHapus} disabled={disabled} className="ad-btn r s">
+                  Hapus
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <label
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 8,
+              padding: "26px 16px",
+              cursor: disabled ? "not-allowed" : "pointer",
+              textAlign: "center",
+            }}
+          >
+            <span
+              aria-hidden="true"
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: "50%",
+                background: "#FFD21F",
+                border: "2px solid #0B2A6B",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 22,
+                boxShadow: "3px 3px 0 #0B2A6B",
+              }}
+            >
+              ⬆
+            </span>
+            <span style={{ fontWeight: 700, fontSize: 15 }}>
+              {seret ? "Lepaskan file di sini" : "Seret gambar ke sini"}
+            </span>
+            <span style={{ fontSize: 12, opacity: 0.7 }}>
+              atau <u>klik untuk memilih file</u> · JPG, PNG, WebP · maks. 2 MB
+            </span>
+            {inputFile}
+          </label>
+        )}
+      </div>
+
+      {galat && (
+        <p className="ad-galat" style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
+          <span aria-hidden="true">⚠</span> {galat}
+        </p>
+      )}
+    </div>
+  );
 }
 
 /* ─── Komponen utama ────────────────────────────────────── */
@@ -124,6 +301,9 @@ export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo";
   const [form, setForm] = useState<FormPromo>(formKosong);
   const [errorForm, setErrorForm] = useState("");
   const [hapusPromo, setHapusPromo] = useState<Promo | null>(null);
+  const [fileGambar, setFileGambar] = useState<File | null>(null);
+  const [previewGambar, setPreviewGambar] = useState<string | null>(null);
+  const [menyimpan, setMenyimpan] = useState(false);
 
   const sekarang = Date.now();
 
@@ -163,25 +343,39 @@ export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo";
   }
 
   /* ── Handler Promo ── */
+  function bersihkanPreview() {
+    if (previewGambar) URL.revokeObjectURL(previewGambar);
+  }
+
   function bukaFormTambah() {
+    bersihkanPreview();
     setEditId(null);
     setForm(formKosong);
     setErrorForm("");
+    setFileGambar(null);
+    setPreviewGambar(null);
     setShowForm(true);
   }
 
   function bukaFormEdit(p: Promo) {
+    bersihkanPreview();
     setEditId(p.id);
     const { id: _id, ...sisa } = p;
     setForm(sisa);
     setErrorForm("");
+    setFileGambar(null);
+    setPreviewGambar(null);
     setShowForm(true);
   }
 
   function tutupForm() {
+    bersihkanPreview();
     setShowForm(false);
     setEditId(null);
     setErrorForm("");
+    setFileGambar(null);
+    setPreviewGambar(null);
+    setMenyimpan(false);
   }
 
   function toggleLayanan(layananId: string) {
@@ -210,15 +404,34 @@ export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo";
       return;
     }
 
+    setMenyimpan(true);
+    setErrorForm("");
+
+    // Upload gambar dulu kalau ada file baru yang dipilih
+    let gambarUrl = form.gambarUrl;
+    if (fileGambar) {
+      const fd = new FormData();
+      fd.append("file", fileGambar);
+      const up = await uploadGambarPromo(fd);
+      if (!up.ok) {
+        setErrorForm("Gagal mengunggah gambar: " + up.pesan);
+        setMenyimpan(false);
+        return;
+      }
+      gambarUrl = up.url;
+    }
+
     const input = {
       ...form,
       layanan: form.berlakuUntuk === "tertentu" ? form.layanan : [],
       maksPotongan: form.jenis === "persen" ? form.maksPotongan : null,
+      gambarUrl,
     };
 
     const hasil = await simpanPromoKeDb(editId, input);
     if (!hasil.ok) {
       setErrorForm("Gagal menyimpan: " + hasil.pesan);
+      setMenyimpan(false);
       return;
     }
 
@@ -453,7 +666,14 @@ export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo";
                       const st = statusPromo(p, sekarang);
                       return (
                         <tr key={p.id}>
-                          <td><strong>{p.nama}</strong></td>
+                          <td>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              {p.gambarUrl && (
+                                <img src={p.gambarUrl} alt="" width={40} height={40} style={{ objectFit: "cover", borderRadius: 8 }} />
+                              )}
+                              <strong>{p.nama}</strong>
+                            </div>
+                          </td>
                           <td>
                             {p.jenis === "persen" ? `${p.nilai}%` : rp(p.nilai)}
                             {p.jenis === "persen" && p.maksPotongan ? <small><br />maks {rp(p.maksPotongan)}</small> : null}
@@ -491,20 +711,53 @@ export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo";
 
       {/* ══════════════ MODAL FORM PROMO ══════════════ */}
       {showForm && (
-        <div className="ad-ov" onClick={tutupForm}>
+        <div className="ad-ov" onClick={() => !menyimpan && tutupForm()}>
           <div className="ad-pop lebar" onClick={(e) => e.stopPropagation()}>
             <h2 className="ad-d">{editId !== null ? "Edit Promo" : "Tambah Promo Baru"}</h2>
 
             <form onSubmit={simpanPromo} className="ad-form" style={{ marginTop: 16 }}>
               <div className="ad-field">
                 <label>Nama Promo</label>
-                <input value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} required placeholder="Contoh: Promo Hari Kemerdekaan" />
+                <input
+                  value={form.nama}
+                  onChange={(e) => setForm({ ...form, nama: e.target.value })}
+                  required
+                  disabled={menyimpan}
+                  placeholder="Contoh: Promo Hari Kemerdekaan"
+                />
+              </div>
+
+              {/* Gambar promo */}
+              <div className="ad-field">
+                <label>Gambar Promo (opsional)</label>
+                <UploadGambar
+                  previewUrl={previewGambar ?? form.gambarUrl}
+                  namaFile={fileGambar?.name ?? (form.gambarUrl ? "Gambar tersimpan" : null)}
+                  ukuran={fileGambar ? fmtUkuran(fileGambar.size) : null}
+                  status={fileGambar ? "baru" : form.gambarUrl ? "tersimpan" : null}
+                  disabled={menyimpan}
+                  onPilih={(f) => {
+                    bersihkanPreview();
+                    setFileGambar(f);
+                    setPreviewGambar(URL.createObjectURL(f));
+                  }}
+                  onHapus={() => {
+                    bersihkanPreview();
+                    setFileGambar(null);
+                    setPreviewGambar(null);
+                    setForm({ ...form, gambarUrl: null });
+                  }}
+                />
               </div>
 
               <div className="ad-grid-2">
                 <div className="ad-field">
                   <label>Jenis Diskon</label>
-                  <select value={form.jenis} onChange={(e) => setForm({ ...form, jenis: e.target.value as "persen" | "nominal" })}>
+                  <select
+                    value={form.jenis}
+                    onChange={(e) => setForm({ ...form, jenis: e.target.value as "persen" | "nominal" })}
+                    disabled={menyimpan}
+                  >
                     <option value="persen">Persentase (%)</option>
                     <option value="nominal">Nominal (Rp)</option>
                   </select>
@@ -518,6 +771,7 @@ export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo";
                     value={form.nilai || ""}
                     onChange={(e) => setForm({ ...form, nilai: Number(e.target.value) })}
                     required
+                    disabled={menyimpan}
                   />
                 </div>
               </div>
@@ -526,11 +780,11 @@ export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo";
                 <label>Berlaku Untuk</label>
                 <div className="ad-baris-radio">
                   <label>
-                    <input type="radio" name="berlaku" checked={form.berlakuUntuk === "semua"} onChange={() => setForm({ ...form, berlakuUntuk: "semua" })} />
+                    <input type="radio" name="berlaku" checked={form.berlakuUntuk === "semua"} onChange={() => setForm({ ...form, berlakuUntuk: "semua" })} disabled={menyimpan} />
                     Semua layanan
                   </label>
                   <label>
-                    <input type="radio" name="berlaku" checked={form.berlakuUntuk === "tertentu"} onChange={() => setForm({ ...form, berlakuUntuk: "tertentu" })} />
+                    <input type="radio" name="berlaku" checked={form.berlakuUntuk === "tertentu"} onChange={() => setForm({ ...form, berlakuUntuk: "tertentu" })} disabled={menyimpan} />
                     Layanan tertentu
                   </label>
                 </div>
@@ -538,7 +792,7 @@ export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo";
                   <div className="ad-cek-kotak">
                     {awal.layanan.map((l) => (
                       <label key={l.id} className="ad-cek">
-                        <input type="checkbox" checked={form.layanan.includes(l.id)} onChange={() => toggleLayanan(l.id)} />
+                        <input type="checkbox" checked={form.layanan.includes(l.id)} onChange={() => toggleLayanan(l.id)} disabled={menyimpan} />
                         {l.nama}
                       </label>
                     ))}
@@ -549,12 +803,12 @@ export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo";
               <div className="ad-grid-2">
                 <div className="ad-field">
                   <label>Minimal Belanja (Rp)</label>
-                  <input type="number" min={0} value={form.minBelanja || ""} onChange={(e) => setForm({ ...form, minBelanja: Number(e.target.value) })} placeholder="0 = tanpa minimal" />
+                  <input type="number" min={0} value={form.minBelanja || ""} onChange={(e) => setForm({ ...form, minBelanja: Number(e.target.value) })} placeholder="0 = tanpa minimal" disabled={menyimpan} />
                 </div>
                 {form.jenis === "persen" && (
                   <div className="ad-field">
                     <label>Maksimal Potongan (Rp)</label>
-                    <input type="number" min={0} value={form.maksPotongan ?? ""} onChange={(e) => setForm({ ...form, maksPotongan: e.target.value ? Number(e.target.value) : null })} placeholder="Kosongkan = tanpa batas" />
+                    <input type="number" min={0} value={form.maksPotongan ?? ""} onChange={(e) => setForm({ ...form, maksPotongan: e.target.value ? Number(e.target.value) : null })} placeholder="Kosongkan = tanpa batas" disabled={menyimpan} />
                   </div>
                 )}
               </div>
@@ -562,23 +816,23 @@ export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo";
               <div className="ad-grid-2">
                 <div className="ad-field">
                   <label>Mulai</label>
-                  <input type="datetime-local" value={form.mulai} onChange={(e) => setForm({ ...form, mulai: e.target.value })} required />
+                  <input type="datetime-local" value={form.mulai} onChange={(e) => setForm({ ...form, mulai: e.target.value })} required disabled={menyimpan} />
                 </div>
                 <div className="ad-field">
                   <label>Selesai</label>
-                  <input type="datetime-local" value={form.selesai} onChange={(e) => setForm({ ...form, selesai: e.target.value })} required />
+                  <input type="datetime-local" value={form.selesai} onChange={(e) => setForm({ ...form, selesai: e.target.value })} required disabled={menyimpan} />
                 </div>
               </div>
 
               <div className="ad-grid-2">
                 <div className="ad-field">
                   <label>Kuota Pemakaian</label>
-                  <input type="number" min={1} value={form.kuota ?? ""} onChange={(e) => setForm({ ...form, kuota: e.target.value ? Number(e.target.value) : null })} placeholder="Kosongkan = tanpa batas" />
+                  <input type="number" min={1} value={form.kuota ?? ""} onChange={(e) => setForm({ ...form, kuota: e.target.value ? Number(e.target.value) : null })} placeholder="Kosongkan = tanpa batas" disabled={menyimpan} />
                 </div>
                 <div className="ad-field">
                   <label>Status</label>
                   <label>
-                    <input type="checkbox" checked={form.aktif} onChange={(e) => setForm({ ...form, aktif: e.target.checked })} />
+                    <input type="checkbox" checked={form.aktif} onChange={(e) => setForm({ ...form, aktif: e.target.checked })} disabled={menyimpan} />
                     Aktifkan promo ini
                   </label>
                 </div>
@@ -587,8 +841,12 @@ export default function PengaturanClient({ tab, awal }: { tab: "umum" | "promo";
               {errorForm && <p className="ad-galat">{errorForm}</p>}
 
               <div className="ad-aksi">
-                <button type="submit" className="ad-btn">{editId !== null ? "Simpan Perubahan" : "Tambah Promo"}</button>
-                <button type="button" onClick={tutupForm} className="ad-btn ghost">Batal</button>
+                <button type="submit" className="ad-btn" disabled={menyimpan}>
+                  {menyimpan
+                    ? fileGambar ? "Mengunggah gambar..." : "Menyimpan..."
+                    : editId !== null ? "Simpan Perubahan" : "Tambah Promo"}
+                </button>
+                <button type="button" onClick={tutupForm} className="ad-btn ghost" disabled={menyimpan}>Batal</button>
               </div>
             </form>
           </div>

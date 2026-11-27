@@ -17,6 +17,7 @@ export interface PromoInput {
   selesai: string;
   kuota: number | null;
   aktif: boolean;
+  gambarUrl: string | null;
 }
 
 // Input datetime-local dianggap WIB (+07:00)
@@ -36,6 +37,7 @@ function kePromoRow(p: PromoInput) {
     selesai: keWaktu(p.selesai),
     kuota: p.kuota,
     aktif: p.aktif,
+    gambar_url: p.gambarUrl,
   };
 }
 
@@ -55,6 +57,37 @@ async function pastikanAdmin() {
     return { ok: false as const, pesan: "Tidak diizinkan." };
   }
   return { ok: true as const, supabase };
+}
+
+const BATAS_GAMBAR = 2 * 1024 * 1024; // 2 MB
+const TIPE_GAMBAR = ["image/jpeg", "image/png", "image/webp"];
+
+export async function uploadGambarPromo(formData: FormData) {
+  const cek = await pastikanAdmin();
+  if (!cek.ok) return cek;
+  const supabase = cek.supabase;
+
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false as const, pesan: "Tidak ada file." };
+  }
+  if (!TIPE_GAMBAR.includes(file.type)) {
+    return { ok: false as const, pesan: "Format harus JPG, PNG, atau WebP." };
+  }
+  if (file.size > BATAS_GAMBAR) {
+    return { ok: false as const, pesan: "Ukuran maksimal 2 MB." };
+  }
+
+  const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+  const path = `${crypto.randomUUID()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("promo")
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (error) return { ok: false as const, pesan: error.message };
+
+  const { data } = supabase.storage.from("promo").getPublicUrl(path);
+  return { ok: true as const, url: data.publicUrl };
 }
 
 export async function ambilPengaturan() {
@@ -90,6 +123,7 @@ export async function ambilPengaturan() {
       selesai: keInput(p.selesai),
       kuota: p.kuota as number | null,
       aktif: p.aktif as boolean,
+      gambarUrl: (p.gambar_url ?? null) as string | null,
     })),
   };
 }
