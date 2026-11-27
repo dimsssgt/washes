@@ -51,6 +51,23 @@ export default function Services() {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       if (bar) bar.style.width = `${max > 0 ? (scrollY / max) * 100 : 0}%`;
 
+      // Mobile: header sticky. Saat kartu terakhir naik, header ikut naik bersamanya.
+      if (!desktop.matches) {
+        spacer.style.height = "0px";
+        const hH = header.offsetHeight;
+        wrap.style.setProperty("--card-top", `${NAV_TOP + hH + TAB_H + GAP}px`);
+
+        const last = slots[slots.length - 1];
+        if (last) {
+          const lastViewTop = last.getBoundingClientRect().top;
+          const desired = Math.min(NAV_TOP, lastViewTop - TAB_H - GAP - hH);
+          header.style.top = desired < NAV_TOP ? `${desired}px` : "";
+        }
+
+        resetStyles();
+        return;
+      }
+      
       // Ukur header, lalu atur spacer dan posisi sticky kartu dari tinggi itu
       const hH = header.offsetHeight;
       spacer.style.height = `${hH}px`;
@@ -69,8 +86,8 @@ export default function Services() {
         header.style.top = `${hDoc - wrapDocTop}px`;
       }
 
-      // Efek scale dan redup hanya di desktop dan jika tidak reduced motion
-      if (reduced.matches || !desktop.matches) {
+      // Efek scale dan redup hanya jika tidak reduced motion
+      if (reduced.matches) {
         resetStyles();
         return;
       }
@@ -135,10 +152,10 @@ export default function Services() {
 
       <div className="container-lk">
         <div ref={wrapRef} className="relative" style={wrapStyle}>
-          {/* Header: tinggi mengikuti isi, diukur dari JS. Posisinya diatur JS. */}
+          {/* Header: di mobile alur biasa, di desktop menempel dan posisinya diatur JS. */}
           <div
             ref={headerRef}
-            className="absolute left-0 right-0 top-0 z-30 flex flex-col justify-center bg-brand px-4 py-4 text-center"
+            className="sticky top-[80px] min-[860px]:absolute min-[860px]:top-0 left-0 right-0 z-30 flex flex-col justify-center bg-brand px-4 py-4 text-center"
           >
             <SectionTitle className="mb-2 text-[28px]! text-sun md:mb-3 md:text-[64px]!">
               Cek layanan kami
