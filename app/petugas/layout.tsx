@@ -4,6 +4,7 @@ import SidebarPetugas from "@/components/petugas/SidebarPetugas";
 import { NotifikasiProvider } from "@/components/petugas/NotifikasiProvider";
 import { PetugasProvider } from "@/components/petugas/PetugasProvider";
 import { ambilPesananMasuk } from "@/lib/petugas/pesanan-db";
+import { ambilPesananAktif } from "@/lib/petugas/pengerjaan-db";
 import { createClient } from "@/lib/supabase/server";
 import type { Bagian } from "@/lib/petugas/alur";
 import "./petugas.css";
@@ -37,12 +38,12 @@ export default async function PetugasLayout({ children }: { children: ReactNode 
     bagian: profil.bagian as Bagian,
   };
 
-  // Semua data dibaca dari database. Yang belum tersambung dikirim kosong.
-  const antrian = await ambilPesananMasuk();
+  // 4. Data dibaca langsung dari database.
+  const [antrian, kerja] = await Promise.all([ambilPesananMasuk(), ambilPesananAktif()]);
 
   return (
     <div className="petugas">
-      <PetugasProvider pengguna={pengguna} antrianAwal={antrian} kerjaAwal={[]}>
+      <PetugasProvider pengguna={pengguna} antrianAwal={antrian} kerjaAwal={kerja}>
         <NotifikasiProvider awal={[]} sekarangIso={sekarang.toISOString()}>
           <SidebarPetugas />
           <main className="pt-main">{children}</main>

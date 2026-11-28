@@ -406,3 +406,20 @@
     font-size: 26px;
   }
 }
+/* Pop-up bisa digulir jika kontennya lebih tinggi dari layar */
+.petugas .pt-ov {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.petugas .pt-pop {
+  max-height: none;
+  margin: auto;
+}
+@media (max-width: 900px) {
+  .petugas .pt-ov {
+    align-items: flex-start;
+    padding: 16px 12px;
+  }
+}
