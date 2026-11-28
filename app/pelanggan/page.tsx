@@ -2,21 +2,21 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import BuatPesananSection from "@/components/pelanggan/BuatPesananSection";
 import AntrianPesananSection from "@/components/pelanggan/AntrianPesananSection";
+import { ambilStatistikSaya, ambilNamaSaya, ambilAntrianSaya } from "@/lib/pelanggan/actions";
 
 export const metadata: Metadata = { title: "Pesanan — Laundyku" };
-
-// Data dummy — akan diganti dengan data dari database
-const statsDummy = {
-  pesananAktif: 2,
-  tagihanBelumBayar: 29000,
-  totalPesanan: 12,
-};
 
 function formatRupiah(n: number) {
   return "Rp " + n.toLocaleString("id-ID");
 }
 
-export default function PelangganPage() {
+export default async function PelangganPage() {
+  const [stats, nama, antrian] = await Promise.all([
+    ambilStatistikSaya(),
+    ambilNamaSaya(),
+    ambilAntrianSaya(),
+  ]);
+
   return (
     <>
       {/* Header row */}
@@ -81,8 +81,7 @@ export default function PelangganPage() {
             order: 1,
           }}
         >
-          {/* TODO: ganti [Nama] dengan nama user dari session */}
-          Halo, [Nama]!
+          Halo, {nama}!
         </h1>
 
         <Link
@@ -119,9 +118,9 @@ export default function PelangganPage() {
         }}
       >
         {[
-          { label: "Pesanan aktif", value: statsDummy.pesananAktif },
-          { label: "Tagihan belum dibayar", value: formatRupiah(statsDummy.tagihanBelumBayar) },
-          { label: "Total pesanan", value: statsDummy.totalPesanan },
+          { label: "Pesanan aktif", value: stats.pesananAktif },
+          { label: "Tagihan belum dibayar", value: formatRupiah(stats.tagihanBelumBayar) },
+          { label: "Total pesanan", value: stats.totalPesanan },
         ].map((s) => (
           <div
             key={s.label}
@@ -155,7 +154,7 @@ export default function PelangganPage() {
       <BuatPesananSection />
 
       {/* Tabel antrian */}
-      <AntrianPesananSection />
+      <AntrianPesananSection data={antrian} />
     </>
   );
 }

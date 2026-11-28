@@ -9,21 +9,8 @@ interface AntrianItem {
   jadwalJemput: string;
 }
 
-const initialAntrian: AntrianItem[] = [
-  {
-    kode: "LDY-20261030-016",
-    layanan: "Cuci Kiloan",
-    jadwalJemput: "31 Okt 2026, 09.00",
-  },
-  {
-    kode: "LDY-20261030-017",
-    layanan: "Cuci Satuan",
-    jadwalJemput: "31 Okt 2026, 13.00",
-  },
-];
-
-export default function AntrianPesananSection() {
-  const [antrian, setAntrian] = useState<AntrianItem[]>(initialAntrian);
+export default function AntrianPesananSection({ data }: { data: AntrianItem[] }) {
+  const [antrian, setAntrian] = useState<AntrianItem[]>(data);
   const [batalTarget, setBatalTarget] = useState<AntrianItem | null>(null);
 
   function handleBatal() {

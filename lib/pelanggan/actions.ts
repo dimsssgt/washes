@@ -150,7 +150,7 @@ export async function buatPesanan(input: InputPesananPelanggan): Promise<HasilBu
       waktu_cuci_id: input.waktuCuciId,
       alamat_jemput: antarJemput ? input.alamat.trim() : null,
       jam_jemput: antarJemput ? input.jamJemput : null,
-      catatan: input.catatan.trim() || null,
+      catatan: input.catatan.trim(),  
       metode_serah: antarJemput ? "diantar" : "ambil_sendiri",
       status: "masuk",
     })
@@ -158,8 +158,277 @@ export async function buatPesanan(input: InputPesananPelanggan): Promise<HasilBu
     .single();
 
   if (error || !data) {
-    return { ok: false, error: "Pesanan gagal disimpan. Silakan coba lagi." };
+    console.error("[buatPesanan] insert gagal:", error);
+    return {
+      ok: false,
+      error: "Pesanan gagal disimpan. Silakan coba lagi.",
+    };
   }
 
   return { ok: true, id: data.id, kode: data.kode };
+}
+
+export type AntrianSaya = {
+  kode: string;
+  layanan: string;
+  jadwalJemput: string;
+};
+
+const NAMA_LAYANAN: Record<string, string> = {
+  kiloan: "Cuci Kiloan",
+  satuan: "Cuci Satuan",
+  linen: "Cuci Linen",
+};
+
+export async function ambilAntrianSaya(): Promise<AntrianSaya[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("pesanan")
+    .select("kode, jam_jemput, metode_serah, dibuat_at, layanan(kode)")
+    .eq("pelanggan_id", user.id)
+    .eq("status", "masuk")
+    .order("dibuat_at", { ascending: true });
+
+  if (error) {
+    console.error("[ambilAntrianSaya] gagal:", error);
+    return [];
+  }
+
+  return (data ?? []).map((p) => {
+    const layanan = Array.isArray(p.layanan) ? p.layanan[0] : p.layanan;
+    const jam = p.jam_jemput ? String(p.jam_jemput).slice(0, 5) : null;
+
+    return {
+      kode: p.kode,
+      layanan: NAMA_LAYANAN[layanan?.kode ?? ""] ?? "-",
+      jadwalJemput:
+        p.metode_serah === "diantar" && jam
+          ? `Jemput pukul ${jam}`
+          : "Ambil sendiri",
+    };
+  });
+}
+
+export type NotifikasiSaya = {
+  id: string;
+  judul: string;
+  waktu: string;
+  pesan: string;
+  dibaca: boolean;
+};
+
+const one = (v: any) => (Array.isArray(v) ? v[0] : v) ?? null;
+
+function formatTanggal(iso: string | null | undefined) {
+  if (!iso) return null;
+  return new Date(iso).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "Asia/Jakarta",
+  });
+}
+
+function formatWaktu(iso: string) {
+  return new Date(iso).toLocaleString("id-ID", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Jakarta",
+  });
+}
+
+export async function ambilRiwayatSaya(): Promise<
+  {
+    kode: string;
+    tanggal: string;
+    layanan: string;
+    jumlah: string;
+    total: number;
+    status: string;
+    invoiceNo: string;
+    statusPesanan: string;
+    dibayar: string;
+    rincianLayanan: number;
+    ongkir: number;
+    alamat?: string;
+    petugas?: string;
+  }[]
+> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("pesanan")
+    .select(`
+      kode, dibuat_at, selesai_at, alamat_jemput,
+      layanan:layanan_id (nama),
+      penimbangan (berat_kg, jumlah_item, subtotal),
+      transaksi (total, metode, dibayar_at),
+      petugas:petugas_id (nama)
+    `)
+    .eq("pelanggan_id", user.id)
+    .eq("status", "selesai")
+    .order("dibuat_at", { ascending: false });
+
+  if (error) {
+    console.error("[ambilRiwayatSaya] gagal:", error);
+    return [];
+  }
+
+  return (data ?? []).map((p: any) => {
+    const layanan = one(p.layanan);
+    const tim = one(p.penimbangan);
+    const trx = one(p.transaksi);
+    const petugas = one(p.petugas);
+
+    const subtotal = tim?.subtotal ?? 0;
+    const total = trx?.total ?? subtotal;
+    const tglBayar = formatTanggal(trx?.dibayar_at);
+    const tglSelesai = formatTanggal(p.selesai_at);
+    const metode = trx?.metode ? String(trx.metode).toUpperCase() : "-";
+
+    return {
+      kode: p.kode,
+      tanggal: formatTanggal(p.dibuat_at) ?? "-",
+      layanan: layanan?.nama ?? "Layanan Laundry",
+      jumlah: tim?.berat_kg
+        ? `${tim.berat_kg} kg`
+        : tim?.jumlah_item
+        ? `${tim.jumlah_item} pcs`
+        : "-",
+      total,
+      status: trx?.dibayar_at ? "Lunas" : "Belum lunas",
+      invoiceNo: `INV-${p.kode}`,
+      statusPesanan: tglSelesai ? `Selesai · ${tglSelesai}` : "Selesai",
+      dibayar: tglBayar ? `${tglBayar} · ${metode}` : "-",
+      rincianLayanan: subtotal,
+      ongkir: Math.max(0, total - subtotal),
+      alamat: p.alamat_jemput ?? undefined,
+      petugas: petugas?.nama ?? undefined,
+    };
+  });
+}
+
+export async function ambilNotifikasiSaya(): Promise<NotifikasiSaya[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("notifikasi")
+    .select("id, judul, isi, dibaca, dibuat_at")
+    .eq("user_id", user.id)
+    .order("dibuat_at", { ascending: false })
+    .limit(100);
+
+  if (error) {
+    console.error("[ambilNotifikasiSaya] gagal:", error);
+    return [];
+  }
+
+  return (data ?? []).map((n) => ({
+    id: n.id,
+    judul: n.judul,
+    pesan: n.isi,
+    dibaca: n.dibaca,
+    waktu: formatWaktu(n.dibuat_at),
+  }));
+}
+
+export async function tandaNotifikasiDibaca(ids?: string[]): Promise<boolean> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  let query = supabase
+    .from("notifikasi")
+    .update({ dibaca: true })
+    .eq("user_id", user.id)
+    .eq("dibaca", false);
+
+  if (ids && ids.length > 0) query = query.in("id", ids);
+
+  const { error } = await query;
+  if (error) {
+    console.error("[tandaNotifikasiDibaca] gagal:", error);
+    return false;
+  }
+  return true;
+}
+
+export type StatistikSaya = {
+  pesananAktif: number;
+  tagihanBelumBayar: number;
+  totalPesanan: number;
+};
+
+export async function ambilStatistikSaya(): Promise<StatistikSaya> {
+  const kosong: StatistikSaya = { pesananAktif: 0, tagihanBelumBayar: 0, totalPesanan: 0 };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return kosong;
+
+  const { data, error } = await supabase
+    .from("pesanan")
+    .select("status, transaksi (total, dibayar_at)")
+    .eq("pelanggan_id", user.id);
+
+  if (error) {
+    console.error("[ambilStatistikSaya] gagal:", error);
+    return kosong;
+  }
+
+  const rows = (data ?? []) as any[];
+  const bukanAktif = ["masuk", "selesai", "dibatalkan"];
+
+  let tagihan = 0;
+  for (const p of rows) {
+    if (p.status === "dibatalkan") continue;
+    for (const t of p.transaksi ?? []) {
+      if (!t.dibayar_at) tagihan += t.total ?? 0;
+    }
+  }
+
+  return {
+    pesananAktif: rows.filter((p) => !bukanAktif.includes(p.status)).length,
+    tagihanBelumBayar: tagihan,
+    totalPesanan: rows.length,
+  };
+}
+
+export async function ambilNamaSaya(): Promise<string> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return "Pelanggan";
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("nama")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    console.error("[ambilNamaSaya] gagal:", error);
+    return "Pelanggan";
+  }
+  return data?.nama || "Pelanggan";
 }

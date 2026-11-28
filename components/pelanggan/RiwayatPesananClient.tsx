@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
-import { createClient } from "@/lib/supabase/client";
 
 interface RiwayatItem {
   kode: string;
@@ -21,178 +20,21 @@ interface RiwayatItem {
   petugas?: string;
 }
 
-const dummyRiwayat: RiwayatItem[] = [
-  {
-    kode: "LDY-20261015-009",
-    tanggal: "15 Okt 2026",
-    layanan: "Cuci Linen",
-    jumlah: "2 pcs",
-    total: 40000,
-    status: "Lunas",
-    invoiceNo: "INV-20261015-009",
-    statusPesanan: "Selesai � diantar 18 Okt",
-    dibayar: "16 Okt 2026 � QRIS",
-    rincianLayanan: 40000,
-    ongkir: 0,
-    alamat: "Jl. Mawar No. 12, Sukolilo, Surabaya",
-    petugas: "Gilang Pratama (Staff Operasional)",
-  },
-  {
-    kode: "LDY-20261002-021",
-    tanggal: "2 Okt 2026",
-    layanan: "Cuci Satuan",
-    jumlah: "3 pcs",
-    total: 36000,
-    status: "Lunas",
-    invoiceNo: "INV-20261002-021",
-    statusPesanan: "Selesai � diambil 5 Okt",
-    dibayar: "3 Okt 2026 � QRIS",
-    rincianLayanan: 36000,
-    ongkir: 0,
-    alamat: "Jl. Dharmahusada Indah No. 45, Gubeng, Surabaya",
-    petugas: "Gilang Pratama (Staff Operasional)",
-  },
-  {
-    kode: "LDY-20260920-003",
-    tanggal: "20 Sep 2026",
-    layanan: "Cuci Kiloan",
-    jumlah: "4 kg",
-    total: 24000,
-    status: "Lunas",
-    invoiceNo: "INV-20260920-003",
-    statusPesanan: "Selesai � diantar 23 Sep",
-    dibayar: "21 Sep 2026 � QRIS",
-    rincianLayanan: 24000,
-    ongkir: 0,
-    alamat: "Jl. Mawar No. 12, Sukolilo, Surabaya",
-    petugas: "Dimas S. (Staff Operasional)",
-  },
-  {
-    kode: "LDY-20260908-011",
-    tanggal: "8 Sep 2026",
-    layanan: "Cuci Kiloan",
-    jumlah: "5 kg",
-    total: 30000,
-    status: "Lunas",
-    invoiceNo: "INV-20260908-011",
-    statusPesanan: "Selesai � diantar 11 Sep",
-    dibayar: "9 Sep 2026 � QRIS",
-    rincianLayanan: 30000,
-    ongkir: 0,
-    alamat: "Jl. Mawar No. 12, Sukolilo, Surabaya",
-    petugas: "Gilang Pratama (Staff Operasional)",
-  },
-];
+const FONT = "var(--font-poppins), 'Poppins', Arial, sans-serif";
+const CELL = {
+  padding: "12px 10px",
+  borderBottom: "2px dashed #C9B98F",
+  fontFamily: FONT,
+  fontSize: 13,
+} as const;
 
 function formatRupiah(n: number) {
   return "Rp " + n.toLocaleString("id-ID");
 }
 
-export default function RiwayatPesananClient() {
-  const [riwayatList, setRiwayatList] = useState<RiwayatItem[]>(dummyRiwayat);
+export default function RiwayatPesananClient({ data }: { data: RiwayatItem[] }) {
+  const riwayatList = data;
   const [selectedInvoice, setSelectedInvoice] = useState<RiwayatItem | null>(null);
-
-  useEffect(() => {
-    async function fetchRiwayat() {
-      try {
-        const supabase = createClient();
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (!user) return;
-
-        const { data, error } = await supabase
-          .from("pesanan")
-          .select(`
-            id,
-            kode,
-            dibuat_at,
-            selesai_at,
-            status,
-            alamat_jemput,
-            layanan:layanan_id (nama),
-            waktu_cuci:waktu_cuci_id (nama),
-            penimbangan (berat_kg, jumlah_item, subtotal),
-            transaksi (total, metode, dibayar_at),
-            petugas:petugas_id (nama)
-          `)
-          .eq("pelanggan_id", user.id)
-          .eq("status", "selesai")
-          .order("dibuat_at", { ascending: false });
-
-        if (!error && data && data.length > 0) {
-          const mapped: RiwayatItem[] = data.map((item: any) => {
-            const tanggalDibuat = item.dibuat_at
-              ? new Date(item.dibuat_at).toLocaleDateString("id-ID", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })
-              : "Hari ini";
-
-            const layananNama =
-              (Array.isArray(item.layanan) ? item.layanan[0]?.nama : item.layanan?.nama) ||
-              "Layanan Laundry";
-
-            const berat = item.penimbangan?.[0]?.berat_kg;
-            const jumlahItem = item.penimbangan?.[0]?.jumlah_item;
-            const jumlahStr = berat
-              ? `${berat} kg`
-              : jumlahItem
-              ? `${jumlahItem} pcs`
-              : "1 paket";
-
-            const subtotal =
-              item.penimbangan?.[0]?.subtotal || item.transaksi?.[0]?.total || 30000;
-            const total = item.transaksi?.[0]?.total || subtotal;
-            const metode = item.transaksi?.[0]?.metode || "QRIS";
-
-            const tglBayar = item.transaksi?.[0]?.dibayar_at
-              ? new Date(item.transaksi[0].dibayar_at).toLocaleDateString("id-ID", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })
-              : tanggalDibuat;
-
-            const namaPetugas =
-              (Array.isArray(item.petugas) ? item.petugas[0]?.nama : item.petugas?.nama) ||
-              "Gilang Pratama (Staff Operasional)";
-
-            return {
-              kode: item.kode,
-              tanggal: tanggalDibuat,
-              layanan: layananNama,
-              jumlah: jumlahStr,
-              total: total,
-              status: "Lunas",
-              invoiceNo: `INV-${item.kode}`,
-              statusPesanan: `Selesai � ${
-                item.selesai_at
-                  ? new Date(item.selesai_at).toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "short",
-                    })
-                  : "diantar"
-              }`,
-              dibayar: `${tglBayar} � ${metode}`,
-              rincianLayanan: subtotal,
-              ongkir: Math.max(0, total - subtotal),
-              alamat: item.alamat_jemput || "Jl. Mawar No. 12, Sukolilo, Surabaya",
-              petugas: namaPetugas,
-            };
-          });
-
-          setRiwayatList(mapped);
-        }
-      } catch {
-        // Fallback anggun ke dummy data jika offline atau belum ada relasi
-      }
-    }
-
-    fetchRiwayat();
-  }, []);
 
   return (
     <>
@@ -204,14 +46,14 @@ export default function RiwayatPesananClient() {
             display: "inline-flex",
             alignItems: "center",
             gap: 6,
-            fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+            fontFamily: FONT,
             fontWeight: 700,
             fontSize: 13,
             color: "#0B2A6B",
             textDecoration: "underline",
           }}
         >
-          ? Kembali ke dashboard pelanggan
+          ← Kembali ke dashboard pelanggan
         </Link>
       </div>
 
@@ -264,7 +106,7 @@ export default function RiwayatPesananClient() {
                       padding: "12px 10px",
                       borderBottom: "2px dashed #C9B98F",
                       textAlign: "left",
-                      fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+                      fontFamily: FONT,
                       fontSize: 11,
                       textTransform: "uppercase",
                     }}
@@ -275,20 +117,19 @@ export default function RiwayatPesananClient() {
               </tr>
             </thead>
             <tbody>
+              {riwayatList.length === 0 && (
+                <tr>
+                  <td colSpan={6} style={{ padding: "20px 10px", fontFamily: FONT, fontSize: 13 }}>
+                    Belum ada riwayat pesanan.
+                  </td>
+                </tr>
+              )}
               {riwayatList.map((item) => (
                 <tr key={item.kode}>
-                  <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
-                    {item.kode}
-                  </td>
-                  <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
-                    {item.tanggal}
-                  </td>
-                  <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
-                    {item.layanan}
-                  </td>
-                  <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13 }}>
-                    {formatRupiah(item.total)}
-                  </td>
+                  <td style={CELL}>{item.kode}</td>
+                  <td style={CELL}>{item.tanggal}</td>
+                  <td style={CELL}>{item.layanan}</td>
+                  <td style={CELL}>{formatRupiah(item.total)}</td>
                   <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F" }}>
                     <span
                       style={{
@@ -296,11 +137,11 @@ export default function RiwayatPesananClient() {
                         border: "2px solid #0B2A6B",
                         borderRadius: 999,
                         padding: "3px 12px",
-                        fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+                        fontFamily: FONT,
                         fontSize: 12,
                         fontWeight: 700,
-                        background: "#12805C",
-                        color: "#fff",
+                        background: item.status === "Lunas" ? "#12805C" : "#FFD21F",
+                        color: item.status === "Lunas" ? "#fff" : "#0B2A6B",
                         whiteSpace: "nowrap",
                       }}
                     >
@@ -318,12 +159,12 @@ export default function RiwayatPesananClient() {
           </table>
         </div>
 
-        <p style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12, margin: "16px 0 0", color: "#4A5A80" }}>
+        <p style={{ fontFamily: FONT, fontSize: 12, margin: "16px 0 0", color: "#4A5A80" }}>
           Klik Lihat detail untuk melihat rincian tagihan & bukti pembayaran resmi.
         </p>
       </section>
 
-      {/* Popup Invoice Riwayat (Zoom & Responsive Safe) */}
+      {/* Popup Invoice Riwayat */}
       {selectedInvoice && (
         <div
           className="fixed inset-0 z-50 overflow-y-auto"
@@ -349,7 +190,7 @@ export default function RiwayatPesananClient() {
               padding: 28,
               boxSizing: "border-box",
               color: "#0B2A6B",
-              fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+              fontFamily: FONT,
               margin: "auto 0",
             }}
           >
@@ -360,6 +201,7 @@ export default function RiwayatPesananClient() {
               </h2>
               <button
                 onClick={() => setSelectedInvoice(null)}
+                aria-label="Tutup"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -376,7 +218,7 @@ export default function RiwayatPesananClient() {
                   boxShadow: "inset 0 0 0 2px #0B2A6B",
                 }}
               >
-                ?
+                ✕
               </button>
             </div>
 
@@ -384,12 +226,23 @@ export default function RiwayatPesananClient() {
               <span style={{ fontFamily: "'Archivo Black', Impact, sans-serif", textTransform: "uppercase", fontSize: 15 }}>
                 {selectedInvoice.kode}
               </span>
-              <span style={{ display: "inline-block", border: "2px solid #0B2A6B", borderRadius: 999, padding: "3px 12px", fontSize: 12, fontWeight: 700, background: "#12805C", color: "#fff" }}>
-                Lunas
+              <span
+                style={{
+                  display: "inline-block",
+                  border: "2px solid #0B2A6B",
+                  borderRadius: 999,
+                  padding: "3px 12px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  background: selectedInvoice.status === "Lunas" ? "#12805C" : "#FFD21F",
+                  color: selectedInvoice.status === "Lunas" ? "#fff" : "#0B2A6B",
+                }}
+              >
+                {selectedInvoice.status}
               </span>
             </div>
             <div style={{ margin: "6px 0 12px", fontSize: 12 }}>
-              {selectedInvoice.invoiceNo} � {selectedInvoice.tanggal}
+              {selectedInvoice.invoiceNo} · {selectedInvoice.tanggal}
             </div>
 
             {/* Info Alamat & Petugas */}
@@ -407,8 +260,12 @@ export default function RiwayatPesananClient() {
                 gap: 4,
               }}
             >
-              <div>?? <b>Alamat:</b> {selectedInvoice.alamat || "Jl. Mawar No. 12, Sukolilo, Surabaya"}</div>
-              <div>?? <b>Petugas:</b> {selectedInvoice.petugas || "Gilang Pratama (Staff Operasional)"}</div>
+              <div>
+                <b>Alamat:</b> {selectedInvoice.alamat || "-"}
+              </div>
+              <div>
+                <b>Petugas:</b> {selectedInvoice.petugas || "-"}
+              </div>
             </div>
 
             {/* List Detail */}
@@ -419,19 +276,39 @@ export default function RiwayatPesananClient() {
                 { label: "Status pesanan", val: selectedInvoice.statusPesanan },
                 { label: "Dibayar", val: selectedInvoice.dibayar },
               ].map((r) => (
-                <div key={r.label} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
+                <div
+                  key={r.label}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    padding: "10px 0",
+                    borderBottom: "2px dashed #C9B98F",
+                    fontSize: 13,
+                  }}
+                >
                   <span style={{ color: "#4A5A80" }}>{r.label}</span>
                   <b style={{ textAlign: "right" }}>{r.val}</b>
                 </div>
               ))}
             </div>
 
-            <h3 style={{ fontFamily: "'Archivo Black', Impact, sans-serif", textTransform: "uppercase", fontSize: 16, margin: "20px 0 0", color: "#1457D6" }}>
+            <h3
+              style={{
+                fontFamily: "'Archivo Black', Impact, sans-serif",
+                textTransform: "uppercase",
+                fontSize: 16,
+                margin: "20px 0 0",
+                color: "#1457D6",
+              }}
+            >
               Rincian tagihan
             </h3>
             <div style={{ marginTop: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
-                <span>{selectedInvoice.layanan} � {selectedInvoice.jumlah}</span>
+                <span>
+                  {selectedInvoice.layanan} · {selectedInvoice.jumlah}
+                </span>
                 <b>{formatRupiah(selectedInvoice.rincianLayanan)}</b>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
@@ -451,9 +328,28 @@ export default function RiwayatPesananClient() {
               <Button
                 size="sm"
                 onClick={() => {
-                  const alamat = selectedInvoice.alamat || "Jl. Mawar No. 12, Sukolilo, Surabaya";
-                  const petugas = selectedInvoice.petugas || "Gilang Pratama (Staff Operasional)";
-                  const content = `====================================\nINVOICE RESMI - LAUNDYKU\n====================================\nInvoice     : ${selectedInvoice.invoiceNo}\nPesanan     : ${selectedInvoice.kode}\nTanggal     : ${selectedInvoice.tanggal}\nAlamat      : ${alamat}\nPetugas     : ${petugas}\nLayanan     : ${selectedInvoice.layanan} (${selectedInvoice.jumlah})\nStatus      : ${selectedInvoice.statusPesanan}\nDibayar     : ${selectedInvoice.dibayar}\n------------------------------------\nRincian Layanan: ${formatRupiah(selectedInvoice.rincianLayanan)}\nAntar Jemput: ${formatRupiah(selectedInvoice.ongkir)}\nTOTAL: ${formatRupiah(selectedInvoice.total)}\n====================================\nStatus: LUNAS\nTerima kasih telah menggunakan Laundyku!`;
+                  const alamat = selectedInvoice.alamat || "-";
+                  const petugas = selectedInvoice.petugas || "-";
+                  const content = [
+                    "====================================",
+                    "INVOICE RESMI - LAUNDYKU",
+                    "====================================",
+                    `Invoice     : ${selectedInvoice.invoiceNo}`,
+                    `Pesanan     : ${selectedInvoice.kode}`,
+                    `Tanggal     : ${selectedInvoice.tanggal}`,
+                    `Alamat      : ${alamat}`,
+                    `Petugas     : ${petugas}`,
+                    `Layanan     : ${selectedInvoice.layanan} (${selectedInvoice.jumlah})`,
+                    `Status      : ${selectedInvoice.statusPesanan}`,
+                    `Dibayar     : ${selectedInvoice.dibayar}`,
+                    "------------------------------------",
+                    `Rincian Layanan: ${formatRupiah(selectedInvoice.rincianLayanan)}`,
+                    `Antar Jemput   : ${formatRupiah(selectedInvoice.ongkir)}`,
+                    `TOTAL          : ${formatRupiah(selectedInvoice.total)}`,
+                    "====================================",
+                    `Status: ${selectedInvoice.status.toUpperCase()}`,
+                    "Terima kasih telah menggunakan Laundyku!",
+                  ].join("\n");
                   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement("a");
