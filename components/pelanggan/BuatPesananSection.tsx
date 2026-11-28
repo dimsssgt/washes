@@ -4,9 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
+import { buatPesanan } from "@/lib/pelanggan/actions";
 
 type LayananTab = "kiloan" | "satuan" | "linen";
 type MetodePengantaran = "antar-jemput" | "drop-mandiri";
+type Kecepatan = "reguler" | "one-day" | "express" | "quick";
 
 interface ItemPriced {
   id: string;
@@ -44,6 +46,21 @@ const tabInfo: Record<LayananTab, string> = {
   linen: "Linen dihitung per item atau per meter, tanpa minimal. Isi jumlah tiap jenis yang ingin dicuci.",
 };
 
+// TODO: isi dengan id dari tabel layanan. Kosong = pesanan belum bisa dikirim.
+const LAYANAN_ID: Record<LayananTab, string> = {
+  kiloan: "",
+  satuan: "",
+  linen: "",
+};
+
+// TODO: isi dengan id dari tabel waktu cuci. Kosong = pesanan belum bisa dikirim.
+const WAKTU_CUCI_ID: Record<Kecepatan, string> = {
+  reguler: "",
+  "one-day": "",
+  express: "",
+  quick: "",
+};
+
 function formatRupiah(n: number) {
   return "Rp " + n.toLocaleString("id-ID");
 }
@@ -58,7 +75,7 @@ const labelKecepatanMap: Record<string, string> = {
 export default function BuatPesananSection() {
   const [tab, setTab] = useState<LayananTab>("kiloan");
   const [metode, setMetode] = useState<MetodePengantaran>("antar-jemput");
-  const [kecepatan, setKecepatan] = useState<"reguler" | "one-day" | "express" | "quick">("reguler");
+  const [kecepatan, setKecepatan] = useState<Kecepatan>("reguler");
   const [tanggalJemput, setTanggalJemput] = useState("");
   const [jamJemput, setJamJemput] = useState("");
   const [alamat, setAlamat] = useState("");
@@ -66,7 +83,7 @@ export default function BuatPesananSection() {
   const [loading, setLoading] = useState(false);
   const [showKonfirmasi, setShowKonfirmasi] = useState(false);
   const [showTerkirim, setShowTerkirim] = useState(false);
-  const [lastOrderCode, setLastOrderCode] = useState("LDY-20261030-018");
+  const [lastOrderCode, setLastOrderCode] = useState("");
 
   // State kuantitas per item
   const [itemCounts, setItemCounts] = useState<Record<string, number>>({});
@@ -105,6 +122,37 @@ export default function BuatPesananSection() {
     }
 
     setShowKonfirmasi(true);
+  }
+
+  async function handleKonfirmasiKirim() {
+    if (loading) return;
+
+    const layananId = LAYANAN_ID[tab];
+    const waktuCuciId = WAKTU_CUCI_ID[kecepatan];
+    if (!layananId || !waktuCuciId) {
+      alert("Pengaturan layanan belum lengkap. Silakan hubungi admin.");
+      return;
+    }
+
+    setLoading(true);
+    const hasil = await buatPesanan({
+      metode,
+      alamat,
+      jamJemput,
+      catatan,
+      layananId,
+      waktuCuciId,
+    });
+    setLoading(false);
+    setShowKonfirmasi(false);
+
+    if (!hasil.ok) {
+      alert(hasil.error);
+      return;
+    }
+
+    setLastOrderCode(hasil.kode);
+    setShowTerkirim(true);
   }
 
   return (
@@ -302,7 +350,7 @@ export default function BuatPesananSection() {
             <Field label="Kecepatan" id="kecepatan">
               <select
                 value={kecepatan}
-                onChange={(e) => setKecepatan(e.target.value as "reguler" | "one-day" | "express" | "quick")}
+                onChange={(e) => setKecepatan(e.target.value as Kecepatan)}
               >
                 {tab === "kiloan" ? (
                   <>
@@ -471,16 +519,7 @@ export default function BuatPesananSection() {
               <Button variant="yellow" size="sm" onClick={() => setShowKonfirmasi(false)}>
                 Cek lagi
               </Button>
-              <Button
-                size="sm"
-                onClick={async () => {
-                  setLoading(true);
-                  setShowKonfirmasi(false);
-                  await new Promise((r) => setTimeout(r, 800));
-                  setLoading(false);
-                  setShowTerkirim(true);
-                }}
-              >
+              <Button size="sm" loading={loading} onClick={handleKonfirmasiKirim}>
                 Ya, kirim
               </Button>
             </div>

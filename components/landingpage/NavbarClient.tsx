@@ -11,9 +11,11 @@ import Button from "@/components/landingpage/ui/Button";
 
 interface NavbarClientProps {
   name: string | null;
+  peran: "pelanggan" | "petugas" | "admin" | null;
+  dashboardHref: string;
 }
 
-export default function NavbarClient({ name }: NavbarClientProps) {
+export default function NavbarClient({ name, peran, dashboardHref }: NavbarClientProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [timeStr, setTimeStr] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -100,7 +102,7 @@ export default function NavbarClient({ name }: NavbarClientProps) {
           <div className="flex flex-1 min-w-0 items-center justify-end gap-2 md:gap-3">
             <NotificationButton />
             {name ? (
-              <AccountMenu name={name} />
+              <AccountMenu name={name} peran={peran ?? "pelanggan"} dashboardHref={dashboardHref} />
             ) : (
               <Button href="/login" className="shrink-0 min-h-9! py-1.5! px-3! md:min-h-11! md:py-2.5! md:px-5! text-[11px] md:text-xs">
                 Login

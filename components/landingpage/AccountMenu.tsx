@@ -3,11 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { clearSessionCookie } from "@/feat/auth/session";
 import { createClient } from "@/lib/supabase/client";
 
+type Peran = "pelanggan" | "petugas" | "admin";
 
-export default function AccountMenu({ name }: { name: string }) {
+const LABEL_DASHBOARD: Record<Peran, string> = {
+  pelanggan: "Dashboard Pelanggan",
+  petugas: "Dashboard Petugas",
+  admin: "Dashboard Admin",
+};
+
+type Props = {
+  name: string;
+  peran: Peran;
+  dashboardHref: string;
+};
+
+export default function AccountMenu({ name, peran, dashboardHref }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -57,20 +69,24 @@ export default function AccountMenu({ name }: { name: string }) {
         >
           <Link
             role="menuitem"
-            href="/pelanggan"
+            href={dashboardHref}
             onClick={() => setOpen(false)}
             className="block rounded-lg text-ink px-3 py-2.5 text-sm font-bold uppercase hover:bg-sun"
           >
-            Dashboard Pelanggan
+            {LABEL_DASHBOARD[peran]}
           </Link>
-          <Link
-            role="menuitem"
-            href="/pelanggan/profil"
-            onClick={() => setOpen(false)}
-            className="block text-ink rounded-lg px-3 py-2.5 text-sm font-bold uppercase hover:bg-sun"
-          >
-            Profil
-          </Link>
+
+          {peran === "pelanggan" && (
+            <Link
+              role="menuitem"
+              href="/pelanggan/profil"
+              onClick={() => setOpen(false)}
+              className="block text-ink rounded-lg px-3 py-2.5 text-sm font-bold uppercase hover:bg-sun"
+            >
+              Profil
+            </Link>
+          )}
+
           <div className="my-1 border-t-2 border-ink" />
           <button
             role="menuitem"
