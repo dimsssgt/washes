@@ -12,6 +12,7 @@ const MENU = [
   { href: "/petugas", label: "Dashboard" },
   { href: "/petugas/pengerjaan", label: "Pengerjaan" },
   { href: "/petugas/riwayat", label: "Riwayat" },
+  { href: "/petugas/profil", label: "Profil" },
 ];
 
 export default function SidebarPetugas() {
@@ -28,12 +29,10 @@ export default function SidebarPetugas() {
       .join("")
       .toUpperCase() || "P";
 
-  // Tutup drawer setiap kali pindah halaman.
   useEffect(() => {
     setTerbuka(false);
   }, [pathname]);
 
-  // Tutup dengan tombol Esc.
   useEffect(() => {
     if (!terbuka) return;
     const tekan = (e: KeyboardEvent) => {
@@ -57,9 +56,14 @@ export default function SidebarPetugas() {
         </Link>
         <div className="pt-topbar-aksi">
           <LoncengPetugas />
-          <span className="pt-avatar" title={pengguna.nama} aria-label={`Petugas ${pengguna.nama}`}>
+          <Link
+            href="/petugas/profil"
+            className="pt-avatar"
+            title="Profil saya"
+            aria-label={`Profil ${pengguna.nama}`}
+          >
             {inisial}
-          </span>
+          </Link>
           <button
             type="button"
             className={`pt-hamburger${terbuka ? " terbuka" : ""}`}
@@ -115,14 +119,14 @@ export default function SidebarPetugas() {
         </nav>
 
         <div className="pt-drawer-bawah">
-          <Link href="/" className="pt-beranda">
-            ← Beranda Utama
-          </Link>
           <div className="pt-user">
             <b>{pengguna.nama}</b>
             <br />
             {label}
           </div>
+          <Link href="/petugas/profil" className="pt-profil-link">
+            Profil
+          </Link>
           <button type="button" className="pt-keluar" onClick={keluar}>
             Keluar
           </button>

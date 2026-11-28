@@ -1,18 +1,77 @@
 /* ============================================================
-   Navigasi petugas mengikuti pola Pelanggan:
-   - Di atas 900 px: sidebar kiri tetap
-   - 900 px ke bawah: bar atas biru + drawer geser dari kiri
-   - 600 px ke bawah: kartu dan pop-up disesuaikan
+   Navigasi dan tata letak petugas
+   Urutan: dasar, tablet/HP (<=900px), HP (<=600px)
    ============================================================ */
 
-/* Di desktop, elemen khusus layar kecil disembunyikan */
+/* ---------- Dasar: elemen khusus layar kecil disembunyikan di desktop ---------- */
 .petugas .pt-topbar,
 .petugas .pt-overlay,
-.petugas .pt-drawer-close {
+.petugas .pt-drawer-close,
+.petugas .pt-avatar {
   display: none;
 }
 
-/* ---------- Tablet dan HP (900 px ke bawah) ---------- */
+.petugas .pt-side .pt-menu {
+  font-family: var(--font-poppins), 'Poppins', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  color: #fff;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.petugas .pt-side .pt-menu.on {
+  background: #FFD21F;
+  color: #0B2A6B;
+}
+
+.petugas .pt-side .pt-logo {
+  font-family: 'Archivo Black', Impact, sans-serif;
+  font-size: 22px;
+  color: #FFD21F;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.petugas .pt-user {
+  font-family: var(--font-poppins), 'Poppins', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+.petugas .pt-profil-link,
+.petugas .pt-keluar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-family: var(--font-poppins), 'Poppins', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* ---------- Tablet dan HP (900px ke bawah) ---------- */
 @media (max-width: 900px) {
   .petugas {
     grid-template-columns: 1fr;
@@ -20,7 +79,6 @@
     min-height: 0;
   }
 
-  /* Bar atas, sama seperti Pelanggan */
   .petugas .pt-topbar {
     display: flex;
     align-items: center;
@@ -61,7 +119,23 @@
     box-shadow: 2px 2px 0 #0B2A6B;
   }
 
-  /* Hamburger: kuning, bayangan kotak, animasi X */
+  .petugas .pt-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 2px solid #0B2A6B;
+    border-radius: 50%;
+    background: #FFD21F;
+    color: #0B2A6B;
+    font-family: 'Archivo Black', Impact, sans-serif;
+    font-size: 14px;
+    text-decoration: none;
+    box-shadow: 2px 2px 0 #0B2A6B;
+    flex-shrink: 0;
+  }
+
   .petugas .pt-hamburger {
     display: flex;
     flex-direction: column;
@@ -98,7 +172,6 @@
     transform: translateY(-7.5px) rotate(-45deg);
   }
 
-  /* Overlay gelap saat drawer terbuka */
   .petugas .pt-overlay {
     display: block;
     position: fixed;
@@ -115,8 +188,11 @@
     pointer-events: auto;
   }
 
-  /* Drawer geser dari kiri, lebar 280 px */
   .petugas .pt-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
     position: fixed;
     top: 0;
     left: 0;
@@ -124,12 +200,14 @@
     width: 280px;
     max-width: 85vw;
     z-index: 70;
+    padding: 28px 20px;
+    box-sizing: border-box;
+    background: #1457D6;
+    color: #fff;
+    overflow-y: auto;
     transform: translateX(-100%);
     transition: transform 0.25s ease-in-out;
     box-shadow: 5px 0 25px rgba(11, 42, 107, 0.35);
-    overflow-y: auto;
-    padding: 20px 18px;
-    box-sizing: border-box;
   }
   .petugas .pt-side.terbuka {
     transform: translateX(0);
@@ -137,56 +215,45 @@
 
   .petugas .pt-drawer-head {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 24px;
+    margin: 0 0 24px 0;
+    padding: 0;
   }
 
   .petugas .pt-drawer-close {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border: 2px solid #fff;
-    border-radius: 10px;
-    background: none;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    border: none;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
     color: #fff;
     font-size: 16px;
+    font-weight: 700;
     cursor: pointer;
+  }
+
+  .petugas .pt-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
   }
 
   .petugas .pt-drawer-bawah {
     margin-top: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     padding-top: 24px;
-  }
-
-  .petugas .pt-nav {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .petugas .pt-keluar {
-    display: block;
-    width: 100%;
-    min-height: 44px;
-    padding: 10px 16px;
-    border: 2px solid #fff;
-    border-radius: 12px;
-    background: none;
-    color: #fff;
-    font: inherit;
-    font-weight: 700;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  /* Lonceng di header halaman pindah ke bar atas */
-  .petugas .pt-kepala > .pt-lonceng {
-    display: none;
+    padding-bottom: 56px;
   }
 
   .petugas .pt-main {
@@ -201,9 +268,13 @@
   .petugas .pt-g2 {
     grid-template-columns: 1fr;
   }
+
+  .petugas .pt-kepala > .pt-lonceng {
+    display: none;
+  }
 }
 
-/* ---------- HP (600 px ke bawah) ---------- */
+/* ---------- HP (600px ke bawah) ---------- */
 @media (max-width: 600px) {
   .petugas .pt-main {
     padding: 20px 16px;
@@ -228,7 +299,6 @@
     align-items: stretch;
   }
 
-  /* Tombol kembali jadi ikon */
   .petugas .btn.pt-kembali {
     width: 40px;
     min-width: 40px;
@@ -240,7 +310,6 @@
     display: none;
   }
 
-  /* Pop-up memenuhi layar */
   .petugas .pt-ov {
     padding: 0;
   }
@@ -272,75 +341,68 @@
     min-height: 40px;
   }
 }
+/* ============================================================
+   Perbaikan header halaman: tombol Kembali jadi ikon,
+   judul sejajar dengan tombol, font mengikuti Pelanggan
+   ============================================================ */
 
-/* Avatar inisial di bar atas (hanya tampil di layar kecil) */
-.petugas .pt-avatar {
+/* Judul dan tombol sejajar secara vertikal */
+.petugas .pt-kepala {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.petugas .pt-judul {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: nowrap;
+}
+
+/* Tombol Kembali: hanya ikon, bulat, tanpa teks */
+.petugas .btn.pt-kembali {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  border-radius: 12px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.petugas .pt-kembali-teks {
   display: none;
 }
 
-@media (max-width: 900px) {
-  .petugas .pt-avatar {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border: 2px solid #0B2A6B;
-    border-radius: 50%;
-    background: #FFD21F;
-    color: #0B2A6B;
-    font-family: 'Archivo Black', Impact, sans-serif;
-    font-size: 14px;
-    box-shadow: 2px 2px 0 #0B2A6B;
-    flex-shrink: 0;
-  }
-
-  .petugas .pt-beranda {
-    display: flex;
-    align-items: center;
-    min-height: 40px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
-    font-size: 12px;
-    font-weight: 600;
-    text-decoration: none;
-  }
+/* Judul halaman: tidak turun ke bawah, font sama dengan Pelanggan */
+.petugas .pt-kepala h1.pt-d {
+  margin: 0;
+  font-family: 'Archivo Black', Impact, sans-serif;
+  font-size: 32px;
+  line-height: 1;
+  color: #1457D6;
 }
 
-/* Avatar inisial di bar atas (hanya tampil di layar kecil) */
-.petugas .pt-avatar {
-  display: none;
+/* Font isi mengikuti Pelanggan */
+.petugas,
+.petugas .pt-menu,
+.petugas .pt-user,
+.petugas .pt-keluar,
+.petugas .pt-profil-link,
+.petugas p,
+.petugas label,
+.petugas input,
+.petugas select,
+.petugas textarea,
+.petugas th,
+.petugas td {
+  font-family: var(--font-poppins), 'Poppins', Arial, sans-serif;
 }
 
-@media (max-width: 900px) {
-  .petugas .pt-avatar {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border: 2px solid #0B2A6B;
-    border-radius: 50%;
-    background: #FFD21F;
-    color: #0B2A6B;
-    font-family: 'Archivo Black', Impact, sans-serif;
-    font-size: 14px;
-    box-shadow: 2px 2px 0 #0B2A6B;
-    flex-shrink: 0;
-  }
-
-  .petugas .pt-beranda {
-    display: flex;
-    align-items: center;
-    min-height: 40px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
-    font-size: 12px;
-    font-weight: 600;
-    text-decoration: none;
+@media (max-width: 600px) {
+  .petugas .pt-kepala h1.pt-d {
+    font-size: 26px;
   }
 }
