@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { clearSessionCookie } from "@/feat/auth/session";
+import { createClient } from "@/lib/supabase/client";
 
 
 export default function AccountMenu({ name }: { name: string }) {
@@ -27,9 +28,9 @@ export default function AccountMenu({ name }: { name: string }) {
     };
   }, [open]);
 
-  function logout() {
-    clearSessionCookie();
+  async function logout() {
     setOpen(false);
+    await createClient().auth.signOut();
     router.push("/");
     router.refresh();
   }
