@@ -22,6 +22,42 @@ export type Katalog = {
 
 export type HasilKatalog = { ok: true; katalog: Katalog } | { ok: false; error: string };
 
+// ---------------------------------------------------------------------
+// Helper internal (tidak diekspor)
+// ---------------------------------------------------------------------
+
+const one = (v: any) => (Array.isArray(v) ? v[0] : v) ?? null;
+
+function formatTanggal(iso: string | null | undefined) {
+  if (!iso) return null;
+  return new Date(iso).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "Asia/Jakarta",
+  });
+}
+
+function formatWaktu(iso: string) {
+  return new Date(iso).toLocaleString("id-ID", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Jakarta",
+  });
+}
+
+const NAMA_LAYANAN: Record<string, string> = {
+  kiloan: "Cuci Kiloan",
+  satuan: "Cuci Satuan",
+  linen: "Cuci Linen",
+};
+
+// ---------------------------------------------------------------------
+// Katalog layanan
+// ---------------------------------------------------------------------
+
 export async function ambilKatalog(): Promise<HasilKatalog> {
   const supabase = await createClient();
 
@@ -108,6 +144,10 @@ export async function ambilKatalog(): Promise<HasilKatalog> {
   };
 }
 
+// ---------------------------------------------------------------------
+// Buat pesanan
+// ---------------------------------------------------------------------
+
 export type InputPesananPelanggan = {
   layananId: string;
   waktuCuciId: string;
@@ -115,6 +155,8 @@ export type InputPesananPelanggan = {
   alamat: string;
   jamJemput: string;
   catatan: string;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 export type HasilBuatPesanan =
@@ -141,6 +183,9 @@ export async function buatPesanan(input: InputPesananPelanggan): Promise<HasilBu
   if (antarJemput && !input.jamJemput) {
     return { ok: false, error: "Jam jemput wajib diisi." };
   }
+  if (antarJemput && (input.latitude == null || input.longitude == null)) {
+    return { ok: false, error: "Pilih titik lokasi jemput di peta." };
+  }
 
   const { data, error } = await supabase
     .from("pesanan")
@@ -150,7 +195,9 @@ export async function buatPesanan(input: InputPesananPelanggan): Promise<HasilBu
       waktu_cuci_id: input.waktuCuciId,
       alamat_jemput: antarJemput ? input.alamat.trim() : null,
       jam_jemput: antarJemput ? input.jamJemput : null,
-      catatan: input.catatan.trim(),  
+      latitude: antarJemput ? input.latitude ?? null : null,
+      longitude: antarJemput ? input.longitude ?? null : null,
+      catatan: input.catatan.trim(),
       metode_serah: antarJemput ? "diantar" : "ambil_sendiri",
       status: "masuk",
     })
@@ -159,25 +206,20 @@ export async function buatPesanan(input: InputPesananPelanggan): Promise<HasilBu
 
   if (error || !data) {
     console.error("[buatPesanan] insert gagal:", error);
-    return {
-      ok: false,
-      error: "Pesanan gagal disimpan. Silakan coba lagi.",
-    };
+    return { ok: false, error: "Pesanan gagal disimpan. Silakan coba lagi." };
   }
 
   return { ok: true, id: data.id, kode: data.kode };
 }
 
+// ---------------------------------------------------------------------
+// Antrian (status masuk)
+// ---------------------------------------------------------------------
+
 export type AntrianSaya = {
   kode: string;
   layanan: string;
   jadwalJemput: string;
-};
-
-const NAMA_LAYANAN: Record<string, string> = {
-  kiloan: "Cuci Kiloan",
-  satuan: "Cuci Satuan",
-  linen: "Cuci Linen",
 };
 
 export async function ambilAntrianSaya(): Promise<AntrianSaya[]> {
@@ -199,68 +241,40 @@ export async function ambilAntrianSaya(): Promise<AntrianSaya[]> {
     return [];
   }
 
-  return (data ?? []).map((p) => {
-    const layanan = Array.isArray(p.layanan) ? p.layanan[0] : p.layanan;
+  return (data ?? []).map((p: any) => {
+    const layanan = one(p.layanan);
     const jam = p.jam_jemput ? String(p.jam_jemput).slice(0, 5) : null;
 
     return {
       kode: p.kode,
       layanan: NAMA_LAYANAN[layanan?.kode ?? ""] ?? "-",
       jadwalJemput:
-        p.metode_serah === "diantar" && jam
-          ? `Jemput pukul ${jam}`
-          : "Ambil sendiri",
+        p.metode_serah === "diantar" && jam ? `Jemput pukul ${jam}` : "Ambil sendiri",
     };
   });
 }
 
-export type NotifikasiSaya = {
-  id: string;
-  judul: string;
-  waktu: string;
-  pesan: string;
-  dibaca: boolean;
+// ---------------------------------------------------------------------
+// Riwayat (status selesai)
+// ---------------------------------------------------------------------
+
+export type RiwayatSaya = {
+  kode: string;
+  tanggal: string;
+  layanan: string;
+  jumlah: string;
+  total: number;
+  status: string;
+  invoiceNo: string;
+  statusPesanan: string;
+  dibayar: string;
+  rincianLayanan: number;
+  ongkir: number;
+  alamat?: string;
+  petugas?: string;
 };
 
-const one = (v: any) => (Array.isArray(v) ? v[0] : v) ?? null;
-
-function formatTanggal(iso: string | null | undefined) {
-  if (!iso) return null;
-  return new Date(iso).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "Asia/Jakarta",
-  });
-}
-
-function formatWaktu(iso: string) {
-  return new Date(iso).toLocaleString("id-ID", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Asia/Jakarta",
-  });
-}
-
-export async function ambilRiwayatSaya(): Promise<
-  {
-    kode: string;
-    tanggal: string;
-    layanan: string;
-    jumlah: string;
-    total: number;
-    status: string;
-    invoiceNo: string;
-    statusPesanan: string;
-    dibayar: string;
-    rincianLayanan: number;
-    ongkir: number;
-    alamat?: string;
-    petugas?: string;
-  }[]
-> {
+export async function ambilRiwayatSaya(): Promise<RiwayatSaya[]> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -319,6 +333,18 @@ export async function ambilRiwayatSaya(): Promise<
   });
 }
 
+// ---------------------------------------------------------------------
+// Notifikasi
+// ---------------------------------------------------------------------
+
+export type NotifikasiSaya = {
+  id: string;
+  judul: string;
+  waktu: string;
+  pesan: string;
+  dibaca: boolean;
+};
+
 export async function ambilNotifikasiSaya(): Promise<NotifikasiSaya[]> {
   const supabase = await createClient();
   const {
@@ -369,6 +395,10 @@ export async function tandaNotifikasiDibaca(ids?: string[]): Promise<boolean> {
   }
   return true;
 }
+
+// ---------------------------------------------------------------------
+// Statistik dashboard & nama pelanggan
+// ---------------------------------------------------------------------
 
 export type StatistikSaya = {
   pesananAktif: number;

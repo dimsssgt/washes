@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
+import type { TitikLokasi } from "./PetaPilihLokasi";
 import {
   ambilKatalog,
   buatPesanan,
@@ -12,6 +14,12 @@ import {
   type LayananKode,
   type WaktuCuci,
 } from "@/lib/pelanggan/actions";
+
+// Peta dimuat hanya di browser, karena Leaflet memakai `window`
+const PetaPilihLokasi = dynamic(() => import("./PetaPilihLokasi"), {
+  ssr: false,
+  loading: () => <div style={{ height: 260 }} />,
+});
 
 type MetodePengantaran = "antar-jemput" | "drop-mandiri";
 
@@ -27,6 +35,8 @@ const tabInfo: Record<LayananKode, string> = {
   linen: "Linen dihitung per item atau per meter, tanpa minimal. Isi jumlah tiap jenis yang ingin dicuci.",
 };
 
+const FONT = "var(--font-poppins), 'Poppins', Arial, sans-serif";
+
 function formatRupiah(n: number) {
   return "Rp " + n.toLocaleString("id-ID");
 }
@@ -39,6 +49,7 @@ export default function BuatPesananSection() {
   const [kecepatanId, setKecepatanId] = useState("");
   const [tanggalJemput, setTanggalJemput] = useState("");
   const [jamJemput, setJamJemput] = useState("");
+  const [titik, setTitik] = useState<TitikLokasi | null>(null);
   const [alamat, setAlamat] = useState("");
   const [catatan, setCatatan] = useState("");
   const [loading, setLoading] = useState(false);
@@ -130,6 +141,8 @@ export default function BuatPesananSection() {
       alamat,
       jamJemput,
       catatan,
+      latitude: titik?.lat ?? null,
+      longitude: titik?.lng ?? null,
     });
     setLoading(false);
     setShowKonfirmasi(false);
@@ -154,7 +167,7 @@ export default function BuatPesananSection() {
           boxShadow: "5px 5px 0 #0B2A6B",
           padding: 28,
           color: "#0B2A6B",
-          fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+          fontFamily: FONT,
           fontSize: 13,
         }}
       >
@@ -162,6 +175,56 @@ export default function BuatPesananSection() {
       </section>
     );
   }
+
+  const thStyle: React.CSSProperties = {
+    textAlign: "left",
+    padding: "10px",
+    borderBottom: "2px dashed #C9B98F",
+    fontFamily: FONT,
+    fontSize: 11,
+    textTransform: "uppercase",
+  };
+  const tdStyle: React.CSSProperties = {
+    padding: "12px 10px",
+    borderBottom: "2px dashed #C9B98F",
+    fontFamily: FONT,
+    fontSize: 13,
+  };
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontFamily: FONT,
+    fontSize: 12,
+    fontWeight: 700,
+    textTransform: "uppercase",
+    color: "#0B2A6B",
+    marginBottom: 6,
+  };
+  const stepBtn: React.CSSProperties = {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    border: "2px solid #0B2A6B",
+    cursor: "pointer",
+    fontWeight: 700,
+    fontFamily: FONT,
+  };
+  const overlayStyle: React.CSSProperties = {
+    background: "rgba(51,71,126,0.85)",
+    padding: "40px 16px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    zIndex: 9999,
+    WebkitOverflowScrolling: "touch",
+  };
+  const rowStyle: React.CSSProperties = {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+    padding: "10px 0",
+    borderBottom: "2px dashed #C9B98F",
+    fontSize: 13,
+  };
 
   return (
     <>
@@ -206,7 +269,7 @@ export default function BuatPesananSection() {
                 border: "2px solid #0B2A6B",
                 borderRadius: 999,
                 padding: "8px 16px",
-                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+                fontFamily: FONT,
                 fontSize: 12,
                 fontWeight: 700,
                 whiteSpace: "nowrap",
@@ -221,9 +284,7 @@ export default function BuatPesananSection() {
           ))}
         </div>
 
-        <p style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 12, margin: "12px 0 0" }}>
-          {tabInfo[tab]}
-        </p>
+        <p style={{ fontFamily: FONT, fontSize: 12, margin: "12px 0 0" }}>{tabInfo[tab]}</p>
 
         {/* TABEL ITEM (HANYA MUNCUL DI TAB LINEN & SATUAN) */}
         {(tab === "linen" || tab === "satuan") && (
@@ -240,18 +301,10 @@ export default function BuatPesananSection() {
               <table style={{ width: "100%", minWidth: 460, borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "left", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 11, textTransform: "uppercase" }}>
-                      Jenis
-                    </th>
-                    <th style={{ textAlign: "left", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 11, textTransform: "uppercase" }}>
-                      Reguler 3 hari
-                    </th>
-                    <th style={{ textAlign: "left", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 11, textTransform: "uppercase" }}>
-                      Express
-                    </th>
-                    <th style={{ textAlign: "center", padding: "10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 11, textTransform: "uppercase" }}>
-                      Jumlah
-                    </th>
+                    <th style={thStyle}>Jenis</th>
+                    <th style={thStyle}>Reguler 3 hari</th>
+                    <th style={thStyle}>Express</th>
+                    <th style={{ ...thStyle, textAlign: "center" }}>Jumlah</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -261,30 +314,31 @@ export default function BuatPesananSection() {
                     const isExpress = kecepatanAktif?.id === waktuExpress?.id;
                     return (
                       <tr key={item.id}>
-                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, fontWeight: 700 }}>
-                          {item.nama}
-                        </td>
-                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: isReguler ? "#1457D6" : "inherit", fontWeight: isReguler ? 700 : "normal" }}>
+                        <td style={{ ...tdStyle, fontWeight: 700 }}>{item.nama}</td>
+                        <td
+                          style={{
+                            ...tdStyle,
+                            color: isReguler ? "#1457D6" : "inherit",
+                            fontWeight: isReguler ? 700 : "normal",
+                          }}
+                        >
                           {formatRupiah(hargaItem(item, waktuReguler?.id))}
                         </td>
-                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: isExpress ? "#1457D6" : "inherit", fontWeight: isExpress ? 700 : "normal" }}>
+                        <td
+                          style={{
+                            ...tdStyle,
+                            color: isExpress ? "#1457D6" : "inherit",
+                            fontWeight: isExpress ? 700 : "normal",
+                          }}
+                        >
                           {formatRupiah(hargaItem(item, waktuExpress?.id))}
                         </td>
-                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", textAlign: "center" }}>
+                        <td style={{ ...tdStyle, textAlign: "center" }}>
                           <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                             <button
                               type="button"
                               onClick={() => updateCount(item.id, -1)}
-                              style={{
-                                width: 30,
-                                height: 30,
-                                borderRadius: 8,
-                                border: "2px solid #0B2A6B",
-                                background: "#FFF4DE",
-                                cursor: "pointer",
-                                fontWeight: 700,
-                                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
-                              }}
+                              style={{ ...stepBtn, background: "#FFF4DE" }}
                             >
                               -
                             </button>
@@ -300,7 +354,7 @@ export default function BuatPesananSection() {
                                 padding: "4px",
                                 border: "2px solid #0B2A6B",
                                 borderRadius: 8,
-                                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+                                fontFamily: FONT,
                                 fontSize: 13,
                                 fontWeight: 700,
                               }}
@@ -308,16 +362,7 @@ export default function BuatPesananSection() {
                             <button
                               type="button"
                               onClick={() => updateCount(item.id, 1)}
-                              style={{
-                                width: 30,
-                                height: 30,
-                                borderRadius: 8,
-                                border: "2px solid #0B2A6B",
-                                background: "#FFD21F",
-                                cursor: "pointer",
-                                fontWeight: 700,
-                                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
-                              }}
+                              style={{ ...stepBtn, background: "#FFD21F" }}
                             >
                               +
                             </button>
@@ -340,14 +385,19 @@ export default function BuatPesananSection() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+                fontFamily: FONT,
                 fontSize: 13,
                 flexWrap: "wrap",
                 gap: 8,
               }}
             >
-              <span>Total item: <b>{totalItemCount} barang</b></span>
-              <span>Estimasi biaya: <b style={{ fontSize: 16, color: "#1457D6" }}>{formatRupiah(totalEstimasiHarga)}</b></span>
+              <span>
+                Total item: <b>{totalItemCount} barang</b>
+              </span>
+              <span>
+                Estimasi biaya:{" "}
+                <b style={{ fontSize: 16, color: "#1457D6" }}>{formatRupiah(totalEstimasiHarga)}</b>
+              </span>
             </div>
           </div>
         )}
@@ -368,21 +418,9 @@ export default function BuatPesananSection() {
               </select>
             </Field>
 
-            {/* Metode Pengantaran (tepat di bawah Kecepatan) */}
+            {/* Metode Pengantaran */}
             <div style={{ marginTop: 14 }}>
-              <label
-                style={{
-                  display: "block",
-                  fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  color: "#0B2A6B",
-                  marginBottom: 6,
-                }}
-              >
-                Metode pengantaran
-              </label>
+              <label style={labelStyle}>Metode pengantaran</label>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {(["antar-jemput", "drop-mandiri"] as MetodePengantaran[]).map((m) => (
                   <button
@@ -394,7 +432,7 @@ export default function BuatPesananSection() {
                       border: "2px solid #0B2A6B",
                       borderRadius: 999,
                       padding: "8px 16px",
-                      fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+                      fontFamily: FONT,
                       fontSize: 12,
                       fontWeight: 700,
                       whiteSpace: "nowrap",
@@ -410,7 +448,7 @@ export default function BuatPesananSection() {
               </div>
             </div>
 
-            {/* Hanya jika Antar Jemput: Tanggal Jemput (Hari), Jam Jemput, dan Alamat */}
+            {/* Hanya jika Antar Jemput: tanggal, jam, peta, dan alamat */}
             {metode === "antar-jemput" && (
               <>
                 <Field label="Tanggal jemput" id="tanggalJemput">
@@ -429,6 +467,15 @@ export default function BuatPesananSection() {
                     onChange={(e) => setJamJemput(e.target.value)}
                   />
                 </Field>
+
+                <div>
+                  <div style={labelStyle}>Titik lokasi jemput</div>
+                  <PetaPilihLokasi
+                    nilai={titik}
+                    onChange={setTitik}
+                    onAlamatDitemukan={setAlamat}
+                  />
+                </div>
 
                 <Field label="Alamat jemput" id="alamat">
                   <textarea
@@ -452,8 +499,17 @@ export default function BuatPesananSection() {
             </Field>
           </div>
 
-          <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-            <span style={{ fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: "#0B2A6B" }}>
+          <div
+            style={{
+              marginTop: 24,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 16,
+            }}
+          >
+            <span style={{ fontFamily: FONT, fontSize: 13, color: "#0B2A6B" }}>
               {tab === "kiloan"
                 ? "Total dihitung otomatis setelah penimbangan berat cucian."
                 : "Total dihitung otomatis dari jumlah item."}
@@ -465,19 +521,11 @@ export default function BuatPesananSection() {
         </form>
       </section>
 
-      {/* Modal KonfirmasiKirimPesanan */}
+      {/* Modal konfirmasi kirim pesanan */}
       {showKonfirmasi && (
         <div
           className="fixed inset-0 z-50 overflow-y-auto"
-          style={{
-            background: "rgba(51,71,126,0.85)",
-            padding: "40px 16px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-start",
-            zIndex: 9999,
-            WebkitOverflowScrolling: "touch",
-          }}
+          style={overlayStyle}
           onClick={() => setShowKonfirmasi(false)}
         >
           <div
@@ -490,7 +538,7 @@ export default function BuatPesananSection() {
               maxWidth: 400,
               width: "100%",
               margin: "auto 0",
-              fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+              fontFamily: FONT,
               color: "#0B2A6B",
             }}
           >
@@ -509,10 +557,26 @@ export default function BuatPesananSection() {
               Pastikan detail pesananmu sudah benar. Pesanan yang sudah dikirim akan masuk ke antrian.
             </p>
 
-            <div style={{ background: "#EEF2F7", padding: "12px 14px", borderRadius: 12, marginBottom: 20, fontSize: 13 }}>
-              <div>Layanan: <b>Cuci {tabLabels[tab]} ({kecepatanAktif?.nama ?? "-"})</b></div>
-              {tab !== "kiloan" && <div>Jumlah: <b>{totalItemCount} item ({formatRupiah(totalEstimasiHarga)})</b></div>}
-              <div>Metode: <b>{metode === "antar-jemput" ? "Antar Jemput" : "Drop Mandiri"}</b></div>
+            <div
+              style={{
+                background: "#EEF2F7",
+                padding: "12px 14px",
+                borderRadius: 12,
+                marginBottom: 20,
+                fontSize: 13,
+              }}
+            >
+              <div>
+                Layanan: <b>Cuci {tabLabels[tab]} ({kecepatanAktif?.nama ?? "-"})</b>
+              </div>
+              {tab !== "kiloan" && (
+                <div>
+                  Jumlah: <b>{totalItemCount} item ({formatRupiah(totalEstimasiHarga)})</b>
+                </div>
+              )}
+              <div>
+                Metode: <b>{metode === "antar-jemput" ? "Antar Jemput" : "Drop Mandiri"}</b>
+              </div>
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
@@ -527,19 +591,11 @@ export default function BuatPesananSection() {
         </div>
       )}
 
-      {/* Modal Pesanan Terkirim */}
+      {/* Modal pesanan terkirim */}
       {showTerkirim && (
         <div
           className="fixed inset-0 z-50 overflow-y-auto"
-          style={{
-            background: "rgba(51,71,126,0.85)",
-            padding: "40px 16px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-start",
-            zIndex: 9999,
-            WebkitOverflowScrolling: "touch",
-          }}
+          style={overlayStyle}
           onClick={() => setShowTerkirim(false)}
         >
           <div
@@ -554,15 +610,32 @@ export default function BuatPesananSection() {
               padding: 28,
               boxSizing: "border-box",
               color: "#0B2A6B",
-              fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+              fontFamily: FONT,
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <h2 style={{ fontFamily: "'Archivo Black', Impact, sans-serif", textTransform: "uppercase", fontSize: 22, color: "#1457D6", margin: 0 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 12,
+                marginBottom: 8,
+              }}
+            >
+              <h2
+                style={{
+                  fontFamily: "'Archivo Black', Impact, sans-serif",
+                  textTransform: "uppercase",
+                  fontSize: 22,
+                  color: "#1457D6",
+                  margin: 0,
+                }}
+              >
                 Pesanan terkirim
               </h2>
               <button
                 onClick={() => setShowTerkirim(false)}
+                aria-label="Tutup"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -607,27 +680,32 @@ export default function BuatPesananSection() {
             </p>
 
             <div style={{ marginTop: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
+              <div style={rowStyle}>
                 <span>Kode pesanan</span>
                 <b style={{ textAlign: "right" }}>{lastOrderCode}</b>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
+              <div style={rowStyle}>
                 <span>Layanan</span>
-                <b style={{ textAlign: "right" }}>{tabLabels[tab]} · {kecepatanAktif?.nama ?? "-"}</b>
+                <b style={{ textAlign: "right" }}>
+                  {tabLabels[tab]} · {kecepatanAktif?.nama ?? "-"}
+                </b>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
+              <div style={rowStyle}>
                 <span>Metode</span>
-                <b style={{ textAlign: "right" }}>{metode === "antar-jemput" ? "Antar Jemput" : "Drop Mandiri"}</b>
+                <b style={{ textAlign: "right" }}>
+                  {metode === "antar-jemput" ? "Antar Jemput" : "Drop Mandiri"}
+                </b>
               </div>
               {metode === "antar-jemput" && (
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
+                <div style={rowStyle}>
                   <span>Jadwal jemput</span>
                   <b style={{ textAlign: "right" }}>
-                    {tanggalJemput || "Hari ini"}{jamJemput ? `, ${jamJemput}` : ""}
+                    {tanggalJemput || "Hari ini"}
+                    {jamJemput ? `, ${jamJemput}` : ""}
                   </b>
                 </div>
               )}
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
+              <div style={rowStyle}>
                 <span>Harga</span>
                 <b style={{ textAlign: "right" }}>
                   {tab === "kiloan" ? "Dihitung setelah ditimbang" : formatRupiah(totalEstimasiHarga)}
@@ -635,14 +713,20 @@ export default function BuatPesananSection() {
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, flexWrap: "wrap", marginTop: 24 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 10,
+                flexWrap: "wrap",
+                marginTop: 24,
+              }}
+            >
               <Button variant="yellow" size="sm" onClick={() => setShowTerkirim(false)}>
                 Tutup
               </Button>
               <Link href="/pelanggan/aktif">
-                <Button size="sm">
-                  Lihat pesanan aktif
-                </Button>
+                <Button size="sm">Lihat pesanan aktif</Button>
               </Link>
             </div>
           </div>
