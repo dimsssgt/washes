@@ -12,7 +12,6 @@ const MENU = [
   { href: "/petugas", label: "Dashboard" },
   { href: "/petugas/pengerjaan", label: "Pengerjaan" },
   { href: "/petugas/riwayat", label: "Riwayat" },
-  { href: "/petugas/profil", label: "Profil" },
 ];
 
 export default function SidebarPetugas() {
@@ -59,8 +58,8 @@ export default function SidebarPetugas() {
           <Link
             href="/petugas/profil"
             className="pt-avatar"
-            title="Profil saya"
-            aria-label={`Profil ${pengguna.nama}`}
+            title="Profile saya"
+            aria-label={`Profile ${pengguna.nama}`}
           >
             {inisial}
           </Link>
@@ -125,7 +124,7 @@ export default function SidebarPetugas() {
             {label}
           </div>
           <Link href="/petugas/profil" className="pt-profil-link">
-            Profil
+            Profile
           </Link>
           <button type="button" className="pt-keluar" onClick={keluar}>
             Keluar

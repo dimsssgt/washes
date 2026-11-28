@@ -227,3 +227,35 @@
   .pt-ringkasan { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; }
   .pt-ringkasan .pt-noprint { display: none; }
 }
+/* Drawer desktop: kotak nama, Profil, dan Keluar di dasar sidebar */
+.petugas .pt-side .pt-drawer-bawah {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 24px;
+}
+
+.petugas .pt-side .pt-user {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.petugas .pt-side .pt-profil-link,
+.petugas .pt-side .pt-keluar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
