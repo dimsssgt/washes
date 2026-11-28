@@ -8,9 +8,12 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
   const pathname = usePathname();
 
   useEffect(() => {
-    // Area admin memakai scroll bawaan browser, karena ada sidebar dan tabel
-    // yang bisa di-scroll di dalam halaman. Lenis akan mengganggu keduanya.
-    if (pathname.startsWith("/admin")) return;
+
+    if (
+      pathname.startsWith("/admin") ||
+      pathname.startsWith("/pelanggan") ||
+      pathname.startsWith("/petugas")
+    ) return;
 
     const lenis = new Lenis({
       duration: 1.4,

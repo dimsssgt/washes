@@ -1,81 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
-import { buatPesanan } from "@/lib/pelanggan/actions";
+import {
+  ambilKatalog,
+  buatPesanan,
+  type ItemKatalog,
+  type Katalog,
+  type LayananKode,
+  type WaktuCuci,
+} from "@/lib/pelanggan/actions";
 
-type LayananTab = "kiloan" | "satuan" | "linen";
 type MetodePengantaran = "antar-jemput" | "drop-mandiri";
-type Kecepatan = "reguler" | "one-day" | "express" | "quick";
 
-interface ItemPriced {
-  id: string;
-  nama: string;
-  hargaReguler: number;
-  hargaExpress: number;
-  unit: string;
-}
-
-const linenItems: ItemPriced[] = [
-  { id: "sprei", nama: "Sprei", hargaReguler: 20000, hargaExpress: 28000, unit: "pcs" },
-  { id: "bed_cover", nama: "Bed cover", hargaReguler: 30000, hargaExpress: 40000, unit: "pcs" },
-  { id: "selimut", nama: "Selimut", hargaReguler: 25000, hargaExpress: 35000, unit: "pcs" },
-  { id: "gorden", nama: "Gorden (per meter)", hargaReguler: 10000, hargaExpress: 15000, unit: "meter" },
-  { id: "bantal", nama: "Bantal / guling", hargaReguler: 15000, hargaExpress: 22000, unit: "pcs" },
-];
-
-const satuanItems: ItemPriced[] = [
-  { id: "kemeja", nama: "Kemeja / blus", hargaReguler: 12000, hargaExpress: 18000, unit: "pcs" },
-  { id: "celana", nama: "Celana / rok", hargaReguler: 12000, hargaExpress: 18000, unit: "pcs" },
-  { id: "jas", nama: "Jas / blazer", hargaReguler: 30000, hargaExpress: 40000, unit: "pcs" },
-  { id: "jaket", nama: "Jaket", hargaReguler: 25000, hargaExpress: 35000, unit: "pcs" },
-  { id: "gaun", nama: "Gaun", hargaReguler: 35000, hargaExpress: 45000, unit: "pcs" },
-];
-
-const tabLabels: Record<LayananTab, string> = {
+const tabLabels: Record<LayananKode, string> = {
   kiloan: "Kiloan",
   satuan: "Satuan",
   linen: "Linen",
 };
 
-const tabInfo: Record<LayananTab, string> = {
+const tabInfo: Record<LayananKode, string> = {
   kiloan: "Kiloan dihitung per kg, minimal 3 kg. Berat final ditentukan petugas saat penimbangan.",
   satuan: "Satuan dihitung per item, tanpa minimal. Isi jumlah tiap jenis pakaian yang ingin dicuci.",
   linen: "Linen dihitung per item atau per meter, tanpa minimal. Isi jumlah tiap jenis yang ingin dicuci.",
-};
-
-// TODO: isi dengan id dari tabel layanan. Kosong = pesanan belum bisa dikirim.
-const LAYANAN_ID: Record<LayananTab, string> = {
-  kiloan: "",
-  satuan: "",
-  linen: "",
-};
-
-// TODO: isi dengan id dari tabel waktu cuci. Kosong = pesanan belum bisa dikirim.
-const WAKTU_CUCI_ID: Record<Kecepatan, string> = {
-  reguler: "",
-  "one-day": "",
-  express: "",
-  quick: "",
 };
 
 function formatRupiah(n: number) {
   return "Rp " + n.toLocaleString("id-ID");
 }
 
-const labelKecepatanMap: Record<string, string> = {
-  reguler: "Reguler",
-  "one-day": "One Day",
-  express: "Express",
-  quick: "Quick",
-};
-
 export default function BuatPesananSection() {
-  const [tab, setTab] = useState<LayananTab>("kiloan");
+  const [katalog, setKatalog] = useState<Katalog | null>(null);
+  const [errorKatalog, setErrorKatalog] = useState("");
+  const [tab, setTab] = useState<LayananKode>("kiloan");
   const [metode, setMetode] = useState<MetodePengantaran>("antar-jemput");
-  const [kecepatan, setKecepatan] = useState<Kecepatan>("reguler");
+  const [kecepatanId, setKecepatanId] = useState("");
   const [tanggalJemput, setTanggalJemput] = useState("");
   const [jamJemput, setJamJemput] = useState("");
   const [alamat, setAlamat] = useState("");
@@ -87,6 +48,30 @@ export default function BuatPesananSection() {
 
   // State kuantitas per item
   const [itemCounts, setItemCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    ambilKatalog().then((hasil) => {
+      if (hasil.ok) setKatalog(hasil.katalog);
+      else setErrorKatalog(hasil.error);
+    });
+  }, []);
+
+  // Pilihan kecepatan untuk tab yang sedang aktif, urut durasi terpanjang dulu
+  const opsiKecepatan: WaktuCuci[] = katalog
+    ? katalog.waktu.filter((w) => katalog.waktuPerLayanan[tab].includes(w.id))
+    : [];
+  const kecepatanAktif: WaktuCuci | undefined =
+    opsiKecepatan.find((k) => k.id === kecepatanId) ?? opsiKecepatan[0];
+
+  function defaultKecepatan(t: LayananKode): string {
+    if (!katalog) return "";
+    const pilihan = katalog.waktu.filter((w) => katalog.waktuPerLayanan[t].includes(w.id));
+    return pilihan[0]?.id ?? "";
+  }
+
+  // Kolom tabel item: Reguler (72 jam) dan Express (24 jam)
+  const waktuReguler = opsiKecepatan.find((k) => k.durasiJam === 72);
+  const waktuExpress = opsiKecepatan.find((k) => k.durasiJam === 24);
 
   function updateCount(id: string, delta: number) {
     setItemCounts((prev) => {
@@ -104,13 +89,18 @@ export default function BuatPesananSection() {
     }));
   }
 
+  function hargaItem(item: ItemKatalog, waktuId: string | undefined): number {
+    if (!waktuId) return 0;
+    return item.hargaPerWaktu[waktuId] ?? 0;
+  }
+
   // Hitung total item & total biaya (untuk Linen & Satuan)
-  const currentList = tab === "linen" ? linenItems : tab === "satuan" ? satuanItems : [];
+  const currentList: ItemKatalog[] =
+    katalog && tab !== "kiloan" ? katalog.items[tab] : [];
   const totalItemCount = currentList.reduce((sum, item) => sum + (itemCounts[item.id] || 0), 0);
   const totalEstimasiHarga = currentList.reduce((sum, item) => {
     const count = itemCounts[item.id] || 0;
-    const price = kecepatan === "express" ? item.hargaExpress : item.hargaReguler;
-    return sum + count * price;
+    return sum + count * hargaItem(item, kecepatanAktif?.id);
   }, 0);
 
   async function handleKirim(e: React.FormEvent) {
@@ -125,23 +115,21 @@ export default function BuatPesananSection() {
   }
 
   async function handleKonfirmasiKirim() {
-    if (loading) return;
+    if (loading || !katalog) return;
 
-    const layananId = LAYANAN_ID[tab];
-    const waktuCuciId = WAKTU_CUCI_ID[kecepatan];
-    if (!layananId || !waktuCuciId) {
-      alert("Pengaturan layanan belum lengkap. Silakan hubungi admin.");
+    if (!kecepatanAktif) {
+      alert("Pilihan kecepatan belum tersedia. Silakan coba lagi.");
       return;
     }
 
     setLoading(true);
     const hasil = await buatPesanan({
+      layananId: katalog.layananId[tab],
+      waktuCuciId: kecepatanAktif.id,
       metode,
       alamat,
       jamJemput,
       catatan,
-      layananId,
-      waktuCuciId,
     });
     setLoading(false);
     setShowKonfirmasi(false);
@@ -153,6 +141,26 @@ export default function BuatPesananSection() {
 
     setLastOrderCode(hasil.kode);
     setShowTerkirim(true);
+  }
+
+  if (!katalog) {
+    return (
+      <section
+        id="buat-pesanan"
+        style={{
+          background: "#fff",
+          border: "2px solid #0B2A6B",
+          borderRadius: 18,
+          boxShadow: "5px 5px 0 #0B2A6B",
+          padding: 28,
+          color: "#0B2A6B",
+          fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+          fontSize: 13,
+        }}
+      >
+        {errorKatalog || "Memuat layanan..."}
+      </section>
+    );
   }
 
   return (
@@ -184,16 +192,14 @@ export default function BuatPesananSection() {
 
         {/* Tab pilih layanan */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-          {(Object.keys(tabLabels) as LayananTab[]).map((t) => (
+          {(Object.keys(tabLabels) as LayananKode[]).map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => {
                 setTab(t);
                 setItemCounts({});
-                if (t !== "kiloan" && (kecepatan === "one-day" || kecepatan === "quick")) {
-                  setKecepatan("reguler");
-                }
+                setKecepatanId(defaultKecepatan(t));
               }}
               style={{
                 display: "inline-block",
@@ -251,16 +257,18 @@ export default function BuatPesananSection() {
                 <tbody>
                   {currentList.map((item) => {
                     const count = itemCounts[item.id] || 0;
+                    const isReguler = kecepatanAktif?.id === waktuReguler?.id;
+                    const isExpress = kecepatanAktif?.id === waktuExpress?.id;
                     return (
                       <tr key={item.id}>
                         <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, fontWeight: 700 }}>
                           {item.nama}
                         </td>
-                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: kecepatan === "reguler" ? "#1457D6" : "inherit", fontWeight: kecepatan === "reguler" ? 700 : "normal" }}>
-                          {formatRupiah(item.hargaReguler)}
+                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: isReguler ? "#1457D6" : "inherit", fontWeight: isReguler ? 700 : "normal" }}>
+                          {formatRupiah(hargaItem(item, waktuReguler?.id))}
                         </td>
-                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: kecepatan === "express" ? "#1457D6" : "inherit", fontWeight: kecepatan === "express" ? 700 : "normal" }}>
-                          {formatRupiah(item.hargaExpress)}
+                        <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif", fontSize: 13, color: isExpress ? "#1457D6" : "inherit", fontWeight: isExpress ? 700 : "normal" }}>
+                          {formatRupiah(hargaItem(item, waktuExpress?.id))}
                         </td>
                         <td style={{ padding: "12px 10px", borderBottom: "2px dashed #C9B98F", textAlign: "center" }}>
                           <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
@@ -349,22 +357,14 @@ export default function BuatPesananSection() {
             {/* Kecepatan */}
             <Field label="Kecepatan" id="kecepatan">
               <select
-                value={kecepatan}
-                onChange={(e) => setKecepatan(e.target.value as Kecepatan)}
+                value={kecepatanAktif?.id ?? ""}
+                onChange={(e) => setKecepatanId(e.target.value)}
               >
-                {tab === "kiloan" ? (
-                  <>
-                    <option value="reguler">Reguler · 3 hari</option>
-                    <option value="one-day">One Day · 24 jam</option>
-                    <option value="express">Express · 6 jam</option>
-                    <option value="quick">Quick · 3 jam</option>
-                  </>
-                ) : (
-                  <>
-                    <option value="reguler">Reguler · 3 hari</option>
-                    <option value="express">Express · 24 jam</option>
-                  </>
-                )}
+                {opsiKecepatan.map((k) => (
+                  <option key={k.id} value={k.id}>
+                    {k.nama}
+                  </option>
+                ))}
               </select>
             </Field>
 
@@ -510,7 +510,7 @@ export default function BuatPesananSection() {
             </p>
 
             <div style={{ background: "#EEF2F7", padding: "12px 14px", borderRadius: 12, marginBottom: 20, fontSize: 13 }}>
-              <div>Layanan: <b>Cuci {tabLabels[tab]} ({labelKecepatanMap[kecepatan] || "Reguler"})</b></div>
+              <div>Layanan: <b>Cuci {tabLabels[tab]} ({kecepatanAktif?.nama ?? "-"})</b></div>
               {tab !== "kiloan" && <div>Jumlah: <b>{totalItemCount} item ({formatRupiah(totalEstimasiHarga)})</b></div>}
               <div>Metode: <b>{metode === "antar-jemput" ? "Antar Jemput" : "Drop Mandiri"}</b></div>
             </div>
@@ -613,7 +613,7 @@ export default function BuatPesananSection() {
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
                 <span>Layanan</span>
-                <b style={{ textAlign: "right" }}>{tabLabels[tab]} · {labelKecepatanMap[kecepatan] || "Reguler"}</b>
+                <b style={{ textAlign: "right" }}>{tabLabels[tab]} · {kecepatanAktif?.nama ?? "-"}</b>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "2px dashed #C9B98F", fontSize: 13 }}>
                 <span>Metode</span>
