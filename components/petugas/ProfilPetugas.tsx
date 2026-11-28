@@ -52,7 +52,7 @@ export default function ProfilPetugas({ profil, email }: Props) {
 
   return (
     <>
-      <HeaderHalaman judul="Profil" hrefKembali="/petugas" />
+      <HeaderHalaman judul="Profile" hrefKembali="/petugas" />
 
       <div className="pt-g2">
         <section className="pt-kartu">

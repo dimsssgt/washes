@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ProfilPetugas from "@/components/petugas/ProfilPetugas";
 
-export const metadata: Metadata = { title: "Profil Petugas — Laundyku" };
+export const metadata: Metadata = { title: "Profile Petugas — Laundyku" };
 
 export default async function HalamanProfilPetugas() {
   const supabase = await createClient();
