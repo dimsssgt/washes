@@ -4,8 +4,8 @@ import SidebarPetugas from "@/components/petugas/SidebarPetugas";
 import { NotifikasiProvider } from "@/components/petugas/NotifikasiProvider";
 import { PetugasProvider } from "@/components/petugas/PetugasProvider";
 import { buatKerjaTiruan } from "@/lib/petugas/alur-tiruan";
-import { pesananMasukTiruan } from "@/lib/petugas/data-tiruan";
 import { buatNotifikasiTiruan } from "@/lib/petugas/notifikasi-tiruan";
+import { ambilPesananMasuk } from "@/lib/petugas/pesanan-db";
 import { createClient } from "@/lib/supabase/server";
 import type { Bagian } from "@/lib/petugas/alur";
 import "./petugas.css";
@@ -39,11 +39,14 @@ export default async function PetugasLayout({ children }: { children: ReactNode 
     bagian: profil.bagian as Bagian,
   };
 
+  // Pesanan "masuk" dibaca langsung dari tabel pesanan di Supabase.
+  const antrian = await ambilPesananMasuk();
+
   return (
     <div className="petugas">
       <PetugasProvider
         pengguna={pengguna}
-        antrianAwal={pesananMasukTiruan}
+        antrianAwal={antrian}
         kerjaAwal={buatKerjaTiruan(sekarang)}
       >
         <NotifikasiProvider
