@@ -1,0 +1,408 @@
+/* ============================================================
+   Navigasi dan tata letak petugas
+   Urutan: dasar, tablet/HP (<=900px), HP (<=600px)
+   ============================================================ */
+
+/* ---------- Dasar: elemen khusus layar kecil disembunyikan di desktop ---------- */
+.petugas .pt-topbar,
+.petugas .pt-overlay,
+.petugas .pt-drawer-close,
+.petugas .pt-avatar {
+  display: none;
+}
+
+.petugas .pt-side .pt-menu {
+  font-family: var(--font-poppins), 'Poppins', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  color: #fff;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.petugas .pt-side .pt-menu.on {
+  background: #FFD21F;
+  color: #0B2A6B;
+}
+
+.petugas .pt-side .pt-logo {
+  font-family: 'Archivo Black', Impact, sans-serif;
+  font-size: 22px;
+  color: #FFD21F;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.petugas .pt-user {
+  font-family: var(--font-poppins), 'Poppins', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+.petugas .pt-profil-link,
+.petugas .pt-keluar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-family: var(--font-poppins), 'Poppins', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* ---------- Tablet dan HP (900px ke bawah) ---------- */
+@media (max-width: 900px) {
+  .petugas {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    min-height: 0;
+  }
+
+  .petugas .pt-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    background: #1457D6;
+    border-bottom: 2px solid #0B2A6B;
+    box-shadow: 0 3px 0 #0B2A6B;
+    padding: 12px 18px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .petugas .pt-topbar-brand {
+    font-family: 'Archivo Black', Impact, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    font-size: 20px;
+    color: #FFD21F;
+    text-decoration: none;
+    line-height: 1;
+  }
+
+  .petugas .pt-topbar-aksi {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .petugas .pt-topbar-aksi .pt-lonceng {
+    width: 38px;
+    height: 38px;
+    border: 2px solid #0B2A6B;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 2px 2px 0 #0B2A6B;
+  }
+
+  .petugas .pt-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 2px solid #0B2A6B;
+    border-radius: 50%;
+    background: #FFD21F;
+    color: #0B2A6B;
+    font-family: 'Archivo Black', Impact, sans-serif;
+    font-size: 14px;
+    text-decoration: none;
+    box-shadow: 2px 2px 0 #0B2A6B;
+    flex-shrink: 0;
+  }
+
+  .petugas .pt-hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 2px solid #0B2A6B;
+    border-radius: 12px;
+    background: #FFD21F;
+    box-shadow: 2px 2px 0 #0B2A6B;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .petugas .pt-hamburger span {
+    display: block;
+    width: 20px;
+    height: 2.5px;
+    background: #0B2A6B;
+    border-radius: 2px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .petugas .pt-hamburger.terbuka span:nth-child(1) {
+    transform: translateY(7.5px) rotate(45deg);
+  }
+  .petugas .pt-hamburger.terbuka span:nth-child(2) {
+    opacity: 0;
+  }
+  .petugas .pt-hamburger.terbuka span:nth-child(3) {
+    transform: translateY(-7.5px) rotate(-45deg);
+  }
+
+  .petugas .pt-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 65;
+    background: rgba(11, 42, 107, 0.55);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .petugas .pt-overlay.terbuka {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .petugas .pt-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    max-width: 85vw;
+    z-index: 70;
+    padding: 28px 20px;
+    box-sizing: border-box;
+    background: #1457D6;
+    color: #fff;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease-in-out;
+    box-shadow: 5px 0 25px rgba(11, 42, 107, 0.35);
+  }
+  .petugas .pt-side.terbuka {
+    transform: translateX(0);
+  }
+
+  .petugas .pt-drawer-head {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 24px 0;
+    padding: 0;
+  }
+
+  .petugas .pt-drawer-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    border: none;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .petugas .pt-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .petugas .pt-drawer-bawah {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 24px;
+    padding-bottom: 56px;
+  }
+
+  .petugas .pt-main {
+    padding: 24px 20px;
+  }
+
+  .petugas .pt-g4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .petugas .pt-g2 {
+    grid-template-columns: 1fr;
+  }
+
+  .petugas .pt-kepala > .pt-lonceng {
+    display: none;
+  }
+}
+
+/* ---------- HP (600px ke bawah) ---------- */
+@media (max-width: 600px) {
+  .petugas .pt-main {
+    padding: 20px 16px;
+    gap: 24px;
+  }
+
+  .petugas h1.pt-d {
+    font-size: 26px !important;
+  }
+
+  .petugas h2.pt-d {
+    font-size: 20px;
+  }
+
+  .petugas .pt-kartu {
+    padding: 18px;
+    box-shadow: 3px 3px 0 var(--k);
+  }
+
+  .petugas .pt-kepala-kartu {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .petugas .btn.pt-kembali {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    padding: 0;
+  }
+
+  .petugas .pt-kembali-teks {
+    display: none;
+  }
+
+  .petugas .pt-ov {
+    padding: 0;
+  }
+
+  .petugas .pt-pop {
+    min-height: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    border: 0;
+    padding: 20px 18px 28px;
+  }
+
+  .petugas .pt-dua {
+    grid-template-columns: 1fr;
+  }
+
+  .petugas .pt-aksi {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    padding: 12px 0;
+  }
+
+  .petugas .btn {
+    min-height: 44px;
+  }
+
+  .petugas .btn.s {
+    min-height: 40px;
+  }
+}
+/* ============================================================
+   Perbaikan header halaman: tombol Kembali jadi ikon,
+   judul sejajar dengan tombol, font mengikuti Pelanggan
+   ============================================================ */
+
+/* Judul dan tombol sejajar secara vertikal */
+.petugas .pt-kepala {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.petugas .pt-judul {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: nowrap;
+}
+
+/* Tombol Kembali: hanya ikon, bulat, tanpa teks */
+.petugas .btn.pt-kembali {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  border-radius: 12px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.petugas .pt-kembali-teks {
+  display: none;
+}
+
+/* Judul halaman: tidak turun ke bawah, font sama dengan Pelanggan */
+.petugas .pt-kepala h1.pt-d {
+  margin: 0;
+  font-family: 'Archivo Black', Impact, sans-serif;
+  font-size: 32px;
+  line-height: 1;
+  color: #1457D6;
+}
+
+/* Font isi mengikuti Pelanggan */
+.petugas,
+.petugas .pt-menu,
+.petugas .pt-user,
+.petugas .pt-keluar,
+.petugas .pt-profil-link,
+.petugas p,
+.petugas label,
+.petugas input,
+.petugas select,
+.petugas textarea,
+.petugas th,
+.petugas td {
+  font-family: var(--font-poppins), 'Poppins', Arial, sans-serif;
+}
+
+@media (max-width: 600px) {
+  .petugas .pt-kepala h1.pt-d {
+    font-size: 26px;
+  }
+}

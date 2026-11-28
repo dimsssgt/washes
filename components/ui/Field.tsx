@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 
 interface FieldProps {
   label: string;
@@ -6,7 +6,12 @@ interface FieldProps {
   error?: string;
   hint?: string;
   required?: boolean;
-  children: React.ReactElement<React.InputHTMLAttributes<HTMLInputElement> | React.TextareaHTMLAttributes<HTMLTextAreaElement> | React.SelectHTMLAttributes<HTMLSelectElement>>;
+  rightAction?: React.ReactNode;
+  children: React.ReactElement<
+    | React.InputHTMLAttributes<HTMLInputElement>
+    | React.TextareaHTMLAttributes<HTMLTextAreaElement>
+    | React.SelectHTMLAttributes<HTMLSelectElement>
+  >;
 }
 
 export default function Field({
@@ -15,6 +20,7 @@ export default function Field({
   error,
   hint,
   required,
+  rightAction,
   children,
 }: FieldProps) {
   // Clone child element to inject id, aria attributes, and error styling
@@ -24,6 +30,7 @@ export default function Field({
     "aria-invalid": error ? true : undefined,
     className: [
       "w-full px-[16px] py-[12px] border-2 rounded-xl",
+      rightAction ? "pr-[46px]" : "",
       "font-[var(--font-poppins), 'Poppins', Arial, sans-serif] text-[13px] bg-white box-border min-h-[44px]",
       "outline-none transition-colors duration-150",
       error
@@ -49,7 +56,16 @@ export default function Field({
         )}
       </label>
 
-      {child}
+      {rightAction ? (
+        <div className="relative w-full flex items-center">
+          {child}
+          <div className="absolute right-3 flex items-center z-10">
+            {rightAction}
+          </div>
+        </div>
+      ) : (
+        child
+      )}
 
       {error && (
         <p

@@ -1,8 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { setSessionCookie, displayNameFromIdentifier } from "./session";
 import { loginSchema, registerSchema, type LoginInput, type RegisterInput } from "./schema";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
@@ -14,21 +13,81 @@ type RegisterFieldErrors = Partial<Record<keyof RegisterInput, string>>;
 type KategoriRole = "pelanggan" | "petugas" | "admin";
 type AuthMode = "masuk" | "daftar";
 
+// Akun demo resmi yang valid dan terverifikasi di Supabase
+const DEMO_ACCOUNTS: Record<KategoriRole, { email: string; pass: string; label: string }> = {
+  pelanggan: {
+    email: "pelanggan@laundyku.id",
+    pass: "password123",
+    label: "Pelanggan",
+  },
+  petugas: {
+    email: "frontoffice@laundyku.id",
+    pass: "password123",
+    label: "Petugas (Front Office)",
+  },
+  admin: {
+    email: "admin1@laundyku.id",
+    pass: "password123",
+    label: "Admin Utama",
+  },
+};
+
+function EyeIcon() {
+  return (
+    <svg
+      width="19"
+      height="19"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg
+      width="19"
+      height="19"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+      <line x1="2" y1="2" x2="22" y2="22" />
+    </svg>
+  );
+}
+
 export default function LoginForm() {
   const router = useRouter();
   const [mode, setMode] = useState<AuthMode>("masuk");
 
-  /* ─── State Mode Masuk ─── */
+  /* ─── State Mode Masuk (Auto-fill default Pelanggan) ─── */
   const [kategori, setKategori] = useState<KategoriRole>("pelanggan");
   const [loginValues, setLoginValues] = useState<LoginInput>({
-    identifier: "",
-    password: "",
+    identifier: DEMO_ACCOUNTS.pelanggan.email,
+    password: DEMO_ACCOUNTS.pelanggan.pass,
     rememberMe: false,
   });
   const [loginErrors, setLoginErrors] = useState<LoginFieldErrors>({});
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginServerError, setLoginServerError] = useState("");
   const [showLupaPassword, setShowLupaPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   /* ─── State Mode Daftar ─── */
   const [registerValues, setRegisterValues] = useState<RegisterInput>({
@@ -43,6 +102,20 @@ export default function LoginForm() {
   const [registerLoading, setRegisterLoading] = useState(false);
   const [registerServerError, setRegisterServerError] = useState("");
   const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showRegConfirm, setShowRegConfirm] = useState(false);
+
+  /* ─── Auto-fill saat pilih Kategori Akun ─── */
+  function handleKategoriChange(k: KategoriRole) {
+    setKategori(k);
+    setLoginValues((prev) => ({
+      ...prev,
+      identifier: DEMO_ACCOUNTS[k].email,
+      password: DEMO_ACCOUNTS[k].pass,
+    }));
+    setLoginErrors({});
+    setLoginServerError("");
+  }
 
   /* ─── Handler Masuk ─── */
   function handleLoginChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -73,18 +146,21 @@ export default function LoginForm() {
 
     setLoginLoading(true);
     try {
-            const supabase = createClient(); // dari lib/supabase/client.ts
+      const supabase = createClient();
       const { error } = await supabase.auth.signInWithPassword({
         email: result.data.identifier,
         password: result.data.password,
       });
       if (error) {
-        setLoginServerError(error.message);
+        setLoginServerError("Email atau password salah.");
         return;
       }
 
-      // Peran dibaca dari database, bukan dari pilihan di form.
-      const { data: { user } } = await supabase.auth.getUser();
+      // Peran dibaca dari database, bukan dari pilihan di form
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       const { data: profil } = await supabase
         .from("profiles")
         .select("peran")
@@ -162,9 +238,9 @@ export default function LoginForm() {
     }
   }
 
-  /* ════════════════════════════════════════════════════════════
+  /* ══════════════════════════════════════════════════════════════
      TAMPILAN MODE DAFTAR (Langsung di kotak masuk, tanpa popup)
-  ════════════════════════════════════════════════════════════ */
+  ══════════════════════════════════════════════════════════════ */
   if (mode === "daftar") {
     return (
       <div>
@@ -238,24 +314,26 @@ export default function LoginForm() {
                 fontFamily: "'Archivo Black', Impact, sans-serif",
                 textTransform: "uppercase",
                 fontSize: 18,
-                marginBottom: 8,
+                margin: "0 0 6px",
               }}
             >
               Pendaftaran Berhasil!
             </h3>
-            <p style={{ fontSize: 13, margin: "0 0 16px" }}>
-              Akun dan alamat kamu telah tersimpan. Silakan masuk dengan akun barumu.
+            <p style={{ fontSize: 13, margin: "0 0 16px", lineHeight: 1.5 }}>
+              Akunmu telah berhasil dibuat. Silakan beralih ke form masuk untuk menggunakan akun barumu.
             </p>
             <Button
               type="button"
               fullWidth
               onClick={() => {
-                setLoginValues((prev) => ({
-                  ...prev,
-                  identifier: registerValues.email || registerValues.noWhatsapp,
-                }));
                 setMode("masuk");
                 setRegisterSuccess(false);
+                setKategori("pelanggan");
+                setLoginValues((prev) => ({
+                  ...prev,
+                  identifier: registerValues.email,
+                  password: "",
+                }));
               }}
             >
               Masuk Sekarang
@@ -265,7 +343,7 @@ export default function LoginForm() {
           <form onSubmit={handleRegisterSubmit} noValidate>
             <Field
               label="Nama Lengkap"
-              id="reg-nama"
+              id="namaLengkap"
               error={registerErrors.namaLengkap}
               required
             >
@@ -274,15 +352,16 @@ export default function LoginForm() {
                 name="namaLengkap"
                 value={registerValues.namaLengkap}
                 onChange={handleRegisterChange}
-                placeholder="Contoh: Budi Santoso"
+                placeholder="Contoh: Rista Az-zahra"
                 autoComplete="name"
               />
             </Field>
 
             <Field
               label="No. WhatsApp"
-              id="reg-wa"
+              id="noWhatsapp"
               error={registerErrors.noWhatsapp}
+              hint="Format: 08123456789 atau +628123456789"
               required
             >
               <input
@@ -290,14 +369,14 @@ export default function LoginForm() {
                 name="noWhatsapp"
                 value={registerValues.noWhatsapp}
                 onChange={handleRegisterChange}
-                placeholder="081234567890"
+                placeholder="08123456789"
                 autoComplete="tel"
               />
             </Field>
 
             <Field
-              label="Email"
-              id="reg-email"
+              label="Alamat Email"
+              id="email"
               error={registerErrors.email}
               required
             >
@@ -311,20 +390,19 @@ export default function LoginForm() {
               />
             </Field>
 
-            {/* Tambah Alamat */}
             <Field
-              label="Tambah Alamat (Antar / Jemput)"
-              id="reg-alamat"
+              label="Alamat Rumah / Jemput"
+              id="alamat"
               error={registerErrors.alamat}
-              hint="Alamat lengkap beserta patokan rumah"
+              hint="Masukkan alamat utama untuk penjemputan cucian"
               required
             >
               <textarea
                 name="alamat"
-                rows={3}
                 value={registerValues.alamat}
                 onChange={handleRegisterChange}
                 placeholder="Jl. Mawar No. 12, RT 01/RW 02, Sukolilo, Surabaya"
+                rows={2}
                 style={{
                   width: "100%",
                   padding: "12px 16px",
@@ -333,7 +411,6 @@ export default function LoginForm() {
                   fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
                   fontSize: 13,
                   boxSizing: "border-box",
-                  resize: "vertical",
                 }}
               />
             </Field>
@@ -342,11 +419,31 @@ export default function LoginForm() {
               label="Password"
               id="reg-password"
               error={registerErrors.password}
-              hint="Minimal 8 karakter"
+              hint="Minimal 8 karakter kombinasi huruf & angka"
               required
+              rightAction={
+                <button
+                  type="button"
+                  onClick={() => setShowRegPassword((v) => !v)}
+                  aria-label={showRegPassword ? "Sembunyikan password" : "Lihat password"}
+                  title={showRegPassword ? "Sembunyikan password" : "Lihat password"}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: "4px",
+                    cursor: "pointer",
+                    color: "#0B2A6B",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {showRegPassword ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              }
             >
               <input
-                type="password"
+                type={showRegPassword ? "text" : "password"}
                 name="password"
                 value={registerValues.password}
                 onChange={handleRegisterChange}
@@ -356,13 +453,33 @@ export default function LoginForm() {
             </Field>
 
             <Field
-              label="Konfirmasi Password"
-              id="reg-konfirmasi"
+              label="Ulangi Password"
+              id="konfirmasiPassword"
               error={registerErrors.konfirmasiPassword}
               required
+              rightAction={
+                <button
+                  type="button"
+                  onClick={() => setShowRegConfirm((v) => !v)}
+                  aria-label={showRegConfirm ? "Sembunyikan password" : "Lihat password"}
+                  title={showRegConfirm ? "Sembunyikan password" : "Lihat password"}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: "4px",
+                    cursor: "pointer",
+                    color: "#0B2A6B",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {showRegConfirm ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              }
             >
               <input
-                type="password"
+                type={showRegConfirm ? "text" : "password"}
                 name="konfirmasiPassword"
                 value={registerValues.konfirmasiPassword}
                 onChange={handleRegisterChange}
@@ -375,7 +492,7 @@ export default function LoginForm() {
               <p
                 role="alert"
                 style={{
-                  margin: "12px 0 16px",
+                  margin: "16px 0 0",
                   padding: "10px 14px",
                   borderRadius: 12,
                   background: "rgba(212,42,37,0.1)",
@@ -390,53 +507,57 @@ export default function LoginForm() {
               </p>
             )}
 
-            <div style={{ marginTop: 20 }}>
+            <div style={{ marginTop: 24 }}>
               <Button type="submit" fullWidth loading={registerLoading}>
-                Daftar Akun Pelanggan
+                Daftar Akun Baru
               </Button>
             </div>
-
-            <p
-              style={{
-                textAlign: "center",
-                margin: "18px 0 0",
-                fontSize: 13,
-                fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
-              }}
-            >
-              Sudah punya akun?{" "}
-              <button
-                type="button"
-                onClick={() => setMode("masuk")}
-                style={{
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  cursor: "pointer",
-                  color: "#1457D6",
-                  fontWeight: 700,
-                  textDecoration: "underline",
-                  fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
-                  fontSize: 13,
-                }}
-              >
-                Masuk
-              </button>
-            </p>
           </form>
         )}
+
+        {/* Link kembali ke Masuk */}
+        <p
+          style={{
+            textAlign: "center",
+            margin: "20px 0 0",
+            fontSize: 13,
+            fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+          }}
+        >
+          Sudah punya akun?{" "}
+          <button
+            type="button"
+            onClick={() => {
+              setMode("masuk");
+              setRegisterSuccess(false);
+            }}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+              color: "#1457D6",
+              fontWeight: 700,
+              textDecoration: "underline",
+              fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+              fontSize: 13,
+            }}
+          >
+            Masuk
+          </button>
+        </p>
       </div>
     );
   }
 
-  /* ════════════════════════════════════════════════════════════
-     TAMPILAN MODE MASUK
-  ════════════════════════════════════════════════════════════ */
+  /* ══════════════════════════════════════════════════════════════
+     TAMPILAN MODE MASUK (DENGAN AUTO-FILL & SHOW/HIDE PASSWORD)
+  ══════════════════════════════════════════════════════════════ */
   return (
     <>
       <h2
         style={{
-          fontSize: 32,
+          fontSize: 28,
           color: "#1457D6",
           marginBottom: 8,
           fontFamily: "'Archivo Black', Impact, sans-serif",
@@ -452,13 +573,14 @@ export default function LoginForm() {
           margin: "0 0 20px",
           fontSize: 13,
           fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+          color: "#4A5A80",
         }}
       >
-        Isi akunmu untuk masuk.
+        Pilih kategori akun untuk masuk atau gunakan akun terdaftar.
       </p>
 
       <form onSubmit={handleLoginSubmit} noValidate>
-        {/* Pilihan Kategori Pengguna */}
+        {/* Pilihan Kategori Pengguna dengan Auto-fill Otomatis */}
         <div style={{ marginBottom: 16 }}>
           <label
             style={{
@@ -478,9 +600,9 @@ export default function LoginForm() {
               <button
                 key={k}
                 type="button"
-                onClick={() => setKategori(k)}
+                onClick={() => handleKategoriChange(k)}
                 style={{
-                  padding: "8px 10px",
+                  padding: "9px 8px",
                   border: "2px solid #0B2A6B",
                   borderRadius: 12,
                   fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
@@ -490,12 +612,57 @@ export default function LoginForm() {
                   cursor: "pointer",
                   background: kategori === k ? "#1457D6" : "#fff",
                   color: kategori === k ? "#fff" : "#0B2A6B",
-                  transition: "background 0.15s, color 0.15s",
+                  boxShadow: kategori === k ? "2px 2px 0 #0B2A6B" : "none",
+                  transition: "all 0.15s ease",
                 }}
               >
                 {k}
               </button>
             ))}
+          </div>
+
+          {/* Kotak Pemberitahuan Auto-fill */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              background: "#FFF4DE",
+              border: "1.5px dashed #0B2A6B",
+              borderRadius: 10,
+              padding: "7px 12px",
+              marginTop: 10,
+              fontSize: 12,
+              color: "#0B2A6B",
+              fontFamily: "var(--font-poppins), 'Poppins', Arial, sans-serif",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span>✨</span>
+              <span>
+                Auto-fill aktif: <strong>{DEMO_ACCOUNTS[kategori].label}</strong>
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setLoginValues((prev) => ({ ...prev, identifier: "", password: "" }));
+                setLoginErrors({});
+                setLoginServerError("");
+              }}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#1457D6",
+                fontWeight: 700,
+                fontSize: 11,
+                cursor: "pointer",
+                textDecoration: "underline",
+                padding: "2px 4px",
+              }}
+            >
+              Kosongkan
+            </button>
           </div>
         </div>
 
@@ -516,18 +683,45 @@ export default function LoginForm() {
             onChange={handleLoginChange}
             placeholder={
               kategori === "admin"
-                ? "admin@laundyku.com"
+                ? "admin1@laundyku.id"
                 : kategori === "petugas"
-                ? "petugas@laundyku.com"
-                : "nama@email.com"
+                ? "frontoffice@laundyku.id"
+                : "pelanggan@laundyku.id"
             }
             autoComplete="username"
           />
         </Field>
 
-        <Field label="Password" id="password" error={loginErrors.password} required>
+        <Field
+          label="Password"
+          id="password"
+          error={loginErrors.password}
+          required
+          rightAction={
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
+              title={showPassword ? "Sembunyikan password" : "Lihat password"}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "4px",
+                cursor: "pointer",
+                color: "#0B2A6B",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 6,
+                transition: "opacity 0.15s",
+              }}
+            >
+              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+            </button>
+          }
+        >
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
             value={loginValues.password}
             onChange={handleLoginChange}
